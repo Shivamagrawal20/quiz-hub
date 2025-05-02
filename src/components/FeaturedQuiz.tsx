@@ -22,12 +22,12 @@ const FeaturedQuiz = () => {
       difficulty: "medium" as const,
     },
     {
-      id: "3",
-      title: "Computer Science",
-      description: "Challenge yourself with programming concepts and computer technologies.",
-      questionCount: 25,
-      category: "Technology",
-      difficulty: "hard" as const,
+      id: "nptel1",
+      title: "Introduction to Environmental Engineering and Science",
+      description: "Learn about fundamental and sustainability concepts in environmental engineering.",
+      questionCount: 30,
+      category: "NPTEL",
+      difficulty: "medium" as const,
     },
   ];
 
