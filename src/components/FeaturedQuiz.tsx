@@ -25,7 +25,7 @@ const FeaturedQuiz = () => {
           </p>
         </div>
         <Button asChild variant="outline">
-          <Link to="/quiz-section">View All Quizzes</Link>
+          <Link to="/quizzes">View All Quizzes</Link>
         </Button>
       </div>
 

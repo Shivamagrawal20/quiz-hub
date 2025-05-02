@@ -26,7 +26,7 @@ const Navbar = () => {
           <Link to="/" className="font-medium hover:text-primary transition-colors">
             Home
           </Link>
-          <Link to="/quiz-section" className="font-medium hover:text-primary transition-colors">
+          <Link to="/quizzes" className="font-medium hover:text-primary transition-colors">
             Quizzes
           </Link>
           <Link to="#" className="font-medium hover:text-primary transition-colors">
@@ -62,7 +62,7 @@ const Navbar = () => {
               Home
             </Link>
             <Link
-              to="/quiz-section"
+              to="/quizzes"
               className="px-4 py-2 hover:bg-muted rounded-md transition-colors"
               onClick={toggleMenu}
             >
