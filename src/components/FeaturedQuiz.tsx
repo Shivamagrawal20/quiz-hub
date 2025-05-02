@@ -6,22 +6,6 @@ import QuizCard from "./QuizCard";
 const FeaturedQuiz = () => {
   const featuredQuizzes = [
     {
-      id: "1",
-      title: "Mathematics Basics",
-      description: "Test your knowledge of essential math concepts and operations.",
-      questionCount: 15,
-      category: "Mathematics",
-      difficulty: "easy" as const,
-    },
-    {
-      id: "2",
-      title: "World Geography",
-      description: "Explore countries, capitals, and geographical features around the globe.",
-      questionCount: 20,
-      category: "Geography",
-      difficulty: "medium" as const,
-    },
-    {
       id: "nptel1",
       title: "Introduction to Environmental Engineering and Science",
       description: "Learn about fundamental and sustainability concepts in environmental engineering.",
