@@ -10,8 +10,8 @@ import { Search } from "lucide-react";
 
 const Quizzes = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [difficultyFilter, setDifficultyFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [difficultyFilter, setDifficultyFilter] = useState("all");
   
   const allQuizzes = [
     {
@@ -87,8 +87,8 @@ const Quizzes = () => {
   const filteredQuizzes = allQuizzes.filter(quiz => {
     const matchesSearch = quiz.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           quiz.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = categoryFilter === "" || quiz.category === categoryFilter;
-    const matchesDifficulty = difficultyFilter === "" || quiz.difficulty === difficultyFilter;
+    const matchesCategory = categoryFilter === "all" || quiz.category === categoryFilter;
+    const matchesDifficulty = difficultyFilter === "all" || quiz.difficulty === difficultyFilter;
     
     return matchesSearch && matchesCategory && matchesDifficulty;
   });
@@ -122,7 +122,7 @@ const Quizzes = () => {
                       <SelectValue placeholder="Category" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Categories</SelectItem>
+                      <SelectItem value="all">All Categories</SelectItem>
                       {categories.map(category => (
                         <SelectItem key={category} value={category}>{category}</SelectItem>
                       ))}
@@ -134,7 +134,7 @@ const Quizzes = () => {
                       <SelectValue placeholder="Difficulty" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Difficulties</SelectItem>
+                      <SelectItem value="all">All Difficulties</SelectItem>
                       <SelectItem value="easy">Easy</SelectItem>
                       <SelectItem value="medium">Medium</SelectItem>
                       <SelectItem value="hard">Hard</SelectItem>
@@ -145,8 +145,8 @@ const Quizzes = () => {
                     variant="outline" 
                     onClick={() => {
                       setSearchQuery("");
-                      setCategoryFilter("");
-                      setDifficultyFilter("");
+                      setCategoryFilter("all");
+                      setDifficultyFilter("all");
                     }}
                   >
                     Reset
