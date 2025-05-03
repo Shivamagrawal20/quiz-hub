@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { Menu, LogIn, UserPlus } from "lucide-react";
 import { useState } from "react";
 
 const Navbar = () => {
@@ -35,7 +35,18 @@ const Navbar = () => {
           <Link to="#" className="font-medium hover:text-primary transition-colors">
             Contact
           </Link>
-          <Button size="sm">Sign In</Button>
+          <Link to="/signin">
+            <Button size="sm" variant="ghost" className="flex items-center gap-1">
+              <LogIn className="h-4 w-4" />
+              Sign In
+            </Button>
+          </Link>
+          <Link to="/signup">
+            <Button size="sm" className="flex items-center gap-1">
+              <UserPlus className="h-4 w-4" />
+              Sign Up
+            </Button>
+          </Link>
         </div>
 
         {/* Mobile Menu Button */}
@@ -82,7 +93,20 @@ const Navbar = () => {
             >
               Contact
             </Link>
-            <Button className="w-full">Sign In</Button>
+            <Link
+              to="/signin"
+              className="px-4 py-2 hover:bg-muted rounded-md transition-colors flex items-center gap-2"
+              onClick={toggleMenu}
+            >
+              <LogIn className="h-4 w-4" />
+              Sign In
+            </Link>
+            <Link to="/signup" onClick={toggleMenu}>
+              <Button className="w-full flex items-center gap-2">
+                <UserPlus className="h-4 w-4" />
+                Sign Up
+              </Button>
+            </Link>
           </div>
         </div>
       )}
