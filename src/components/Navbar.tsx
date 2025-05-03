@@ -29,10 +29,10 @@ const Navbar = () => {
           <Link to="/quizzes" className="font-medium hover:text-primary transition-colors">
             Quizzes
           </Link>
-          <Link to="#" className="font-medium hover:text-primary transition-colors">
+          <Link to="/about" className="font-medium hover:text-primary transition-colors">
             About
           </Link>
-          <Link to="#" className="font-medium hover:text-primary transition-colors">
+          <Link to="/contact" className="font-medium hover:text-primary transition-colors">
             Contact
           </Link>
           <Link to="/signin">
@@ -80,14 +80,14 @@ const Navbar = () => {
               Quizzes
             </Link>
             <Link
-              to="#"
+              to="/about"
               className="px-4 py-2 hover:bg-muted rounded-md transition-colors"
               onClick={toggleMenu}
             >
               About
             </Link>
             <Link
-              to="#"
+              to="/contact"
               className="px-4 py-2 hover:bg-muted rounded-md transition-colors"
               onClick={toggleMenu}
             >
@@ -102,7 +102,7 @@ const Navbar = () => {
               Sign In
             </Link>
             <Link to="/signup" onClick={toggleMenu}>
-              <Button className="w-full flex items-center gap-2">
+              <Button className="w-full flex items-center gap-1">
                 <UserPlus className="h-4 w-4" />
                 Sign Up
               </Button>

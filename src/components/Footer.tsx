@@ -48,10 +48,10 @@ const Footer = () => {
                 <Link to="/quiz-section" className="text-muted-foreground hover:text-primary transition-colors">All Quizzes</Link>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">About Us</a>
+                <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">About Us</Link>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">Contact</a>
+                <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors">Contact</Link>
               </li>
             </ul>
           </div>
@@ -83,8 +83,8 @@ const Footer = () => {
             &copy; {new Date().getFullYear()} QuizHub. All rights reserved.
           </p>
           <div className="flex gap-4 text-sm">
-            <a href="#" className="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</a>
-            <a href="#" className="text-muted-foreground hover:text-primary transition-colors">Terms of Service</a>
+            <Link to="/privacy-policy" className="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link>
+            <Link to="/terms-of-service" className="text-muted-foreground hover:text-primary transition-colors">Terms of Service</Link>
           </div>
         </div>
       </div>
