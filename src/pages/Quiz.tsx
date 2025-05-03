@@ -143,13 +143,18 @@ const Quiz = () => {
 
     // Prevent keyboard shortcuts
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Block Escape key to prevent exiting fullscreen
+      if (e.key === "Escape" || e.key === "Esc") {
+        e.preventDefault();
+        warnUser("Exiting fullscreen mode is not allowed during the quiz.");
+      }
+      
       // Extended key prevention for Mac and Windows
       if (
         e.ctrlKey || e.metaKey || e.altKey || // Block Command, Alt/Option, Ctrl keys
         e.key === "F12" || 
         e.key === "PrintScreen" || 
         e.key === "Tab" ||
-        e.key === "Escape" ||
         e.key === "F11" ||
         e.key === "F5" ||
         (e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C"))
@@ -181,15 +186,27 @@ const Quiz = () => {
       enterFullscreen();
     }
 
+    // Custom handler for fullscreen change event
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && !quizCompleted) {
+        // If user somehow exited fullscreen and quiz is not completed, attempt to re-enter
+        enterFullscreen();
+        warnUser("Exiting fullscreen is not allowed during the quiz.");
+      }
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    
     // Cleanup event listeners
     return () => {
       document.removeEventListener("contextmenu", handleRightClick);
       document.removeEventListener("copy", handleCopy);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
       
       // Exit fullscreen when leaving the quiz
-      if (document.fullscreenElement) {
+      if (document.fullscreenElement && quizCompleted) {
         document.exitFullscreen().catch(err => console.error(err));
       }
     };
@@ -240,6 +257,14 @@ const Quiz = () => {
       setQuizCompleted(true);
     }
   };
+  
+  // Handle previous question
+  const handlePreviousQuestion = () => {
+    if (currentQuestion > 0) {
+      setCurrentQuestion(currentQuestion - 1);
+      setSelectedAnswer(null);
+    }
+  };
 
   // Handle quiz exit
   const handleExitQuiz = () => {
@@ -255,6 +280,7 @@ const Quiz = () => {
   }
 
   const questionsRemaining = quiz.questions.length - (currentQuestion + 1);
+  const progressPercentage = ((currentQuestion + 1) / quiz.questions.length) * 100;
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col">
@@ -278,7 +304,7 @@ const Quiz = () => {
         </div>
       </div>
 
-      <div className="flex-grow container mx-auto p-4 md:p-8 flex flex-col items-center justify-center max-w-4xl">
+      <div className="flex-grow container mx-auto p-4 md:p-8 flex flex-col items-center justify-center max-w-5xl">
         {!quizCompleted ? (
           <div className="w-full bg-white rounded-lg shadow-lg p-6 md:p-8">
             <div className="flex justify-between items-center mb-6">
@@ -293,10 +319,15 @@ const Quiz = () => {
               </div>
             </div>
             
-            <Progress 
-              value={((currentQuestion + 1) / quiz.questions.length) * 100} 
-              className="mb-6 h-2"
-            />
+            <div className="mb-6">
+              <Progress 
+                value={progressPercentage}
+                className="h-3 rounded-full"
+              />
+              <div className="text-right text-sm text-muted-foreground mt-1">
+                {progressPercentage.toFixed(0)}%
+              </div>
+            </div>
             
             <h2 className="text-xl md:text-2xl font-semibold mb-6">
               {quiz.questions[currentQuestion].question}
@@ -335,13 +366,24 @@ const Quiz = () => {
                 </div>
               </div>
               
-              <Button 
-                onClick={handleNextQuestion}
-                disabled={selectedAnswer === null}
-                className="transition-all transform hover:scale-105"
-              >
-                {currentQuestion < quiz.questions.length - 1 ? 'Next Question' : 'Finish Quiz'}
-              </Button>
+              <div className="flex gap-3">
+                {currentQuestion > 0 && (
+                  <Button 
+                    variant="outline"
+                    onClick={handlePreviousQuestion}
+                  >
+                    Previous
+                  </Button>
+                )}
+                
+                <Button 
+                  onClick={handleNextQuestion}
+                  disabled={selectedAnswer === null}
+                  className="transition-all transform hover:scale-105"
+                >
+                  {currentQuestion < quiz.questions.length - 1 ? 'Next Question' : 'Finish Quiz'}
+                </Button>
+              </div>
             </div>
           </div>
         ) : (
@@ -351,9 +393,18 @@ const Quiz = () => {
               Your score: <span className="font-bold text-primary">{score}</span> out of {quiz.questions.length}
             </p>
             
+            <div className="max-w-md mx-auto bg-blue-50 rounded-lg p-8 mb-8">
+              <div className="text-5xl font-bold text-blue-600 mb-2">
+                {((score / quiz.questions.length) * 100).toFixed(1)}%
+              </div>
+              <p className="text-sm text-blue-600">
+                You got {score} {score === 1 ? 'answer' : 'answers'} correct
+              </p>
+            </div>
+            
             <Progress 
               value={(score / quiz.questions.length) * 100}
-              className="h-4 mb-8"
+              className="h-4 mb-8 max-w-md mx-auto"
             />
             
             <div className="flex flex-col md:flex-row justify-center gap-4">

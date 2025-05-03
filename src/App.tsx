@@ -16,6 +16,7 @@ import AboutUs from "./pages/AboutUs";
 import Contact from "./pages/Contact";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import Dashboard from "./pages/Dashboard";
 import { useScrollToTop } from "./hooks/useScrollToTop";
 
 const queryClient = new QueryClient();
@@ -35,7 +36,8 @@ const AppRoutes = () => {
         <Route path="/index" element={<Index />} />
         <Route path="/quiz-section" element={<QuizSection />} />
         <Route path="/quizzes" element={<Quizzes />} />
-        <Route path="/quiz/:id" element={<Quiz />} /> {/* Added new route for taking quizzes */}
+        <Route path="/quiz/:id" element={<Quiz />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/about" element={<AboutUs />} />
