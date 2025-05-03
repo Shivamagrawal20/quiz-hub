@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import Index from "./pages/Index";
 import QuizSection from "./pages/QuizSection";
 import Quizzes from "./pages/Quizzes";
+import Quiz from "./pages/Quiz";
 import NotFound from "./pages/NotFound";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
@@ -34,6 +35,7 @@ const AppRoutes = () => {
         <Route path="/index" element={<Index />} />
         <Route path="/quiz-section" element={<QuizSection />} />
         <Route path="/quizzes" element={<Quizzes />} />
+        <Route path="/quiz/:id" element={<Quiz />} /> {/* Added new route for taking quizzes */}
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/about" element={<AboutUs />} />

@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ListCheck } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface QuizCardProps {
   id: string;
@@ -42,7 +43,9 @@ const QuizCard = ({ id, title, description, questionCount, category, difficulty 
         </Badge>
       </CardContent>
       <CardFooter className="border-t pt-4">
-        <Button className="w-full">Take Quiz</Button>
+        <Button className="w-full" asChild>
+          <Link to={`/quiz/${id}`}>Take Quiz</Link>
+        </Button>
       </CardFooter>
     </Card>
   );
