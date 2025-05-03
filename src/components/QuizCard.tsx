@@ -2,8 +2,9 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ListCheck } from "lucide-react";
+import { ListCheck, LoaderCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 interface QuizCardProps {
   id: string;
@@ -21,6 +22,12 @@ const difficultyColors = {
 };
 
 const QuizCard = ({ id, title, description, questionCount, category, difficulty }: QuizCardProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const handleStartQuiz = () => {
+    setIsLoading(true);
+  };
+  
   return (
     <Card className="quiz-card-hover overflow-hidden h-full flex flex-col">
       <div className={`h-2 w-full ${difficulty === "easy" ? "bg-green-400" : difficulty === "medium" ? "bg-yellow-400" : "bg-red-400"}`} />
@@ -43,8 +50,22 @@ const QuizCard = ({ id, title, description, questionCount, category, difficulty 
         </Badge>
       </CardContent>
       <CardFooter className="border-t pt-4">
-        <Button className="w-full" asChild>
-          <Link to={`/quiz/${id}`}>Take Quiz</Link>
+        <Button 
+          className="w-full relative" 
+          asChild
+          onClick={handleStartQuiz}
+          disabled={isLoading}
+        >
+          <Link to={`/quiz/${id}`}>
+            {isLoading ? (
+              <span className="flex items-center gap-2">
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+                Loading Quiz...
+              </span>
+            ) : (
+              "Take Quiz"
+            )}
+          </Link>
         </Button>
       </CardFooter>
     </Card>

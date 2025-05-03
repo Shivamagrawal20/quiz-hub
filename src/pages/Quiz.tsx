@@ -2,9 +2,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Eye, Lock } from "lucide-react";
+import { ArrowLeft, Eye, Lock, LoaderCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Mock quiz data - in a real application, this would come from an API
 const quizData = {
@@ -92,13 +94,23 @@ const Quiz = () => {
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [securityViolations, setSecurityViolations] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Get quiz data based on ID
   const quiz = id ? quizData[id as keyof typeof quizData] : null;
   
+  // Simulate loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
   // If no quiz found, navigate back to quizzes page
   useEffect(() => {
-    if (!quiz) {
+    if (!isLoading && !quiz) {
       navigate("/quizzes");
       toast({
         title: "Quiz not found",
@@ -106,7 +118,7 @@ const Quiz = () => {
         variant: "destructive",
       });
     }
-  }, [quiz, navigate, toast]);
+  }, [quiz, navigate, toast, isLoading]);
 
   // Anti-cheating measures
   useEffect(() => {
@@ -131,15 +143,19 @@ const Quiz = () => {
 
     // Prevent keyboard shortcuts
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Prevent Ctrl+C, Ctrl+P, F12, Alt+Tab
+      // Extended key prevention for Mac and Windows
       if (
-        (e.ctrlKey && (e.key === "c" || e.key === "p")) || 
+        e.ctrlKey || e.metaKey || e.altKey || // Block Command, Alt/Option, Ctrl keys
         e.key === "F12" || 
         e.key === "PrintScreen" || 
-        (e.altKey && e.key === "Tab")
+        e.key === "Tab" ||
+        e.key === "Escape" ||
+        e.key === "F11" ||
+        e.key === "F5" ||
+        (e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C"))
       ) {
         e.preventDefault();
-        warnUser("Keyboard shortcuts are disabled during the quiz.");
+        warnUser("This keyboard combination is disabled during the quiz.");
       }
     };
 
@@ -160,7 +176,10 @@ const Quiz = () => {
       }
     };
     
-    enterFullscreen();
+    // Only enter fullscreen if quiz is loaded and not completed
+    if (!isLoading && !quizCompleted) {
+      enterFullscreen();
+    }
 
     // Cleanup event listeners
     return () => {
@@ -174,7 +193,7 @@ const Quiz = () => {
         document.exitFullscreen().catch(err => console.error(err));
       }
     };
-  }, []);
+  }, [isLoading, quizCompleted]);
   
   // Security violation warning
   const warnUser = (message: string) => {
@@ -227,9 +246,15 @@ const Quiz = () => {
     navigate("/quizzes");
   };
 
+  if (isLoading) {
+    return <QuizLoadingState />;
+  }
+
   if (!quiz) {
     return null;
   }
+
+  const questionsRemaining = quiz.questions.length - (currentQuestion + 1);
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col">
@@ -261,17 +286,17 @@ const Quiz = () => {
                 Question {currentQuestion + 1} of {quiz.questions.length}
               </span>
               
-              <div className="flex items-center">
-                <div className="h-2 w-20 bg-gray-200 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-primary rounded-full" 
-                    style={{ 
-                      width: `${((currentQuestion + 1) / quiz.questions.length) * 100}%` 
-                    }}
-                  ></div>
-                </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-primary">
+                  {questionsRemaining} {questionsRemaining === 1 ? 'question' : 'questions'} remaining
+                </span>
               </div>
             </div>
+            
+            <Progress 
+              value={((currentQuestion + 1) / quiz.questions.length) * 100} 
+              className="mb-6 h-2"
+            />
             
             <h2 className="text-xl md:text-2xl font-semibold mb-6">
               {quiz.questions[currentQuestion].question}
@@ -282,14 +307,14 @@ const Quiz = () => {
                 <div 
                   key={index}
                   onClick={() => handleAnswerSelect(index)}
-                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                  className={`p-4 border rounded-lg cursor-pointer transition-all transform ${
                     selectedAnswer === index 
-                      ? 'bg-primary/10 border-primary' 
-                      : 'hover:bg-gray-50'
+                      ? 'bg-primary/10 border-primary scale-[1.02]' 
+                      : 'hover:bg-gray-50 hover:border-gray-300'
                   }`}
                 >
                   <div className="flex items-start">
-                    <div className={`h-6 w-6 rounded-full flex items-center justify-center mr-3 ${
+                    <div className={`h-6 w-6 rounded-full flex items-center justify-center mr-3 transition-colors ${
                       selectedAnswer === index 
                         ? 'bg-primary text-white' 
                         : 'bg-gray-200'
@@ -302,10 +327,18 @@ const Quiz = () => {
               ))}
             </div>
             
-            <div className="mt-8 flex justify-end">
+            <div className="mt-8 flex justify-between items-center">
+              <div className="text-sm text-muted-foreground animate-pulse">
+                <div className="flex items-center gap-1">
+                  <Eye size={14} />
+                  <span>Secure Quiz Mode Active</span>
+                </div>
+              </div>
+              
               <Button 
                 onClick={handleNextQuestion}
                 disabled={selectedAnswer === null}
+                className="transition-all transform hover:scale-105"
               >
                 {currentQuestion < quiz.questions.length - 1 ? 'Next Question' : 'Finish Quiz'}
               </Button>
@@ -318,14 +351,10 @@ const Quiz = () => {
               Your score: <span className="font-bold text-primary">{score}</span> out of {quiz.questions.length}
             </p>
             
-            <div className="h-4 w-full bg-gray-200 rounded-full overflow-hidden mb-8">
-              <div 
-                className="h-full bg-primary rounded-full" 
-                style={{ 
-                  width: `${(score / quiz.questions.length) * 100}%` 
-                }}
-              ></div>
-            </div>
+            <Progress 
+              value={(score / quiz.questions.length) * 100}
+              className="h-4 mb-8"
+            />
             
             <div className="flex flex-col md:flex-row justify-center gap-4">
               <Button onClick={handleExitQuiz} variant="outline">
@@ -339,6 +368,49 @@ const Quiz = () => {
       {/* Security footer */}
       <div className="bg-slate-800 text-slate-200 p-2 text-xs text-center">
         <p>Secure Quiz Mode • Anti-Cheating Protection Enabled • {3 - securityViolations} Warnings Remaining</p>
+      </div>
+    </div>
+  );
+};
+
+// Loading state component for the quiz
+const QuizLoadingState = () => {
+  return (
+    <div className="min-h-screen bg-slate-100 flex flex-col">
+      <div className="bg-primary text-white p-4 flex items-center justify-between">
+        <Skeleton className="h-9 w-24 bg-primary-foreground/20" />
+        <Skeleton className="h-6 w-48 bg-primary-foreground/20" />
+        <Skeleton className="h-9 w-24 bg-primary-foreground/20" />
+      </div>
+
+      <div className="flex-grow container mx-auto p-4 md:p-8 flex flex-col items-center justify-center max-w-4xl">
+        <div className="w-full bg-white rounded-lg shadow-lg p-6 md:p-8">
+          <div className="flex justify-between items-center mb-6">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-5 w-24" />
+          </div>
+          
+          <Skeleton className="h-2 w-full mb-6" />
+          
+          <Skeleton className="h-10 w-full mb-6" />
+          
+          <div className="space-y-3">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="h-16 w-full" />
+            ))}
+          </div>
+          
+          <div className="mt-8 flex justify-end">
+            <div className="flex items-center justify-center gap-2">
+              <LoaderCircle className="animate-spin h-5 w-5" />
+              <span>Loading quiz...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="bg-slate-800 text-slate-200 p-2 text-xs text-center">
+        <p>Loading secure quiz environment...</p>
       </div>
     </div>
   );
