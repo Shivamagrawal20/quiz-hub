@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
@@ -39,7 +38,12 @@ import {
   SidebarFooter,
   SidebarInset,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
+import { PerformanceDashboard } from "@/components/dashboard/PerformanceDashboard";
+import { UserSettings } from "@/components/dashboard/UserSettings";
+import { HelpCenter } from "@/components/dashboard/HelpCenter";
+import { UpcomingQuizzes } from "@/components/dashboard/UpcomingQuizzes";
 
 // Mock user data
 const userData = {
@@ -80,15 +84,14 @@ const quizAttempts = [
   },
 ];
 
-// Mock upcoming quizzes
-const upcomingQuizzes = [
-  { id: "nptel1", title: "Environmental Engineering", date: "2025-05-10", duration: "60 min" },
-  { id: "4", title: "Gastroenterology", date: "2025-05-15", duration: "45 min" },
-];
+// Dashboard views
+type DashboardView = "home" | "performance" | "settings" | "help";
 
 const DashboardContent = () => {
   const navigate = useNavigate();
+  const { isMobile } = useSidebar();
   const [activeQuizTab, setActiveQuizTab] = useState<"completed" | "upcoming">("completed");
+  const [activeView, setActiveView] = useState<DashboardView>("home");
   
   const handleQuizStart = (id: string) => {
     navigate(`/quiz/${id}`);
@@ -96,155 +99,198 @@ const DashboardContent = () => {
   
   const progressPercentage = (userData.completedQuizzes / userData.totalQuizzes) * 100;
 
+  // Render different views based on active view
+  const renderActiveView = () => {
+    switch (activeView) {
+      case "performance":
+        return <PerformanceDashboard />;
+      case "settings":
+        return <UserSettings />;
+      case "help":
+        return <HelpCenter />;
+      default:
+        return (
+          <>
+            {/* Overview Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium">Progress</h3>
+                  <BookOpen className="h-5 w-5 text-primary" />
+                </div>
+                <p className="text-3xl font-bold mt-2">{userData.completedQuizzes} / {userData.totalQuizzes}</p>
+                <p className="text-sm text-muted-foreground mb-3">Quizzes completed</p>
+                <Progress value={progressPercentage} className="h-2" />
+              </div>
+              
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium">Average Score</h3>
+                  <BarChart3 className="h-5 w-5 text-primary" />
+                </div>
+                <p className="text-3xl font-bold mt-2 truncate">
+                  {Math.round(quizAttempts.reduce((acc, quiz) => acc + quiz.score, 0) / quizAttempts.length)}%
+                </p>
+                <p className="text-sm text-muted-foreground">Across all quizzes</p>
+              </div>
+              
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium">Next Quiz</h3>
+                  <Clock className="h-5 w-5 text-primary" />
+                </div>
+                <p className="text-2xl font-bold mt-2 truncate">{userData.upcomingQuiz || "No upcoming quizzes"}</p>
+                <p className="text-sm text-muted-foreground">
+                  Ready to attempt
+                </p>
+              </div>
+            </div>
+            
+            {/* Two column layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+              <div className="lg:col-span-2">
+                {/* Quiz History Section */}
+                <div className="bg-white rounded-lg shadow-sm mb-8">
+                  <div className="border-b">
+                    <div className="flex">
+                      <button 
+                        onClick={() => setActiveQuizTab("completed")}
+                        className={`px-6 py-4 text-sm font-medium ${
+                          activeQuizTab === "completed" 
+                            ? "border-b-2 border-primary text-primary" 
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        Completed Quizzes
+                      </button>
+                      <button 
+                        onClick={() => setActiveQuizTab("upcoming")}
+                        className={`px-6 py-4 text-sm font-medium ${
+                          activeQuizTab === "upcoming" 
+                            ? "border-b-2 border-primary text-primary" 
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        Upcoming Quizzes
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {activeQuizTab === "completed" ? (
+                    <div className="p-6">
+                      <h2 className="text-xl font-bold mb-4">Quiz History</h2>
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Quiz Name</TableHead>
+                              <TableHead>Date</TableHead>
+                              <TableHead>Score</TableHead>
+                              <TableHead>Status</TableHead>
+                              <TableHead className="text-right">Action</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {quizAttempts.map((quiz) => (
+                              <TableRow key={quiz.id}>
+                                <TableCell className="font-medium">{quiz.title}</TableCell>
+                                <TableCell>{new Date(quiz.date).toLocaleDateString()}</TableCell>
+                                <TableCell>
+                                  <div className="flex flex-col">
+                                    <span className="font-semibold">{quiz.score}%</span>
+                                    <span className="text-xs text-muted-foreground">
+                                      {quiz.correctAnswers}/{quiz.totalQuestions} correct
+                                    </span>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant="outline" className="bg-green-100 text-green-800">
+                                    <CheckCircle2 className="mr-1 h-3 w-3" /> Completed
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  <Button variant="ghost" size="sm" onClick={() => handleQuizStart(quiz.id)}>
+                                    Retake
+                                    <ChevronRight className="ml-1 h-4 w-4" />
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-6">
+                      <h2 className="text-xl font-bold mb-4">Upcoming Quizzes</h2>
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Quiz Name</TableHead>
+                              <TableHead>Scheduled Date</TableHead>
+                              <TableHead>Duration</TableHead>
+                              <TableHead>Status</TableHead>
+                              <TableHead className="text-right">Action</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {upcomingQuizzes.map((quiz) => (
+                              <TableRow key={quiz.id}>
+                                <TableCell className="font-medium">{quiz.title}</TableCell>
+                                <TableCell>{new Date(quiz.date).toLocaleDateString()}</TableCell>
+                                <TableCell>{quiz.duration}</TableCell>
+                                <TableCell>
+                                  <Badge variant="outline" className="bg-blue-100 text-blue-800">
+                                    <Clock className="mr-1 h-3 w-3" /> Upcoming
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={() => handleQuizStart(quiz.id)}
+                                  >
+                                    Take Quiz
+                                    <ChevronRight className="ml-1 h-4 w-4" />
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Upcoming quizzes sidebar */}
+              <div>
+                <UpcomingQuizzes />
+              </div>
+            </div>
+          </>
+        );
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Your Exam Dashboard</h1>
-      
-      {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium">Progress</h3>
-            <BookOpen className="h-5 w-5 text-primary" />
-          </div>
-          <p className="text-3xl font-bold mt-2">{userData.completedQuizzes} / {userData.totalQuizzes}</p>
-          <p className="text-sm text-muted-foreground mb-3">Quizzes completed</p>
-          <Progress value={progressPercentage} className="h-2" />
-        </div>
-        
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium">Average Score</h3>
-            <BarChart3 className="h-5 w-5 text-primary" />
-          </div>
-          <p className="text-3xl font-bold mt-2">
-            {quizAttempts.reduce((acc, quiz) => acc + quiz.score, 0) / quizAttempts.length}%
-          </p>
-          <p className="text-sm text-muted-foreground">Across all quizzes</p>
-        </div>
-        
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium">Next Quiz</h3>
-            <Clock className="h-5 w-5 text-primary" />
-          </div>
-          <p className="text-2xl font-bold mt-2">{upcomingQuizzes[0]?.title || "No upcoming quizzes"}</p>
-          <p className="text-sm text-muted-foreground">
-            {upcomingQuizzes[0] ? `Scheduled for ${new Date(upcomingQuizzes[0].date).toLocaleDateString()}` : ""}
-          </p>
-        </div>
-      </div>
-      
-      {/* Quiz History Section */}
-      <div className="bg-white rounded-lg shadow-sm mb-8">
-        <div className="border-b">
-          <div className="flex">
-            <button 
-              onClick={() => setActiveQuizTab("completed")}
-              className={`px-6 py-4 text-sm font-medium ${
-                activeQuizTab === "completed" 
-                  ? "border-b-2 border-primary text-primary" 
-                  : "text-muted-foreground"
-              }`}
-            >
-              Completed Quizzes
-            </button>
-            <button 
-              onClick={() => setActiveQuizTab("upcoming")}
-              className={`px-6 py-4 text-sm font-medium ${
-                activeQuizTab === "upcoming" 
-                  ? "border-b-2 border-primary text-primary" 
-                  : "text-muted-foreground"
-              }`}
-            >
-              Upcoming Quizzes
-            </button>
-          </div>
-        </div>
-        
-        {activeQuizTab === "completed" ? (
-          <div className="p-6">
-            <h2 className="text-xl font-bold mb-4">Quiz History</h2>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Quiz Name</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Score</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {quizAttempts.map((quiz) => (
-                  <TableRow key={quiz.id}>
-                    <TableCell className="font-medium">{quiz.title}</TableCell>
-                    <TableCell>{new Date(quiz.date).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span className="font-semibold">{quiz.score}%</span>
-                        <span className="text-xs text-muted-foreground">
-                          {quiz.correctAnswers}/{quiz.totalQuestions} correct
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="bg-green-100 text-green-800">
-                        <CheckCircle2 className="mr-1 h-3 w-3" /> Completed
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => handleQuizStart(quiz.id)}>
-                        Retake
-                        <ChevronRight className="ml-1 h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        ) : (
-          <div className="p-6">
-            <h2 className="text-xl font-bold mb-4">Upcoming Quizzes</h2>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Quiz Name</TableHead>
-                  <TableHead>Scheduled Date</TableHead>
-                  <TableHead>Duration</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {upcomingQuizzes.map((quiz) => (
-                  <TableRow key={quiz.id}>
-                    <TableCell className="font-medium">{quiz.title}</TableCell>
-                    <TableCell>{new Date(quiz.date).toLocaleDateString()}</TableCell>
-                    <TableCell>{quiz.duration}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="bg-blue-100 text-blue-800">
-                        <Clock className="mr-1 h-3 w-3" /> Upcoming
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => handleQuizStart(quiz.id)}
-                      >
-                        Take Quiz
-                        <ChevronRight className="ml-1 h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold">Your Exam Dashboard</h1>
+        {isMobile && (
+          <div className="flex gap-2">
+            {activeView !== "home" && (
+              <Button variant="outline" size="sm" onClick={() => setActiveView("home")}>
+                Back to Dashboard
+              </Button>
+            )}
           </div>
         )}
       </div>
+      
+      {renderActiveView()}
     </div>
   );
 };
@@ -252,6 +298,32 @@ const DashboardContent = () => {
 const Dashboard = () => {
   useScrollToTop();
   const navigate = useNavigate();
+  const [activeNav, setActiveNav] = useState<string>("dashboard");
+
+  const handleNavClick = (nav: string) => {
+    switch(nav) {
+      case "dashboard":
+        setActiveNav("dashboard");
+        break;
+      case "quizzes":
+        navigate('/quizzes');
+        break;
+      case "performance":
+        setActiveNav("performance");
+        break;
+      case "settings":
+        setActiveNav("settings");
+        break;
+      case "help":
+        setActiveNav("help");
+        break;
+      case "logout":
+        navigate('/');
+        break;
+      default:
+        setActiveNav("dashboard");
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -269,31 +341,51 @@ const Dashboard = () => {
             <SidebarContent>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton tooltip="Dashboard" onClick={() => navigate('/dashboard')}>
+                  <SidebarMenuButton 
+                    tooltip="Dashboard" 
+                    isActive={activeNav === "dashboard"}
+                    onClick={() => handleNavClick("dashboard")}
+                  >
                     <Home className="mr-2 h-5 w-5" />
                     <span>Dashboard</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton tooltip="Quizzes" onClick={() => navigate('/quizzes')}>
+                  <SidebarMenuButton 
+                    tooltip="Quizzes" 
+                    isActive={activeNav === "quizzes"}
+                    onClick={() => handleNavClick("quizzes")}
+                  >
                     <Book className="mr-2 h-5 w-5" />
                     <span>Quizzes</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton tooltip="Performance" onClick={() => {}}>
+                  <SidebarMenuButton 
+                    tooltip="Performance" 
+                    isActive={activeNav === "performance"}
+                    onClick={() => handleNavClick("performance")}
+                  >
                     <BarChart2 className="mr-2 h-5 w-5" />
                     <span>Performance</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton tooltip="Settings" onClick={() => {}}>
+                  <SidebarMenuButton 
+                    tooltip="Settings" 
+                    isActive={activeNav === "settings"}
+                    onClick={() => handleNavClick("settings")}
+                  >
                     <Settings className="mr-2 h-5 w-5" />
                     <span>Settings</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton tooltip="Help" onClick={() => {}}>
+                  <SidebarMenuButton 
+                    tooltip="Help" 
+                    isActive={activeNav === "help"}
+                    onClick={() => handleNavClick("help")}
+                  >
                     <HelpCircle className="mr-2 h-5 w-5" />
                     <span>Help</span>
                   </SidebarMenuButton>
@@ -303,7 +395,7 @@ const Dashboard = () => {
             <SidebarFooter className="p-4 border-t">
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton tooltip="Log Out" onClick={() => navigate('/')}>
+                  <SidebarMenuButton tooltip="Log Out" onClick={() => handleNavClick("logout")}>
                     <LogOut className="mr-2 h-5 w-5" />
                     <span>Log Out</span>
                   </SidebarMenuButton>
