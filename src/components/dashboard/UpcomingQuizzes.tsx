@@ -6,8 +6,8 @@ import { Clock, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
-// Mock upcoming quizzes
-const upcomingQuizzes = [
+// Mock upcoming quizzes - export so it can be used by Dashboard.tsx
+export const upcomingQuizzes = [
   { id: "nptel1", title: "Environmental Engineering", date: "2025-05-10", duration: "60 min" },
   { id: "4", title: "Gastroenterology", date: "2025-05-15", duration: "45 min" },
   { id: "5", title: "Emergency Medicine", date: "2025-05-20", duration: "30 min" },

@@ -45,6 +45,10 @@ import { UserSettings } from "@/components/dashboard/UserSettings";
 import { HelpCenter } from "@/components/dashboard/HelpCenter";
 import { UpcomingQuizzes } from "@/components/dashboard/UpcomingQuizzes";
 
+// Import the upcomingQuizzes mock data from the same file as UpcomingQuizzes
+// This is a quick fix - a better approach would be to extract this shared data to a separate file
+import { upcomingQuizzes } from "@/components/dashboard/UpcomingQuizzes";
+
 // Mock user data
 const userData = {
   name: "John Doe",
