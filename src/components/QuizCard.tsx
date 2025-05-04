@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ListCheck, LoaderCircle, Clock } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 interface QuizCardProps {
@@ -23,9 +23,11 @@ const difficultyColors = {
 
 const QuizCard = ({ id, title, description, questionCount, category, difficulty }: QuizCardProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
   
   const handleStartQuiz = () => {
     setIsLoading(true);
+    navigate(`/quiz/${id}`);
   };
   
   return (
@@ -56,20 +58,17 @@ const QuizCard = ({ id, title, description, questionCount, category, difficulty 
       <CardFooter className="border-t pt-4">
         <Button 
           className="w-full relative" 
-          asChild
           onClick={handleStartQuiz}
           disabled={isLoading}
         >
-          <Link to={`/quiz/${id}`}>
-            {isLoading ? (
-              <span className="flex items-center gap-2">
-                <LoaderCircle className="h-4 w-4 animate-spin" />
-                Loading Quiz...
-              </span>
-            ) : (
-              "Take Quiz"
-            )}
-          </Link>
+          {isLoading ? (
+            <span className="flex items-center gap-2">
+              <LoaderCircle className="h-4 w-4 animate-spin" />
+              Loading Quiz...
+            </span>
+          ) : (
+            "Take Quiz"
+          )}
         </Button>
       </CardFooter>
     </Card>
