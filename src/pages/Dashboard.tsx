@@ -47,7 +47,6 @@ import { HelpCenter } from "@/components/dashboard/HelpCenter";
 import { UpcomingQuizzes } from "@/components/dashboard/UpcomingQuizzes";
 
 // Import the upcomingQuizzes mock data from the same file as UpcomingQuizzes
-// This is a quick fix - a better approach would be to extract this shared data to a separate file
 import { upcomingQuizzes } from "@/components/dashboard/UpcomingQuizzes";
 
 // Mock user data
@@ -92,11 +91,14 @@ const quizAttempts = [
 // Dashboard views
 type DashboardView = "home" | "performance" | "settings" | "help";
 
-const DashboardContent = () => {
+interface DashboardContentProps {
+  activeView: DashboardView;
+}
+
+const DashboardContent = ({ activeView }: DashboardContentProps) => {
   const navigate = useNavigate();
   const { isMobile } = useSidebar();
   const [activeQuizTab, setActiveQuizTab] = useState<"completed" | "upcoming">("completed");
-  const [activeView, setActiveView] = useState<DashboardView>("home");
   
   const handleQuizStart = (id: string) => {
     navigate(`/quiz/${id}`);
