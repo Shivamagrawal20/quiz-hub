@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
@@ -303,29 +304,35 @@ const Dashboard = () => {
   useScrollToTop();
   const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState<string>("dashboard");
+  const [activeView, setActiveView] = useState<DashboardView>("home");
 
   const handleNavClick = (nav: string) => {
     switch(nav) {
       case "dashboard":
         setActiveNav("dashboard");
+        setActiveView("home");
         break;
       case "quizzes":
         navigate('/quizzes');
         break;
       case "performance":
         setActiveNav("performance");
+        setActiveView("performance");
         break;
       case "settings":
         setActiveNav("settings");
+        setActiveView("settings");
         break;
       case "help":
         setActiveNav("help");
+        setActiveView("help");
         break;
       case "logout":
         navigate('/');
         break;
       default:
         setActiveNav("dashboard");
+        setActiveView("home");
     }
   };
 
@@ -410,7 +417,7 @@ const Dashboard = () => {
           </Sidebar>
           <SidebarInset className="p-0">
             <div className="pt-20 flex-grow">
-              <DashboardContent />
+              <DashboardContent activeView={activeView} />
             </div>
             <Footer />
           </SidebarInset>
