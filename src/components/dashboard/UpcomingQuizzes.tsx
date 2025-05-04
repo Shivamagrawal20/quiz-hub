@@ -25,10 +25,19 @@ export function UpcomingQuizzes() {
     }, 800);
   };
   
+  const isUpcoming = (date: string) => {
+    const quizDate = new Date(date);
+    const currentDate = new Date();
+    return quizDate > currentDate && quizDate.getTime() - currentDate.getTime() < 3 * 24 * 60 * 60 * 1000;
+  };
+  
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg">Upcoming Quizzes</CardTitle>
+        <Badge variant="outline" className="bg-primary/10 text-primary">
+          {upcomingQuizzes.length} Quizzes
+        </Badge>
       </CardHeader>
       <CardContent className="p-0">
         <div className="divide-y">
@@ -44,8 +53,11 @@ export function UpcomingQuizzes() {
                       day: 'numeric' 
                     })}
                   </span>
-                  <Badge variant="outline" className="bg-blue-100 text-blue-800 flex items-center gap-1">
+                  <Badge variant="outline" className={`flex items-center gap-1 ${
+                    isUpcoming(quiz.date) ? "bg-orange-100 text-orange-800" : "bg-blue-100 text-blue-800"
+                  }`}>
                     <Clock className="h-3 w-3" /> {quiz.duration}
+                    {isUpcoming(quiz.date) && <span className="ml-1">Soon</span>}
                   </Badge>
                 </div>
               </div>
