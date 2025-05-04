@@ -20,8 +20,10 @@ export function UpcomingQuizzes() {
   
   const handleQuizStart = (id: string) => {
     setLoadingQuizId(id);
+    // Use setTimeout to show loading state before navigating
     setTimeout(() => {
       navigate(`/quiz/${id}`);
+      setLoadingQuizId(null); // Reset loading state in case navigation fails
     }, 800);
   };
   
@@ -69,7 +71,9 @@ export function UpcomingQuizzes() {
                 className="flex items-center"
               >
                 {loadingQuizId === quiz.id ? (
-                  "Loading..."
+                  <span className="flex items-center">
+                    <span className="animate-pulse">Loading...</span>
+                  </span>
                 ) : (
                   <>
                     Take Quiz
