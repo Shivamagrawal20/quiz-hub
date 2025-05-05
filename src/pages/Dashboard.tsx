@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
@@ -27,6 +28,10 @@ import {
   ChevronsRight,
   Trophy,
   Sparkles,
+  User,
+  Medal,
+  Award,
+  Star,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -51,6 +56,8 @@ import { UpcomingQuizzes } from "@/components/dashboard/UpcomingQuizzes";
 import { useToast } from "@/components/ui/use-toast";
 import { Slider } from "@/components/ui/slider";
 import { Card } from "@/components/ui/card";
+import { Leaderboard } from "@/components/dashboard/Leaderboard";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 // Import the upcomingQuizzes mock data from the same file as UpcomingQuizzes
 import { upcomingQuizzes } from "@/components/dashboard/UpcomingQuizzes";
@@ -58,9 +65,14 @@ import { upcomingQuizzes } from "@/components/dashboard/UpcomingQuizzes";
 // Mock user data
 const userData = {
   name: "John Doe",
+  email: "john.doe@example.com",
+  avatarUrl: null,
+  role: "Medical Student",
   completedQuizzes: 12,
   totalQuizzes: 26,
   upcomingQuiz: "Cardiology Quiz",
+  points: 1280,
+  rank: 42
 };
 
 // Mock quiz attempts
@@ -95,7 +107,7 @@ const quizAttempts = [
 ];
 
 // Dashboard views
-type DashboardView = "home" | "performance" | "settings" | "help";
+type DashboardView = "home" | "performance" | "settings" | "help" | "leaderboard";
 
 interface DashboardContentProps {
   activeView: DashboardView;
@@ -145,6 +157,8 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
         return <UserSettings />;
       case "help":
         return <HelpCenter />;
+      case "leaderboard":
+        return <Leaderboard />;
       default:
         return (
           <>
@@ -380,6 +394,34 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
   );
 };
 
+// Profile section component for the sidebar
+const SidebarProfile = () => {
+  const { open } = useSidebar();
+  
+  return (
+    <div className={`p-4 border-t transition-all duration-300 ${open ? 'opacity-100' : 'opacity-0'}`}>
+      <div className="flex items-center gap-3">
+        <Avatar className="h-10 w-10 border-2 border-primary/20">
+          <AvatarImage src={userData.avatarUrl || undefined} alt={userData.name} />
+          <AvatarFallback className="bg-primary/10 text-primary">
+            {userData.name.split(' ').map(n => n[0]).join('')}
+          </AvatarFallback>
+        </Avatar>
+        <div className={`transition-all duration-200 ${open ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>
+          <p className="font-medium text-sm">{userData.name}</p>
+          <p className="text-xs text-muted-foreground">{userData.role}</p>
+          <div className="flex items-center mt-1 text-xs gap-1">
+            <Trophy className="h-3 w-3 text-amber-500" />
+            <span>{userData.points} pts</span>
+            <span className="text-muted-foreground mx-1">•</span>
+            <span>Rank #{userData.rank}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Sidebar Component to separate concerns and avoid nesting useSidebar calls
 const DashboardSidebar = ({ 
   activeNav, 
@@ -410,6 +452,10 @@ const DashboardSidebar = ({
           {open ? <ChevronsLeft className="h-4 w-4" /> : <ChevronsRight className="h-4 w-4" />}
         </Button>
       </SidebarHeader>
+      
+      {/* Add profile section below the header */}
+      <SidebarProfile />
+      
       <SidebarContent>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -421,8 +467,14 @@ const DashboardSidebar = ({
             >
               <Home className="mr-2 h-5 w-5" />
               <span>Dashboard</span>
+              
+              {/* Add interactive animation for active item */}
+              {activeNav === "dashboard" && (
+                <span className="absolute inset-y-0 left-0 w-1 bg-primary rounded-r-md animate-pulse" />
+              )}
             </SidebarMenuButton>
           </SidebarMenuItem>
+          
           <SidebarMenuItem>
             <SidebarMenuButton 
               tooltip="Quizzes" 
@@ -434,6 +486,7 @@ const DashboardSidebar = ({
               <span>Quizzes</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          
           <SidebarMenuItem>
             <SidebarMenuButton 
               tooltip="Performance" 
@@ -445,6 +498,24 @@ const DashboardSidebar = ({
               <span>Performance</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          
+          {/* Add Leaderboard menu item */}
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              tooltip="Leaderboard" 
+              isActive={activeNav === "leaderboard"}
+              onClick={() => handleNavClick("leaderboard")}
+              className="hover:bg-secondary/50 transition-colors"
+            >
+              <Trophy className="mr-2 h-5 w-5" />
+              <span>Leaderboard</span>
+              {/* Add "New" badge */}
+              <Badge variant="outline" className="ml-2 bg-primary/10 text-primary text-[10px] h-4">
+                NEW
+              </Badge>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          
           <SidebarMenuItem>
             <SidebarMenuButton 
               tooltip="Settings" 
@@ -456,6 +527,7 @@ const DashboardSidebar = ({
               <span>Settings</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          
           <SidebarMenuItem>
             <SidebarMenuButton 
               tooltip="Help" 
@@ -475,7 +547,7 @@ const DashboardSidebar = ({
             <SidebarMenuButton 
               tooltip="Log Out" 
               onClick={() => handleNavClick("logout")}
-              className="hover:bg-secondary/50 transition-colors"
+              className="hover:bg-secondary/50 transition-colors hover:text-red-500"
             >
               <LogOut className="mr-2 h-5 w-5" />
               <span>Log Out</span>
@@ -514,6 +586,10 @@ const Dashboard = () => {
       case "help":
         setActiveNav("help");
         setActiveView("help");
+        break;
+      case "leaderboard":
+        setActiveNav("leaderboard");
+        setActiveView("leaderboard");
         break;
       case "logout":
         navigate('/');
