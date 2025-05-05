@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,10 @@ import {
   Settings,
   HelpCircle,
   LogOut,
+  ChevronsLeft,
+  ChevronsRight,
+  Trophy,
+  Sparkles,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -45,6 +49,9 @@ import { PerformanceDashboard } from "@/components/dashboard/PerformanceDashboar
 import { UserSettings } from "@/components/dashboard/UserSettings";
 import { HelpCenter } from "@/components/dashboard/HelpCenter";
 import { UpcomingQuizzes } from "@/components/dashboard/UpcomingQuizzes";
+import { useToast } from "@/components/ui/use-toast";
+import { Slider } from "@/components/ui/slider";
+import { Card } from "@/components/ui/card";
 
 // Import the upcomingQuizzes mock data from the same file as UpcomingQuizzes
 import { upcomingQuizzes } from "@/components/dashboard/UpcomingQuizzes";
@@ -100,12 +107,35 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
   const navigate = useNavigate();
   const { isMobile } = useSidebar();
   const [activeQuizTab, setActiveQuizTab] = useState<"completed" | "upcoming">("completed");
+  const [progressValue, setProgressValue] = useState(0);
+  const [scoreFilter, setScoreFilter] = useState([0]);
+  const { toast } = useToast();
   
   const handleQuizStart = (id: string) => {
     navigate(`/quiz/${id}`);
   };
   
   const progressPercentage = (userData.completedQuizzes / userData.totalQuizzes) * 100;
+  
+  // Gradually animate progress bar on load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setProgressValue(progressPercentage);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [progressPercentage]);
+  
+  // Filter quizzes based on score slider
+  const filteredQuizzes = quizAttempts.filter(quiz => quiz.score >= scoreFilter[0]);
+  
+  const handleScoreFilterChange = (value: number[]) => {
+    setScoreFilter(value);
+    toast({
+      title: "Score Filter Applied",
+      description: `Showing quizzes with scores ${value[0]}% and above`,
+      duration: 2000,
+    });
+  };
 
   // Render different views based on active view
   const renderActiveView = () => {
@@ -121,17 +151,17 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
           <>
             {/* Overview Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-lg shadow-sm">
+              <Card className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-medium">Progress</h3>
                   <BookOpen className="h-5 w-5 text-primary" />
                 </div>
                 <p className="text-3xl font-bold mt-2">{userData.completedQuizzes} / {userData.totalQuizzes}</p>
                 <p className="text-sm text-muted-foreground mb-3">Quizzes completed</p>
-                <Progress value={progressPercentage} className="h-2" />
-              </div>
+                <Progress value={progressValue} className="h-2" />
+              </Card>
               
-              <div className="bg-white p-6 rounded-lg shadow-sm">
+              <Card className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-medium">Average Score</h3>
                   <BarChart3 className="h-5 w-5 text-primary" />
@@ -140,9 +170,15 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
                   {Math.round(quizAttempts.reduce((acc, quiz) => acc + quiz.score, 0) / quizAttempts.length)}%
                 </p>
                 <p className="text-sm text-muted-foreground">Across all quizzes</p>
-              </div>
+                {quizAttempts.length > 0 && (
+                  <div className="mt-3 flex items-center text-xs">
+                    <Trophy className="h-3 w-3 mr-1 text-amber-500" />
+                    <span>Top score: {Math.max(...quizAttempts.map(q => q.score))}%</span>
+                  </div>
+                )}
+              </Card>
               
-              <div className="bg-white p-6 rounded-lg shadow-sm">
+              <Card className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-medium">Next Quiz</h3>
                   <Clock className="h-5 w-5 text-primary" />
@@ -151,14 +187,25 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
                 <p className="text-sm text-muted-foreground">
                   Ready to attempt
                 </p>
-              </div>
+                {upcomingQuizzes.length > 0 && (
+                  <Button 
+                    variant="link" 
+                    size="sm" 
+                    className="p-0 mt-2" 
+                    onClick={() => setActiveQuizTab("upcoming")}
+                  >
+                    View all upcoming
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                )}
+              </Card>
             </div>
             
             {/* Two column layout */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
               <div className="lg:col-span-2">
                 {/* Quiz History Section */}
-                <div className="bg-white rounded-lg shadow-sm mb-8">
+                <Card className="bg-white rounded-lg shadow-sm mb-8">
                   <div className="border-b">
                     <div className="flex">
                       <button 
@@ -166,7 +213,7 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
                         className={`px-6 py-4 text-sm font-medium ${
                           activeQuizTab === "completed" 
                             ? "border-b-2 border-primary text-primary" 
-                            : "text-muted-foreground"
+                            : "text-muted-foreground hover:text-foreground transition-colors"
                         }`}
                       >
                         Completed Quizzes
@@ -176,7 +223,7 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
                         className={`px-6 py-4 text-sm font-medium ${
                           activeQuizTab === "upcoming" 
                             ? "border-b-2 border-primary text-primary" 
-                            : "text-muted-foreground"
+                            : "text-muted-foreground hover:text-foreground transition-colors"
                         }`}
                       >
                         Upcoming Quizzes
@@ -186,7 +233,21 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
                   
                   {activeQuizTab === "completed" ? (
                     <div className="p-6">
-                      <h2 className="text-xl font-bold mb-4">Quiz History</h2>
+                      <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xl font-bold">Quiz History</h2>
+                        <div className="flex items-center space-x-4">
+                          <div>
+                            <p className="text-sm text-muted-foreground mb-1">Filter by minimum score: {scoreFilter[0]}%</p>
+                            <Slider
+                              value={scoreFilter}
+                              onValueChange={handleScoreFilterChange}
+                              max={100}
+                              step={5}
+                              className="w-[160px]"
+                            />
+                          </div>
+                        </div>
+                      </div>
                       <div className="overflow-x-auto">
                         <Table>
                           <TableHeader>
@@ -199,31 +260,47 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {quizAttempts.map((quiz) => (
-                              <TableRow key={quiz.id}>
-                                <TableCell className="font-medium">{quiz.title}</TableCell>
-                                <TableCell>{new Date(quiz.date).toLocaleDateString()}</TableCell>
-                                <TableCell>
-                                  <div className="flex flex-col">
-                                    <span className="font-semibold">{quiz.score}%</span>
-                                    <span className="text-xs text-muted-foreground">
-                                      {quiz.correctAnswers}/{quiz.totalQuestions} correct
-                                    </span>
-                                  </div>
-                                </TableCell>
-                                <TableCell>
-                                  <Badge variant="outline" className="bg-green-100 text-green-800">
-                                    <CheckCircle2 className="mr-1 h-3 w-3" /> Completed
-                                  </Badge>
-                                </TableCell>
-                                <TableCell className="text-right">
-                                  <Button variant="ghost" size="sm" onClick={() => handleQuizStart(quiz.id)}>
-                                    Retake
-                                    <ChevronRight className="ml-1 h-4 w-4" />
-                                  </Button>
+                            {filteredQuizzes.length === 0 ? (
+                              <TableRow>
+                                <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
+                                  No quizzes match your filter criteria
                                 </TableCell>
                               </TableRow>
-                            ))}
+                            ) : (
+                              filteredQuizzes.map((quiz) => (
+                                <TableRow key={quiz.id} className="hover:bg-secondary/20 transition-colors group">
+                                  <TableCell className="font-medium">{quiz.title}</TableCell>
+                                  <TableCell>{new Date(quiz.date).toLocaleDateString()}</TableCell>
+                                  <TableCell>
+                                    <div className="flex flex-col">
+                                      <span className="font-semibold">
+                                        {quiz.score}%
+                                        {quiz.score >= 90 && <Sparkles className="inline h-3 w-3 ml-1 text-amber-500" />}
+                                      </span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {quiz.correctAnswers}/{quiz.totalQuestions} correct
+                                      </span>
+                                    </div>
+                                  </TableCell>
+                                  <TableCell>
+                                    <Badge variant="outline" className="bg-green-100 text-green-800">
+                                      <CheckCircle2 className="mr-1 h-3 w-3" /> Completed
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      onClick={() => handleQuizStart(quiz.id)}
+                                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                      Retake
+                                      <ChevronRight className="ml-1 h-4 w-4" />
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              ))
+                            )}
                           </TableBody>
                         </Table>
                       </div>
@@ -244,7 +321,7 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
                           </TableHeader>
                           <TableBody>
                             {upcomingQuizzes.map((quiz) => (
-                              <TableRow key={quiz.id}>
+                              <TableRow key={quiz.id} className="hover:bg-secondary/20 transition-colors group">
                                 <TableCell className="font-medium">{quiz.title}</TableCell>
                                 <TableCell>{new Date(quiz.date).toLocaleDateString()}</TableCell>
                                 <TableCell>{quiz.duration}</TableCell>
@@ -258,6 +335,7 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
                                     variant="ghost" 
                                     size="sm" 
                                     onClick={() => handleQuizStart(quiz.id)}
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity"
                                   >
                                     Take Quiz
                                     <ChevronRight className="ml-1 h-4 w-4" />
@@ -270,7 +348,7 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
                       </div>
                     </div>
                   )}
-                </div>
+                </Card>
               </div>
               
               {/* Upcoming quizzes sidebar */}
@@ -308,6 +386,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState<string>("dashboard");
   const [activeView, setActiveView] = useState<DashboardView>("home");
+  const { setOpen, isOpen } = useSidebar();
 
   const handleNavClick = (nav: string) => {
     switch(nav) {
@@ -333,6 +412,9 @@ const Dashboard = () => {
       case "logout":
         navigate('/');
         break;
+      case "toggle-sidebar":
+        setOpen(!isOpen);
+        break;
       default:
         setActiveNav("dashboard");
         setActiveView("home");
@@ -344,13 +426,21 @@ const Dashboard = () => {
       <SidebarProvider defaultOpen={true}>
         <div className="flex flex-grow w-full">
           <Sidebar variant="sidebar" collapsible="icon">
-            <SidebarHeader className="h-14 flex items-center px-4">
+            <SidebarHeader className="h-14 flex items-center justify-between px-4">
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center">
                   <span className="text-white font-bold text-xl">Q</span>
                 </div>
                 <span className="font-bold text-lg">QuizHub</span>
               </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => handleNavClick("toggle-sidebar")}
+                className="p-0 h-8 w-8"
+              >
+                {isOpen ? <ChevronsLeft className="h-4 w-4" /> : <ChevronsRight className="h-4 w-4" />}
+              </Button>
             </SidebarHeader>
             <SidebarContent>
               <SidebarMenu>
@@ -359,6 +449,7 @@ const Dashboard = () => {
                     tooltip="Dashboard" 
                     isActive={activeNav === "dashboard"}
                     onClick={() => handleNavClick("dashboard")}
+                    className="hover:bg-secondary/50 transition-colors"
                   >
                     <Home className="mr-2 h-5 w-5" />
                     <span>Dashboard</span>
@@ -369,6 +460,7 @@ const Dashboard = () => {
                     tooltip="Quizzes" 
                     isActive={activeNav === "quizzes"}
                     onClick={() => handleNavClick("quizzes")}
+                    className="hover:bg-secondary/50 transition-colors"
                   >
                     <Book className="mr-2 h-5 w-5" />
                     <span>Quizzes</span>
@@ -379,6 +471,7 @@ const Dashboard = () => {
                     tooltip="Performance" 
                     isActive={activeNav === "performance"}
                     onClick={() => handleNavClick("performance")}
+                    className="hover:bg-secondary/50 transition-colors"
                   >
                     <BarChart2 className="mr-2 h-5 w-5" />
                     <span>Performance</span>
@@ -389,6 +482,7 @@ const Dashboard = () => {
                     tooltip="Settings" 
                     isActive={activeNav === "settings"}
                     onClick={() => handleNavClick("settings")}
+                    className="hover:bg-secondary/50 transition-colors"
                   >
                     <Settings className="mr-2 h-5 w-5" />
                     <span>Settings</span>
@@ -399,6 +493,7 @@ const Dashboard = () => {
                     tooltip="Help" 
                     isActive={activeNav === "help"}
                     onClick={() => handleNavClick("help")}
+                    className="hover:bg-secondary/50 transition-colors"
                   >
                     <HelpCircle className="mr-2 h-5 w-5" />
                     <span>Help</span>
@@ -409,7 +504,11 @@ const Dashboard = () => {
             <SidebarFooter className="p-4 border-t">
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton tooltip="Log Out" onClick={() => handleNavClick("logout")}>
+                  <SidebarMenuButton 
+                    tooltip="Log Out" 
+                    onClick={() => handleNavClick("logout")}
+                    className="hover:bg-secondary/50 transition-colors"
+                  >
                     <LogOut className="mr-2 h-5 w-5" />
                     <span>Log Out</span>
                   </SidebarMenuButton>
