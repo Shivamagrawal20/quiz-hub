@@ -93,9 +93,10 @@ type DashboardView = "home" | "performance" | "settings" | "help";
 
 interface DashboardContentProps {
   activeView: DashboardView;
+  setActiveView: (view: DashboardView) => void;
 }
 
-const DashboardContent = ({ activeView }: DashboardContentProps) => {
+const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) => {
   const navigate = useNavigate();
   const { isMobile } = useSidebar();
   const [activeQuizTab, setActiveQuizTab] = useState<"completed" | "upcoming">("completed");
@@ -419,7 +420,7 @@ const Dashboard = () => {
           </Sidebar>
           <SidebarInset className="p-0">
             <div className="pt-20 flex-grow">
-              <DashboardContent activeView={activeView} />
+              <DashboardContent activeView={activeView} setActiveView={setActiveView} />
             </div>
             <Footer />
           </SidebarInset>
