@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
@@ -105,7 +104,7 @@ interface DashboardContentProps {
 
 const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) => {
   const navigate = useNavigate();
-  const { isMobile } = useSidebar();
+  const { isMobile, open } = useSidebar();
   const [activeQuizTab, setActiveQuizTab] = useState<"completed" | "upcoming">("completed");
   const [progressValue, setProgressValue] = useState(0);
   const [scoreFilter, setScoreFilter] = useState([0]);
@@ -381,12 +380,119 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
   );
 };
 
+// Sidebar Component to separate concerns and avoid nesting useSidebar calls
+const DashboardSidebar = ({ 
+  activeNav, 
+  setActiveNav,
+  handleNavClick 
+}: { 
+  activeNav: string; 
+  setActiveNav: (nav: string) => void;
+  handleNavClick: (nav: string) => void;
+}) => {
+  const { open, setOpen } = useSidebar();
+  
+  return (
+    <Sidebar variant="sidebar" collapsible="icon">
+      <SidebarHeader className="h-14 flex items-center justify-between px-4">
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center">
+            <span className="text-white font-bold text-xl">Q</span>
+          </div>
+          <span className="font-bold text-lg">QuizHub</span>
+        </div>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => setOpen(!open)}
+          className="p-0 h-8 w-8"
+        >
+          {open ? <ChevronsLeft className="h-4 w-4" /> : <ChevronsRight className="h-4 w-4" />}
+        </Button>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              tooltip="Dashboard" 
+              isActive={activeNav === "dashboard"}
+              onClick={() => handleNavClick("dashboard")}
+              className="hover:bg-secondary/50 transition-colors"
+            >
+              <Home className="mr-2 h-5 w-5" />
+              <span>Dashboard</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              tooltip="Quizzes" 
+              isActive={activeNav === "quizzes"}
+              onClick={() => handleNavClick("quizzes")}
+              className="hover:bg-secondary/50 transition-colors"
+            >
+              <Book className="mr-2 h-5 w-5" />
+              <span>Quizzes</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              tooltip="Performance" 
+              isActive={activeNav === "performance"}
+              onClick={() => handleNavClick("performance")}
+              className="hover:bg-secondary/50 transition-colors"
+            >
+              <BarChart2 className="mr-2 h-5 w-5" />
+              <span>Performance</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              tooltip="Settings" 
+              isActive={activeNav === "settings"}
+              onClick={() => handleNavClick("settings")}
+              className="hover:bg-secondary/50 transition-colors"
+            >
+              <Settings className="mr-2 h-5 w-5" />
+              <span>Settings</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              tooltip="Help" 
+              isActive={activeNav === "help"}
+              onClick={() => handleNavClick("help")}
+              className="hover:bg-secondary/50 transition-colors"
+            >
+              <HelpCircle className="mr-2 h-5 w-5" />
+              <span>Help</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarContent>
+      <SidebarFooter className="p-4 border-t">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              tooltip="Log Out" 
+              onClick={() => handleNavClick("logout")}
+              className="hover:bg-secondary/50 transition-colors"
+            >
+              <LogOut className="mr-2 h-5 w-5" />
+              <span>Log Out</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
+  );
+};
+
 const Dashboard = () => {
   useScrollToTop();
   const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState<string>("dashboard");
   const [activeView, setActiveView] = useState<DashboardView>("home");
-  const { setOpen, isOpen } = useSidebar();
 
   const handleNavClick = (nav: string) => {
     switch(nav) {
@@ -412,111 +518,22 @@ const Dashboard = () => {
       case "logout":
         navigate('/');
         break;
-      case "toggle-sidebar":
-        setOpen(!isOpen);
-        break;
       default:
         setActiveNav("dashboard");
         setActiveView("home");
     }
   };
 
+  // Wrap the entire dashboard with SidebarProvider
   return (
     <div className="min-h-screen flex flex-col">
       <SidebarProvider defaultOpen={true}>
         <div className="flex flex-grow w-full">
-          <Sidebar variant="sidebar" collapsible="icon">
-            <SidebarHeader className="h-14 flex items-center justify-between px-4">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">Q</span>
-                </div>
-                <span className="font-bold text-lg">QuizHub</span>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => handleNavClick("toggle-sidebar")}
-                className="p-0 h-8 w-8"
-              >
-                {isOpen ? <ChevronsLeft className="h-4 w-4" /> : <ChevronsRight className="h-4 w-4" />}
-              </Button>
-            </SidebarHeader>
-            <SidebarContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton 
-                    tooltip="Dashboard" 
-                    isActive={activeNav === "dashboard"}
-                    onClick={() => handleNavClick("dashboard")}
-                    className="hover:bg-secondary/50 transition-colors"
-                  >
-                    <Home className="mr-2 h-5 w-5" />
-                    <span>Dashboard</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton 
-                    tooltip="Quizzes" 
-                    isActive={activeNav === "quizzes"}
-                    onClick={() => handleNavClick("quizzes")}
-                    className="hover:bg-secondary/50 transition-colors"
-                  >
-                    <Book className="mr-2 h-5 w-5" />
-                    <span>Quizzes</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton 
-                    tooltip="Performance" 
-                    isActive={activeNav === "performance"}
-                    onClick={() => handleNavClick("performance")}
-                    className="hover:bg-secondary/50 transition-colors"
-                  >
-                    <BarChart2 className="mr-2 h-5 w-5" />
-                    <span>Performance</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton 
-                    tooltip="Settings" 
-                    isActive={activeNav === "settings"}
-                    onClick={() => handleNavClick("settings")}
-                    className="hover:bg-secondary/50 transition-colors"
-                  >
-                    <Settings className="mr-2 h-5 w-5" />
-                    <span>Settings</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton 
-                    tooltip="Help" 
-                    isActive={activeNav === "help"}
-                    onClick={() => handleNavClick("help")}
-                    className="hover:bg-secondary/50 transition-colors"
-                  >
-                    <HelpCircle className="mr-2 h-5 w-5" />
-                    <span>Help</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarContent>
-            <SidebarFooter className="p-4 border-t">
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton 
-                    tooltip="Log Out" 
-                    onClick={() => handleNavClick("logout")}
-                    className="hover:bg-secondary/50 transition-colors"
-                  >
-                    <LogOut className="mr-2 h-5 w-5" />
-                    <span>Log Out</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarFooter>
-            <SidebarRail />
-          </Sidebar>
+          <DashboardSidebar 
+            activeNav={activeNav} 
+            setActiveNav={setActiveNav} 
+            handleNavClick={handleNavClick} 
+          />
           <SidebarInset className="p-0">
             <div className="pt-20 flex-grow">
               <DashboardContent activeView={activeView} setActiveView={setActiveView} />
