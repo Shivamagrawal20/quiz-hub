@@ -1,9 +1,8 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Eye, Lock, LoaderCircle, Save } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,6 +14,16 @@ import {
   PaginationItem,
   PaginationLink,
 } from "@/components/ui/pagination";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // Mock quiz data - in a real application, this would come from an API
 const quizData = {
@@ -106,9 +115,31 @@ const Quiz = () => {
   const [userAnswers, setUserAnswers] = useState<(number | null)[]>([]);
   const [questionStatuses, setQuestionStatuses] = useState<{[key: number]: "answered" | "flagged" | "unattempted"}>({});
   const [timeRemaining, setTimeRemaining] = useState({ minutes: 5, seconds: 0 });
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showFullscreenAlert, setShowFullscreenAlert] = useState(false);
   
   // Get quiz data based on ID
   const quiz = id ? quizData[id as keyof typeof quizData] : null;
+  
+  // Handle fullscreen change
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isCurrentlyFullscreen = !!document.fullscreenElement;
+      setIsFullscreen(isCurrentlyFullscreen);
+      
+      // Show alert to re-enter fullscreen if exited and quiz is not completed
+      if (!isCurrentlyFullscreen && !quizCompleted && !isLoading) {
+        setShowFullscreenAlert(true);
+        warnUser("Exiting fullscreen is not allowed during the quiz.");
+      }
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, [quizCompleted, isLoading]);
   
   // Simulate loading
   useEffect(() => {
@@ -124,6 +155,9 @@ const Quiz = () => {
         }
         setQuestionStatuses(initialStatuses);
       }
+      
+      // Enter fullscreen mode initially
+      enterFullscreen();
     }, 1500);
     
     return () => clearTimeout(timer);
@@ -184,11 +218,14 @@ const Quiz = () => {
       }
     };
 
-    // Prevent keyboard shortcuts
+    // Prevent keyboard shortcuts - with enhanced ESC key handling
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Block Escape key to prevent exiting fullscreen
+      // Block Escape key to prevent exiting fullscreen - but show dialog
       if (e.key === "Escape" || e.key === "Esc") {
         e.preventDefault();
+        if (!isFullscreen && !quizCompleted) {
+          setShowFullscreenAlert(true);
+        }
         warnUser("Exiting fullscreen mode is not allowed during the quiz.");
       }
       
@@ -207,38 +244,13 @@ const Quiz = () => {
       }
     };
 
-    document.addEventListener("contextmenu", handleRightClick);
-    document.addEventListener("copy", handleCopy);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    document.addEventListener("keydown", handleKeyDown);
-
-    // Enter fullscreen mode
-    const enterFullscreen = () => {
-      try {
-        const element = document.documentElement;
-        if (element.requestFullscreen) {
-          element.requestFullscreen();
-        }
-      } catch (error) {
-        console.error("Could not enter fullscreen mode:", error);
-      }
-    };
-    
-    // Only enter fullscreen if quiz is loaded and not completed
+    // Only attach event listeners if quiz is loaded and not completed
     if (!isLoading && !quizCompleted) {
-      enterFullscreen();
+      document.addEventListener("contextmenu", handleRightClick);
+      document.addEventListener("copy", handleCopy);
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+      document.addEventListener("keydown", handleKeyDown);
     }
-
-    // Custom handler for fullscreen change event
-    const handleFullscreenChange = () => {
-      if (!document.fullscreenElement && !quizCompleted) {
-        // If user somehow exited fullscreen and quiz is not completed, attempt to re-enter
-        enterFullscreen();
-        warnUser("Exiting fullscreen is not allowed during the quiz.");
-      }
-    };
-
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
     
     // Cleanup event listeners
     return () => {
@@ -246,14 +258,13 @@ const Quiz = () => {
       document.removeEventListener("copy", handleCopy);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
       
       // Exit fullscreen when leaving the quiz
       if (document.fullscreenElement && quizCompleted) {
         document.exitFullscreen().catch(err => console.error(err));
       }
     };
-  }, [isLoading, quizCompleted]);
+  }, [isLoading, quizCompleted, isFullscreen]);
   
   // Security violation warning
   const warnUser = (message: string) => {
@@ -389,6 +400,28 @@ const Quiz = () => {
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col">
+      {/* Fullscreen Alert Dialog */}
+      <AlertDialog open={showFullscreenAlert} onOpenChange={setShowFullscreenAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Fullscreen Required</AlertDialogTitle>
+            <AlertDialogDescription>
+              You must remain in fullscreen mode to continue with the quiz. 
+              Exiting fullscreen mode will be counted as a security violation.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowFullscreenAlert(false)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              enterFullscreen();
+              setShowFullscreenAlert(false);
+            }}>
+              Return to Fullscreen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Quiz header with logo, timer, and user info */}
       <div className="bg-white border-b shadow-sm p-2 flex items-center justify-between">
         <div className="flex items-center">
