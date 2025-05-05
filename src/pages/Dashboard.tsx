@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { 
@@ -53,6 +54,7 @@ import { PerformanceDashboard } from "@/components/dashboard/PerformanceDashboar
 import { UserSettings } from "@/components/dashboard/UserSettings";
 import { HelpCenter } from "@/components/dashboard/HelpCenter";
 import { UpcomingQuizzes } from "@/components/dashboard/UpcomingQuizzes";
+import { ProfileSection } from "@/components/dashboard/ProfileSection";
 import { useToast } from "@/components/ui/use-toast";
 import { Slider } from "@/components/ui/slider";
 import { Card } from "@/components/ui/card";
@@ -154,6 +156,7 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
       case "performance":
         return <PerformanceDashboard />;
       case "settings":
+        // We've removed the profile from settings, showing simplified settings
         return <UserSettings />;
       case "help":
         return <HelpCenter />;
@@ -369,6 +372,9 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
                 <UpcomingQuizzes />
               </div>
             </div>
+
+            {/* Profile Section */}
+            <ProfileSection />
           </>
         );
     }
@@ -377,7 +383,7 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">Your Exam Dashboard</h1>
+        <h1 className="text-3xl font-bold">Your Dashboard</h1>
         {isMobile && (
           <div className="flex gap-2">
             {activeView !== "home" && (
@@ -600,25 +606,28 @@ const Dashboard = () => {
     }
   };
 
-  // Wrap the entire dashboard with SidebarProvider
+  // Wrap the entire dashboard with SidebarProvider and add the Navbar
   return (
-    <div className="min-h-screen flex flex-col">
-      <SidebarProvider defaultOpen={true}>
-        <div className="flex flex-grow w-full">
-          <DashboardSidebar 
-            activeNav={activeNav} 
-            setActiveNav={setActiveNav} 
-            handleNavClick={handleNavClick} 
-          />
-          <SidebarInset className="p-0">
-            <div className="pt-20 flex-grow">
-              <DashboardContent activeView={activeView} setActiveView={setActiveView} />
-            </div>
-            <Footer />
-          </SidebarInset>
-        </div>
-      </SidebarProvider>
-    </div>
+    <>
+      <Navbar showInDashboard={true} />
+      <div className="min-h-screen flex flex-col pt-16">
+        <SidebarProvider defaultOpen={true}>
+          <div className="flex flex-grow w-full">
+            <DashboardSidebar 
+              activeNav={activeNav} 
+              setActiveNav={setActiveNav} 
+              handleNavClick={handleNavClick} 
+            />
+            <SidebarInset className="p-0">
+              <div className="pt-4 flex-grow">
+                <DashboardContent activeView={activeView} setActiveView={setActiveView} />
+              </div>
+              <Footer />
+            </SidebarInset>
+          </div>
+        </SidebarProvider>
+      </div>
+    </>
   );
 };
 
