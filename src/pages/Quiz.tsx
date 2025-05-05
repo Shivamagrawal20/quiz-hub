@@ -121,6 +121,21 @@ const Quiz = () => {
   // Get quiz data based on ID
   const quiz = id ? quizData[id as keyof typeof quizData] : null;
   
+  // Function to enter fullscreen mode
+  const enterFullscreen = () => {
+    const element = document.documentElement;
+    if (element.requestFullscreen) {
+      element.requestFullscreen().catch((error) => {
+        console.error("Fullscreen error:", error);
+        toast({
+          title: "Fullscreen Error",
+          description: "Unable to enter fullscreen mode. Please try again or check your browser settings.",
+          variant: "destructive",
+        });
+      });
+    }
+  };
+  
   // Handle fullscreen change
   useEffect(() => {
     const handleFullscreenChange = () => {
