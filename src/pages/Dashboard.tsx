@@ -33,6 +33,14 @@ import {
   Medal,
   Award,
   Star,
+  RotateCcw,
+  Calendar,
+  Bell,
+  Tag,
+  Sun,
+  Moon,
+  Timer,
+  Flag
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -57,9 +65,12 @@ import { UpcomingQuizzes } from "@/components/dashboard/UpcomingQuizzes";
 import { ProfileSection } from "@/components/dashboard/ProfileSection";
 import { useToast } from "@/components/ui/use-toast";
 import { Slider } from "@/components/ui/slider";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Leaderboard } from "@/components/dashboard/Leaderboard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { toast } from "sonner";
 
 // Import the upcomingQuizzes mock data from the same file as UpcomingQuizzes
 import { upcomingQuizzes } from "@/components/dashboard/UpcomingQuizzes";
@@ -74,10 +85,17 @@ const userData = {
   totalQuizzes: 26,
   upcomingQuiz: "Cardiology Quiz",
   points: 1280,
-  rank: 42
+  rank: 42,
+  streak: 4,
+  goalThisWeek: 3,
+  achievements: [
+    { id: 1, name: "First Quiz", icon: "Award", progress: 100 },
+    { id: 2, name: "Quiz Streak", icon: "Trophy", progress: 40 },
+    { id: 3, name: "Top 10%", icon: "Star", progress: 100 },
+  ]
 };
 
-// Mock quiz attempts
+// Mock quiz attempts with added time data
 const quizAttempts = [
   { 
     id: "1", 
@@ -86,7 +104,9 @@ const quizAttempts = [
     date: "2025-04-28", 
     status: "completed", 
     correctAnswers: 17,
-    totalQuestions: 20
+    totalQuestions: 20,
+    timeSpent: "14:22",
+    tags: ["Ethics", "Medical"]
   },
   { 
     id: "2", 
@@ -95,7 +115,9 @@ const quizAttempts = [
     date: "2025-04-25", 
     status: "completed", 
     correctAnswers: 19,
-    totalQuestions: 25
+    totalQuestions: 25,
+    timeSpent: "18:45",
+    tags: ["Cardio", "Medical"]
   },
   { 
     id: "3", 
@@ -104,12 +126,39 @@ const quizAttempts = [
     date: "2025-04-20", 
     status: "completed", 
     correctAnswers: 23,
-    totalQuestions: 25
+    totalQuestions: 25,
+    timeSpent: "11:50",
+    tags: ["Neuro", "Medical"]
   },
 ];
 
+// Mock notifications
+const notifications = [
+  {
+    id: 1,
+    title: "Upcoming Quiz",
+    message: "Don't forget your Cardiology quiz tomorrow at 10:00 AM",
+    time: "1 hour ago",
+    unread: true
+  },
+  {
+    id: 2,
+    title: "Performance Update",
+    message: "You're in the top 10% of Neurology quiz takers!",
+    time: "3 hours ago",
+    unread: true
+  },
+  {
+    id: 3,
+    title: "New Quiz Available",
+    message: "Check out the new Pathology quiz now available",
+    time: "Yesterday",
+    unread: false
+  }
+];
+
 // Dashboard views
-type DashboardView = "home" | "performance" | "settings" | "help" | "leaderboard";
+type DashboardView = "home" | "performance" | "settings" | "help" | "leaderboard" | "calendar";
 
 interface DashboardContentProps {
   activeView: DashboardView;
@@ -123,9 +172,18 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
   const [progressValue, setProgressValue] = useState(0);
   const [scoreFilter, setScoreFilter] = useState([0]);
   const { toast } = useToast();
+  const [isDarkMode, setIsDarkMode] = useState(false);
   
   const handleQuizStart = (id: string) => {
     navigate(`/quiz/${id}`);
+  };
+  
+  const handleReviewAnswers = (id: string) => {
+    toast({
+      title: "Review Mode Activated",
+      description: `Loading review for ${quizAttempts.find(q => q.id === id)?.title}`,
+    });
+    setTimeout(() => navigate(`/quiz/${id}?review=true`), 1000);
   };
   
   const progressPercentage = (userData.completedQuizzes / userData.totalQuizzes) * 100;
@@ -150,6 +208,17 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
     });
   };
 
+  // Handle dark mode toggle
+  const toggleDarkMode = () => {
+    if (isDarkMode) {
+      document.documentElement.classList.remove("dark");
+    } else {
+      document.documentElement.classList.add("dark");
+    }
+    setIsDarkMode(!isDarkMode);
+    toast.success(`${isDarkMode ? "Light" : "Dark"} mode activated`);
+  };
+
   // Render different views based on active view
   const renderActiveView = () => {
     switch (activeView) {
@@ -162,11 +231,56 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
         return <HelpCenter />;
       case "leaderboard":
         return <Leaderboard />;
+      case "calendar":
+        return (
+          <Card className="bg-white rounded-lg shadow-sm">
+            <CardHeader>
+              <CardTitle>Calendar View</CardTitle>
+              <CardDescription>Upcoming quizzes calendar</CardDescription>
+            </CardHeader>
+            <CardContent className="h-[600px] flex items-center justify-center">
+              <div className="text-center">
+                <Calendar className="h-16 w-16 mx-auto text-primary opacity-50" />
+                <h3 className="text-xl font-medium mt-4">Calendar View Coming Soon</h3>
+                <p className="text-muted-foreground mt-2 max-w-md">
+                  We're working on a calendar view to help you visualize your upcoming quizzes.
+                  This feature will be available in the next update.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        );
       default:
         return (
           <>
+            {/* Goal Tracker Banner */}
+            <Card className="bg-gradient-to-r from-purple-500 to-blue-500 text-white mb-8 overflow-hidden">
+              <CardContent className="p-6">
+                <div className="flex flex-col md:flex-row items-center justify-between">
+                  <div className="space-y-2 mb-4 md:mb-0">
+                    <h3 className="text-xl font-bold">Your goal this week: {userData.goalThisWeek} quizzes</h3>
+                    <div className="flex items-center gap-2">
+                      <p className="text-white/90">
+                        You're {Math.round((userData.completedQuizzes % userData.goalThisWeek) / userData.goalThisWeek * 100)}% there. Let's crush it! 💪
+                      </p>
+                      <Badge className="bg-white/20 text-white">{userData.streak} day streak 🔥</Badge>
+                    </div>
+                    <Progress value={40} className="h-2 bg-white/30" indicatorClassName="bg-white" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="default" className="bg-white text-purple-500 hover:bg-white/90">
+                      Start a Quiz Now
+                    </Button>
+                    <Button variant="outline" className="bg-transparent border-white text-white hover:bg-white/20">
+                      View All Quizzes
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Overview Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               <Card className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-medium">Progress</h3>
@@ -215,6 +329,38 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
                   </Button>
                 )}
               </Card>
+              
+              <Card className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium">Achievements</h3>
+                  <Medal className="h-5 w-5 text-amber-500" />
+                </div>
+                <div className="flex -space-x-2 mt-2">
+                  {userData.achievements.map((achievement, index) => (
+                    <div 
+                      key={achievement.id}
+                      className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center border-2 border-white text-white"
+                      title={achievement.name}
+                    >
+                      {achievement.icon === "Trophy" && <Trophy className="h-4 w-4" />}
+                      {achievement.icon === "Award" && <Award className="h-4 w-4" />}
+                      {achievement.icon === "Star" && <Star className="h-4 w-4" />}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-sm text-muted-foreground mt-3">
+                  3/12 achievements unlocked
+                </p>
+                <Button 
+                  variant="link" 
+                  size="sm" 
+                  className="p-0 mt-1" 
+                  onClick={() => {}}
+                >
+                  View all achievements
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </Card>
             </div>
             
             {/* Two column layout */}
@@ -244,6 +390,17 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
                       >
                         Upcoming Quizzes
                       </button>
+                      <div className="ml-auto flex items-center px-4">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex items-center gap-1"
+                          onClick={() => setActiveView("calendar")}
+                        >
+                          <Calendar className="h-4 w-4" />
+                          Calendar View
+                        </Button>
+                      </div>
                     </div>
                   </div>
                   
@@ -271,14 +428,15 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
                               <TableHead>Quiz Name</TableHead>
                               <TableHead>Date</TableHead>
                               <TableHead>Score</TableHead>
-                              <TableHead>Status</TableHead>
-                              <TableHead className="text-right">Action</TableHead>
+                              <TableHead>Time</TableHead>
+                              <TableHead>Tags</TableHead>
+                              <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {filteredQuizzes.length === 0 ? (
                               <TableRow>
-                                <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
+                                <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
                                   No quizzes match your filter criteria
                                 </TableCell>
                               </TableRow>
@@ -299,20 +457,42 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
                                     </div>
                                   </TableCell>
                                   <TableCell>
-                                    <Badge variant="outline" className="bg-green-100 text-green-800">
-                                      <CheckCircle2 className="mr-1 h-3 w-3" /> Completed
-                                    </Badge>
+                                    <div className="flex items-center">
+                                      <Timer className="h-3 w-3 mr-1 text-muted-foreground" />
+                                      <span>{quiz.timeSpent}</span>
+                                    </div>
+                                  </TableCell>
+                                  <TableCell>
+                                    <div className="flex flex-wrap gap-1">
+                                      {quiz.tags.map((tag, index) => (
+                                        <Badge key={index} variant="outline" className="bg-blue-50 text-blue-700 text-xs flex items-center gap-0.5">
+                                          <Tag className="h-2.5 w-2.5" />
+                                          {tag}
+                                        </Badge>
+                                      ))}
+                                    </div>
                                   </TableCell>
                                   <TableCell className="text-right">
-                                    <Button 
-                                      variant="ghost" 
-                                      size="sm" 
-                                      onClick={() => handleQuizStart(quiz.id)}
-                                      className="opacity-0 group-hover:opacity-100 transition-opacity"
-                                    >
-                                      Retake
-                                      <ChevronRight className="ml-1 h-4 w-4" />
-                                    </Button>
+                                    <div className="flex justify-end gap-2">
+                                      <Button 
+                                        variant="outline" 
+                                        size="sm" 
+                                        onClick={() => handleReviewAnswers(quiz.id)}
+                                        className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                                      >
+                                        <BookOpen className="h-3.5 w-3.5 mr-1" />
+                                        Review
+                                      </Button>
+                                      <Button 
+                                        variant="outline" 
+                                        size="sm" 
+                                        onClick={() => handleQuizStart(quiz.id)}
+                                        className="text-green-600 border-green-200 hover:bg-green-50"
+                                      >
+                                        <RotateCcw className="h-3.5 w-3.5 mr-1" />
+                                        Retake
+                                      </Button>
+                                    </div>
                                   </TableCell>
                                 </TableRow>
                               ))
@@ -384,15 +564,66 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold">Your Dashboard</h1>
-        {isMobile && (
-          <div className="flex gap-2">
-            {activeView !== "home" && (
-              <Button variant="outline" size="sm" onClick={() => setActiveView("home")}>
-                Back to Dashboard
+        <div className="flex items-center gap-3">
+          {/* Dark Mode Toggle Button */}
+          <Button 
+            variant="outline" 
+            size="icon"
+            onClick={toggleDarkMode}
+            title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          >
+            {isDarkMode ? <Sun className="h-[1.2rem] w-[1.2rem]" /> : <Moon className="h-[1.2rem] w-[1.2rem]" />}
+          </Button>
+          
+          {/* Notifications Panel */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="icon"
+                className="relative"
+                title="Notifications"
+              >
+                <Bell className="h-[1.2rem] w-[1.2rem]" />
+                {notifications.some(n => n.unread) && (
+                  <span className="absolute -top-0.5 -right-0.5 h-2 w-2 bg-red-500 rounded-full"></span>
+                )}
               </Button>
-            )}
-          </div>
-        )}
+            </SheetTrigger>
+            <SheetContent>
+              <SheetHeader>
+                <SheetTitle>Notifications</SheetTitle>
+              </SheetHeader>
+              <div className="mt-6 space-y-4">
+                {notifications.map(notification => (
+                  <div 
+                    key={notification.id} 
+                    className={`p-4 border rounded-lg ${notification.unread ? "border-primary/30 bg-primary/5" : "border-muted"}`}
+                  >
+                    <div className="flex justify-between">
+                      <h4 className="font-medium">{notification.title}</h4>
+                      {notification.unread && (
+                        <Badge variant="secondary" className="text-xs font-normal">New</Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">{notification.message}</p>
+                    <p className="text-xs text-muted-foreground mt-2">{notification.time}</p>
+                  </div>
+                ))}
+              </div>
+            </SheetContent>
+          </Sheet>
+          
+          {isMobile && (
+            <div className="flex gap-2">
+              {activeView !== "home" && (
+                <Button variant="outline" size="sm" onClick={() => setActiveView("home")}>
+                  Back to Dashboard
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
       
       {renderActiveView()}
@@ -453,7 +684,7 @@ const DashboardSidebar = ({
           variant="ghost" 
           size="sm" 
           onClick={() => setOpen(!open)}
-          className="p-0 h-8 w-8"
+          className="p-0 h-8 w-8 hover:bg-secondary transition-colors"
         >
           {open ? <ChevronsLeft className="h-4 w-4" /> : <ChevronsRight className="h-4 w-4" />}
         </Button>
@@ -605,6 +836,14 @@ const Dashboard = () => {
         setActiveView("home");
     }
   };
+
+  // Check if user prefers dark mode
+  useEffect(() => {
+    const darkModePreference = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (darkModePreference) {
+      document.documentElement.classList.add("dark");
+    }
+  }, []);
 
   // Wrap the entire dashboard with SidebarProvider and add the Navbar
   return (
