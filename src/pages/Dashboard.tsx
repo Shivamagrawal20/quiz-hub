@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -216,7 +215,10 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
       document.documentElement.classList.add("dark");
     }
     setIsDarkMode(!isDarkMode);
-    toast.success(`${isDarkMode ? "Light" : "Dark"} mode activated`);
+    toast({
+      title: `${isDarkMode ? "Light" : "Dark"} mode activated`,
+      description: `The application is now in ${isDarkMode ? "light" : "dark"} mode.`,
+    });
   };
 
   // Render different views based on active view
@@ -265,7 +267,7 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
                       </p>
                       <Badge className="bg-white/20 text-white">{userData.streak} day streak 🔥</Badge>
                     </div>
-                    <Progress value={40} className="h-2 bg-white/30" indicatorClassName="bg-white" />
+                    <Progress value={40} className="h-2 bg-white/30" />
                   </div>
                   <div className="flex gap-2">
                     <Button variant="default" className="bg-white text-purple-500 hover:bg-white/90">
