@@ -26,8 +26,8 @@ const SignIn = () => {
         title: "Sign In Successful",
         description: "Welcome back to QuizHub!",
       });
-      // Redirect to dashboard after successful login
-      navigate("/dashboard");
+      // Redirect to UserHub after successful login (changed from dashboard)
+      navigate("/userhub");
     }, 1500);
   };
 
