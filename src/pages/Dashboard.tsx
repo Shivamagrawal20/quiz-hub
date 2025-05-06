@@ -555,27 +555,7 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
               </div>
             </div>
 
-            {/* Profile Section */}
-            <ProfileSection />
-          </>
-        );
-    }
-  };
-
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">Your Dashboard</h1>
-        <div className="flex items-center gap-3">
-          {/* Dark Mode Toggle Button */}
-          <Button 
-            variant="outline" 
-            size="icon"
-            onClick={toggleDarkMode}
-            title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-          >
-            {isDarkMode ? <Sun className="h-[1.2rem] w-[1.2rem]" /> : <Moon className="h-[1.2rem] w-[1.2rem]" />}
-          </Button>
+          
           
           {/* Notifications Panel */}
           <Sheet>
