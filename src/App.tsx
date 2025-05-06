@@ -17,6 +17,7 @@ import Contact from "./pages/Contact";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Dashboard from "./pages/Dashboard";
+import UserHub from "./pages/UserHub";
 import { useScrollToTop } from "./hooks/useScrollToTop";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const AppRoutes = () => {
         <Route path="/quiz-section" element={<QuizSection />} />
         <Route path="/quizzes" element={<Quizzes />} />
         <Route path="/quiz/:id" element={<Quiz />} />
+        <Route path="/userhub" element={<UserHub />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />

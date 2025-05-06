@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,7 @@ const SignUp = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [passwordError, setPasswordError] = useState("");
+  const navigate = useNavigate();
 
   const validatePassword = () => {
     if (password !== confirmPassword) {
@@ -40,6 +41,8 @@ const SignUp = () => {
         title: "Account Created",
         description: "Welcome to QuizHub! You're now registered.",
       });
+      // Redirect to UserHub after successful registration
+      navigate("/userhub");
     }, 1500);
   };
 
