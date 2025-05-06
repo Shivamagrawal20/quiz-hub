@@ -26,8 +26,29 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+// Define proper types for quiz data
+interface QuizQuestion {
+  id: number;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  section?: string; // Make section optional
+}
+
+interface BaseQuiz {
+  title: string;
+  description: string;
+  questions: QuizQuestion[];
+  testType?: string; // Make testType optional
+  sections?: string[]; // Make sections optional
+}
+
+type QuizData = {
+  [key: string]: BaseQuiz;
+};
+
 // Mock quiz data - in a real application, this would come from an API
-const quizData = {
+const quizData: QuizData = {
   "1": {
     title: "Mathematics Basics",
     description: "Test your knowledge of essential math concepts and operations.",
@@ -151,7 +172,7 @@ const Quiz = () => {
   const [activeSection, setActiveSection] = useState<string>("Quant");
   
   // Get quiz data based on ID
-  const quiz = id ? quizData[id as keyof typeof quizData] : null;
+  const quiz = id ? quizData[id] : null;
   
   // Function to enter fullscreen mode
   const enterFullscreen = () => {
@@ -412,7 +433,7 @@ const Quiz = () => {
     setQuizCompleted(true);
   };
 
-  // Handle quiz exit - modified to exit immediately on Cancel
+  // Handle quiz exit - modified to exit immediately
   const handleExitQuiz = () => {
     navigate("/quizzes");
   };
@@ -446,7 +467,7 @@ const Quiz = () => {
   // Get questions by section
   const getQuestionsBySection = (section: string) => {
     if (!quiz) return [];
-    return quiz.questions.filter((q, index) => {
+    return quiz.questions.filter((q) => {
       // If the quiz has sections defined, filter by section
       if ('section' in q) {
         return q.section === section;
@@ -546,7 +567,7 @@ const Quiz = () => {
           <Card className="shadow-sm mb-4 overflow-hidden relative z-10">
             <div className="bg-gray-100 p-4 border-b">
               <div className="font-semibold">
-                {hasSections && quiz.questions[currentQuestion].section && (
+                {hasSections && 'section' in quiz.questions[currentQuestion] && quiz.questions[currentQuestion].section && (
                   <span className="mr-2">{quiz.questions[currentQuestion].section} -</span>
                 )}
                 Question {currentQuestion + 1}
@@ -705,9 +726,9 @@ const Quiz = () => {
           <div className="p-4">
             <h3 className="font-medium mb-3 text-center">{activeSection}</h3>
             <div className="grid grid-cols-5 gap-2">
-              {quiz.questions.map((_, index) => {
+              {quiz.questions.map((q, index) => {
                 // If quiz has sections, only show questions from active section
-                if (hasSections && 'section' in quiz.questions[index] && quiz.questions[index].section !== activeSection) {
+                if (hasSections && 'section' in q && q.section !== activeSection) {
                   return null;
                 }
                 
