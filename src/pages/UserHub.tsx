@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ChevronRight, BookOpen, Upload, Clock, BarChart2, Trophy, Users, BookMarked, Settings, Award } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { ProfileSection } from "@/components/dashboard/ProfileSection";
 import { UserSettings } from "@/components/dashboard/UserSettings";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -84,7 +83,6 @@ const UserHub = () => {
             <Tabs defaultValue="overview" className="mt-6" onValueChange={setActiveTab}>
               <TabsList>
                 <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="profile">My Profile</TabsTrigger>
                 <TabsTrigger value="settings">Settings</TabsTrigger>
               </TabsList>
               
@@ -377,10 +375,6 @@ const UserHub = () => {
                     </CardContent>
                   </Card>
                 </div>
-              </TabsContent>
-              
-              <TabsContent value="profile">
-                <ProfileSection />
               </TabsContent>
               
               <TabsContent value="settings">

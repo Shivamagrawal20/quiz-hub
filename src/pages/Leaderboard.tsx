@@ -31,6 +31,8 @@ const Leaderboard = () => {
             subtitle="Compete with friends and classmates"
             features={features}
             buttonText="Coming Soon"
+            bgColor="from-rose-500 to-rose-600"
+            textColor="text-rose-500"
           />
         </div>
       </main>
