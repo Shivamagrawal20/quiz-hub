@@ -74,11 +74,11 @@ const SideNavigation = ({ className }: SideNavigationProps) => {
   // Links visible only to logged in users
   const privateLinks = [
     { to: "/userhub", icon: Home, label: "User Hub" },
+    { to: "/dashboard", icon: BarChart2, label: "Dashboard" },
+    { to: "/quiz-history", icon: History, label: "Quiz History" },
+    { to: "/leaderboard", icon: Trophy, label: "Leaderboard" },
     { to: "/upload-notes", icon: Upload, label: "Upload Notes" },
     { to: "/view-notes", icon: BookOpen, label: "View Notes" },
-    { to: "/quiz-history", icon: History, label: "Quiz History" },
-    { to: "/dashboard", icon: BarChart2, label: "Dashboard" },
-    { to: "/leaderboard", icon: Trophy, label: "Leaderboard" },
     { to: "/notifications", icon: Bell, label: "Notifications" },
     { to: "/profile", icon: User, label: "My Profile" },
     { to: "/settings", icon: Settings, label: "Settings" },

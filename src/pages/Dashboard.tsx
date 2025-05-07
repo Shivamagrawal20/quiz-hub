@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -45,19 +44,6 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarHeader,
-  SidebarFooter,
-  SidebarInset,
-  SidebarRail,
-  useSidebar,
-} from "@/components/ui/sidebar";
 import { PerformanceDashboard } from "@/components/dashboard/PerformanceDashboard";
 import { UserSettings } from "@/components/dashboard/UserSettings";
 import { HelpCenter } from "@/components/dashboard/HelpCenter";
@@ -167,7 +153,6 @@ interface DashboardContentProps {
 
 const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) => {
   const navigate = useNavigate();
-  const { isMobile, open } = useSidebar();
   const [activeQuizTab, setActiveQuizTab] = useState<"completed" | "upcoming">("completed");
   const [progressValue, setProgressValue] = useState(0);
   const [scoreFilter, setScoreFilter] = useState([0]);
@@ -210,17 +195,37 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
 
   // Handle dark mode toggle
   const toggleDarkMode = () => {
-    if (isDarkMode) {
-      document.documentElement.classList.remove("dark");
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+    if (newMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
     } else {
-      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
     }
-    setIsDarkMode(!isDarkMode);
-    toast({
-      title: `${isDarkMode ? "Light" : "Dark"} mode activated`,
-      description: `The application is now in ${isDarkMode ? "light" : "dark"} mode.`,
-    });
   };
+
+  // On mount, check localStorage for theme preference
+  useEffect(() => {
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme === 'dark') {
+      setIsDarkMode(true);
+      document.documentElement.classList.add('dark');
+    } else if (storedTheme === 'light') {
+      setIsDarkMode(false);
+      document.documentElement.classList.remove('dark');
+    } else {
+      // fallback to system preference
+      const darkModePreference = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setIsDarkMode(darkModePreference);
+      if (darkModePreference) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  }, []);
 
   // Render different views based on active view
   const renderActiveView = () => {
@@ -564,16 +569,6 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
     <div className="container px-4 py-6">
       {/* Fixed the JSX structure here */}
       <div>
-        {isMobile && (
-          <div className="flex gap-2 mb-4">
-            {activeView !== "home" && (
-              <Button variant="outline" size="sm" onClick={() => setActiveView("home")}>
-                Back to Dashboard
-              </Button>
-            )}
-          </div>
-        )}
-        
         {renderActiveView()}
       </div>
       
@@ -619,240 +614,18 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
   );
 };
 
-// Profile section component for the sidebar
-const SidebarProfile = () => {
-  const { open } = useSidebar();
-  
-  return (
-    <div className={`p-4 border-t transition-all duration-300 ${open ? 'opacity-100' : 'opacity-0'}`}>
-      <div className="flex items-center gap-3">
-        <Avatar className="h-10 w-10 border-2 border-primary/20">
-          <AvatarImage src={userData.avatarUrl || undefined} alt={userData.name} />
-          <AvatarFallback className="bg-primary/10 text-primary">
-            {userData.name.split(' ').map(n => n[0]).join('')}
-          </AvatarFallback>
-        </Avatar>
-        <div className={`transition-all duration-200 ${open ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>
-          <p className="font-medium text-sm">{userData.name}</p>
-          <p className="text-xs text-muted-foreground">{userData.role}</p>
-          <div className="flex items-center mt-1 text-xs gap-1">
-            <Trophy className="h-3 w-3 text-amber-500" />
-            <span>{userData.points} pts</span>
-            <span className="text-muted-foreground mx-1">•</span>
-            <span>Rank #{userData.rank}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Sidebar Component to separate concerns and avoid nesting useSidebar calls
-const DashboardSidebar = ({ 
-  activeNav, 
-  setActiveNav,
-  handleNavClick 
-}: { 
-  activeNav: string; 
-  setActiveNav: (nav: string) => void;
-  handleNavClick: (nav: string) => void;
-}) => {
-  const { open, setOpen } = useSidebar();
-  
-  return (
-    <Sidebar variant="sidebar" collapsible="icon">
-      <SidebarHeader className="h-14 flex items-center justify-between px-4">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center">
-            <span className="text-white font-bold text-xl">Q</span>
-          </div>
-          <span className="font-bold text-lg">QuizHub</span>
-        </div>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => setOpen(!open)}
-          className="p-0 h-8 w-8 hover:bg-secondary transition-colors"
-        >
-          {open ? <ChevronsLeft className="h-4 w-4" /> : <ChevronsRight className="h-4 w-4" />}
-        </Button>
-      </SidebarHeader>
-      
-      {/* Add profile section below the header */}
-      <SidebarProfile />
-      
-      <SidebarContent>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton 
-              tooltip="Dashboard" 
-              isActive={activeNav === "dashboard"}
-              onClick={() => handleNavClick("dashboard")}
-              className="hover:bg-secondary/50 transition-colors"
-            >
-              <Home className="mr-2 h-5 w-5" />
-              <span>Dashboard</span>
-              
-              {/* Add interactive animation for active item */}
-              {activeNav === "dashboard" && (
-                <span className="absolute inset-y-0 left-0 w-1 bg-primary rounded-r-md animate-pulse" />
-              )}
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          
-          <SidebarMenuItem>
-            <SidebarMenuButton 
-              tooltip="Quizzes" 
-              isActive={activeNav === "quizzes"}
-              onClick={() => handleNavClick("quizzes")}
-              className="hover:bg-secondary/50 transition-colors"
-            >
-              <Book className="mr-2 h-5 w-5" />
-              <span>Quizzes</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          
-          <SidebarMenuItem>
-            <SidebarMenuButton 
-              tooltip="Performance" 
-              isActive={activeNav === "performance"}
-              onClick={() => handleNavClick("performance")}
-              className="hover:bg-secondary/50 transition-colors"
-            >
-              <BarChart2 className="mr-2 h-5 w-5" />
-              <span>Performance</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          
-          {/* Add Leaderboard menu item */}
-          <SidebarMenuItem>
-            <SidebarMenuButton 
-              tooltip="Leaderboard" 
-              isActive={activeNav === "leaderboard"}
-              onClick={() => handleNavClick("leaderboard")}
-              className="hover:bg-secondary/50 transition-colors"
-            >
-              <Trophy className="mr-2 h-5 w-5" />
-              <span>Leaderboard</span>
-              {/* Add "New" badge */}
-              <Badge variant="outline" className="ml-2 bg-primary/10 text-primary text-[10px] h-4">
-                NEW
-              </Badge>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          
-          <SidebarMenuItem>
-            <SidebarMenuButton 
-              tooltip="Settings" 
-              isActive={activeNav === "settings"}
-              onClick={() => handleNavClick("settings")}
-              className="hover:bg-secondary/50 transition-colors"
-            >
-              <Settings className="mr-2 h-5 w-5" />
-              <span>Settings</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          
-          <SidebarMenuItem>
-            <SidebarMenuButton 
-              tooltip="Help" 
-              isActive={activeNav === "help"}
-              onClick={() => handleNavClick("help")}
-              className="hover:bg-secondary/50 transition-colors"
-            >
-              <HelpCircle className="mr-2 h-5 w-5" />
-              <span>Help</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarContent>
-      <SidebarFooter className="p-4 border-t">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton 
-              tooltip="Log Out" 
-              onClick={() => handleNavClick("logout")}
-              className="hover:bg-secondary/50 transition-colors hover:text-red-500"
-            >
-              <LogOut className="mr-2 h-5 w-5" />
-              <span>Log Out</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-      <SidebarRail />
-    </Sidebar>
-  );
-};
-
 const Dashboard = () => {
   useScrollToTop();
-  const navigate = useNavigate();
-  const [activeNav, setActiveNav] = useState<string>("dashboard");
   const [activeView, setActiveView] = useState<DashboardView>("home");
 
-  const handleNavClick = (nav: string) => {
-    switch(nav) {
-      case "dashboard":
-        setActiveNav("dashboard");
-        setActiveView("home");
-        break;
-      case "quizzes":
-        navigate('/quizzes');
-        break;
-      case "performance":
-        setActiveNav("performance");
-        setActiveView("performance");
-        break;
-      case "settings":
-        setActiveNav("settings");
-        setActiveView("settings");
-        break;
-      case "help":
-        setActiveNav("help");
-        setActiveView("help");
-        break;
-      case "leaderboard":
-        setActiveNav("leaderboard");
-        setActiveView("leaderboard");
-        break;
-      case "logout":
-        navigate('/');
-        break;
-      default:
-        setActiveNav("dashboard");
-        setActiveView("home");
-    }
-  };
-
-  // Check if user prefers dark mode
-  useEffect(() => {
-    const darkModePreference = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    if (darkModePreference) {
-      document.documentElement.classList.add("dark");
-    }
-  }, []);
-
-  // Wrap the entire dashboard with SidebarProvider and add the Navbar
   return (
     <>
-      <Navbar showInDashboard={true} />
+      <Navbar />
       <div className="min-h-screen flex flex-col pt-16">
-        <SidebarProvider defaultOpen={true}>
-          <div className="flex flex-grow w-full">
-            <DashboardSidebar 
-              activeNav={activeNav} 
-              setActiveNav={setActiveNav} 
-              handleNavClick={handleNavClick} 
-            />
-            <SidebarInset className="p-0">
-              <div className="pt-4 flex-grow">
-                <DashboardContent activeView={activeView} setActiveView={setActiveView} />
-              </div>
-              <Footer />
-            </SidebarInset>
-          </div>
-        </SidebarProvider>
+        <div className="flex-grow">
+          <DashboardContent activeView={activeView} setActiveView={setActiveView} />
+        </div>
+        <Footer />
       </div>
     </>
   );

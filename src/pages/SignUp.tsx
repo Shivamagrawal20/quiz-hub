@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -113,7 +112,7 @@ const SignUp = () => {
                 
                 <Button 
                   type="submit" 
-                  className="w-full"
+                  className="w-full bg-green-500 hover:bg-green-600 text-white"
                   disabled={isLoading}
                 >
                   {isLoading ? (
