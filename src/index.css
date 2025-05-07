@@ -152,4 +152,26 @@
   .custom-scrollbar {
     @apply scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent;
   }
+
+  /* Coming soon checklist icon */
+  .coming-soon-check {
+    @apply flex items-center gap-2 text-lg;
+  }
+
+  .coming-soon-check svg {
+    @apply text-primary h-5 w-5;
+  }
+
+  /* Side panel link styling */
+  .side-panel-link {
+    @apply flex items-center gap-2 py-2 px-3 rounded-md transition-colors duration-200;
+  }
+
+  .side-panel-link-active {
+    @apply bg-primary/10 text-primary font-medium;
+  }
+
+  .side-panel-link-inactive {
+    @apply hover:bg-gray-100 dark:hover:bg-gray-800;
+  }
 }
