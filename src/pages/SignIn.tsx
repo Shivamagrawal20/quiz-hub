@@ -7,12 +7,14 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { toast } from "@/components/ui/use-toast";
 import { LogIn } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { setIsLoggedIn } = useAuth();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,6 +23,7 @@ const SignIn = () => {
     // This is a mock login - in a real app, you would connect to an auth service
     setTimeout(() => {
       setIsLoading(false);
+      setIsLoggedIn(true);
       toast({
         title: "Sign In Successful",
         description: "Welcome back to QuizHub!",

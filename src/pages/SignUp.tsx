@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { toast } from "@/components/ui/use-toast";
 import { UserPlus } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const SignUp = () => {
   const [name, setName] = useState("");
@@ -16,6 +17,7 @@ const SignUp = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const navigate = useNavigate();
+  const { setIsLoggedIn } = useAuth();
 
   const validatePassword = () => {
     if (password !== confirmPassword) {
@@ -36,6 +38,7 @@ const SignUp = () => {
     // This is a mock registration - in a real app, you would connect to an auth service
     setTimeout(() => {
       setIsLoading(false);
+      setIsLoggedIn(true);
       toast({
         title: "Account Created",
         description: "Welcome to QuizHub! You're now registered.",
