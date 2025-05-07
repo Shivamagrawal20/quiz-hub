@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, LogIn, UserPlus, User, Home, Settings, LogOut, ChevronDown, Bell, History, Upload, Book, Trophy } from "lucide-react";
+import { LogIn, UserPlus, User, Home, Settings, LogOut, ChevronDown, Bell, History } from "lucide-react";
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
+import SideNavigation from "./SideNavigation";
 
 const Navbar = ({ showInDashboard = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -26,12 +27,16 @@ const Navbar = ({ showInDashboard = false }) => {
     return (
       <nav className="w-full py-4 bg-white/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-50 shadow-sm dark:bg-gray-900/90 dark:border-b dark:border-gray-800">
         <div className="container mx-auto px-4 flex justify-between items-center">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center">
-              <span className="text-white font-bold text-xl">Q</span>
-            </div>
-            <span className="font-bold text-xl">QuizHub</span>
-          </Link>
+          <div className="flex items-center gap-3">
+            <SideNavigation className="mr-1" />
+            
+            <Link to="/" className="flex items-center gap-2">
+              <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center">
+                <span className="text-white font-bold text-xl">Q</span>
+              </div>
+              <span className="font-bold text-xl">QuizHub</span>
+            </Link>
+          </div>
 
           {/* Dashboard Navigation */}
           <div className="hidden md:flex items-center gap-8">
@@ -86,10 +91,10 @@ const Navbar = ({ showInDashboard = false }) => {
             variant="ghost"
             size="icon"
             onClick={toggleMenu}
-            className="md:hidden"
+            className="md:flex lg:hidden"
             aria-label="Toggle Menu"
           >
-            <Menu />
+            <User className="h-5 w-5" />
           </Button>
         </div>
 
@@ -150,12 +155,16 @@ const Navbar = ({ showInDashboard = false }) => {
   return (
     <nav className="w-full py-4 bg-white/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-50 shadow-sm dark:bg-gray-900/90 dark:border-b dark:border-gray-800">
       <div className="container mx-auto px-4 flex justify-between items-center">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center">
-            <span className="text-white font-bold text-xl">Q</span>
-          </div>
-          <span className="font-bold text-xl">QuizHub</span>
-        </Link>
+        <div className="flex items-center gap-3">
+          <SideNavigation className="mr-1" />
+          
+          <Link to="/" className="flex items-center gap-2">
+            <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center">
+              <span className="text-white font-bold text-xl">Q</span>
+            </div>
+            <span className="font-bold text-xl">QuizHub</span>
+          </Link>
+        </div>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
@@ -193,7 +202,7 @@ const Navbar = ({ showInDashboard = false }) => {
           className="md:hidden"
           aria-label="Toggle Menu"
         >
-          <Menu />
+          <User className="h-5 w-5" />
         </Button>
       </div>
 
