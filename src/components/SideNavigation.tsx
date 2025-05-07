@@ -1,7 +1,7 @@
-
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 import { 
   Sheet, 
   SheetContent, 
@@ -23,9 +23,17 @@ import {
   User,
   LogIn,
   LogOut,
-  Settings
+  Settings,
+  UserPlus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface SideNavigationProps {
   className?: string;
@@ -36,11 +44,20 @@ interface NavLinkProps {
   icon: React.ElementType;
   label: string;
   isActive: boolean;
+  onClick?: (e: React.MouseEvent) => void;
 }
 
-const NavLink = ({ to, icon: Icon, label, isActive }: NavLinkProps) => (
+interface NavLinkItem {
+  to: string;
+  icon: React.ElementType;
+  label: string;
+  onClick?: (e: React.MouseEvent) => void;
+}
+
+const NavLink = ({ to, icon: Icon, label, isActive, onClick }: NavLinkProps) => (
   <Link 
     to={to} 
+    onClick={onClick}
     className={cn(
       "flex items-center gap-3 py-2 px-3 rounded-md transition-colors",
       isActive 
@@ -55,38 +72,51 @@ const NavLink = ({ to, icon: Icon, label, isActive }: NavLinkProps) => (
 
 const SideNavigation = ({ className }: SideNavigationProps) => {
   const [open, setOpen] = useState(false);
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const location = useLocation();
   const currentPath = location.pathname;
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
 
   const isActive = (path: string) => currentPath === path;
   
-  // Simulate logged in state (in a real app this would come from auth context)
-  const isLoggedIn = true;
+  const handleProtectedLinkClick = (e: React.MouseEvent) => {
+    if (!isLoggedIn) {
+      e.preventDefault();
+      setIsAuthDialogOpen(true);
+    }
+  };
 
   // Links visible to all users
-  const publicLinks = [
+  const publicLinks: NavLinkItem[] = [
     { to: "/", icon: Home, label: "Home" },
-    { to: "/quizzes", icon: BookText, label: "Take Quiz" },
     { to: "/about", icon: Users, label: "About Us" },
     { to: "/contact", icon: Bell, label: "Contact" },
   ];
   
   // Links visible only to logged in users
-  const privateLinks = [
-    { to: "/userhub", icon: Home, label: "User Hub" },
-    { to: "/dashboard", icon: BarChart2, label: "Dashboard" },
-    { to: "/quiz-history", icon: History, label: "Quiz History" },
-    { to: "/leaderboard", icon: Trophy, label: "Leaderboard" },
-    { to: "/upload-notes", icon: Upload, label: "Upload Notes" },
-    { to: "/view-notes", icon: BookOpen, label: "View Notes" },
-    { to: "/notifications", icon: Bell, label: "Notifications" },
-    { to: "/profile", icon: User, label: "My Profile" },
-    { to: "/settings", icon: Settings, label: "Settings" },
+  const privateLinks: NavLinkItem[] = [
+    { to: "/userhub", icon: Home, label: "User Hub", onClick: handleProtectedLinkClick },
+    { to: "/dashboard", icon: BarChart2, label: "Dashboard", onClick: handleProtectedLinkClick },
+    { to: "/quizzes", icon: BookText, label: "Take Quiz", onClick: handleProtectedLinkClick },
+    { to: "/quiz-history", icon: History, label: "Quiz History", onClick: handleProtectedLinkClick },
+    { to: "/leaderboard", icon: Trophy, label: "Leaderboard", onClick: handleProtectedLinkClick },
+    { to: "/upload-notes", icon: Upload, label: "Upload Notes", onClick: handleProtectedLinkClick },
+    { to: "/view-notes", icon: BookOpen, label: "View Notes", onClick: handleProtectedLinkClick },
+    { to: "/notifications", icon: Bell, label: "Notifications", onClick: handleProtectedLinkClick },
+    { to: "/profile", icon: User, label: "My Profile", onClick: handleProtectedLinkClick },
+    { to: "/settings", icon: Settings, label: "Settings", onClick: handleProtectedLinkClick },
   ];
   
   // Auth links based on login status
   const authLinks = isLoggedIn ? [
-    { to: "/", icon: LogOut, label: "Log Out" }
+    { 
+      to: "/", 
+      icon: LogOut, 
+      label: "Log Out",
+      onClick: () => {
+        setIsLoggedIn(false);
+      }
+    }
   ] : [
     { to: "/signin", icon: LogIn, label: "Sign In" },
     { to: "/signup", icon: User, label: "Sign Up" }
@@ -98,50 +128,80 @@ const SideNavigation = ({ className }: SideNavigationProps) => {
     : [...publicLinks];
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className={className}>
-          <Menu className="h-5 w-5" />
-          <span className="sr-only">Open navigation menu</span>
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="w-80">
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
-            <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center">
-              <span className="text-white font-bold text-xl">Q</span>
-            </div>
-            <span className="font-bold text-xl">QuizHub</span>
-          </SheetTitle>
-        </SheetHeader>
-        
-        <div className="mt-8 flex flex-col space-y-2">
-          {links.map((link) => (
-            <NavLink 
-              key={link.to}
-              to={link.to}
-              icon={link.icon}
-              label={link.label}
-              isActive={isActive(link.to)}
-            />
-          ))}
+    <>
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetTrigger asChild>
+          <Button variant="ghost" size="icon" className={className}>
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Open navigation menu</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-80">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center">
+                <span className="text-white font-bold text-xl">Q</span>
+              </div>
+              <span className="font-bold text-xl">QuizHub</span>
+            </SheetTitle>
+          </SheetHeader>
           
-          {/* Separator before auth links */}
-          <div className="h-px bg-gray-200 dark:bg-gray-800 my-2"></div>
-          
-          {/* Auth links */}
-          {authLinks.map((link) => (
-            <NavLink 
-              key={link.to}
-              to={link.to}
-              icon={link.icon}
-              label={link.label}
-              isActive={isActive(link.to)}
-            />
-          ))}
-        </div>
-      </SheetContent>
-    </Sheet>
+          <div className="mt-8 flex flex-col space-y-2">
+            {links.map((link) => (
+              <NavLink 
+                key={link.to}
+                to={link.to}
+                icon={link.icon}
+                label={link.label}
+                isActive={isActive(link.to)}
+                onClick={link.onClick}
+              />
+            ))}
+            
+            {/* Separator before auth links */}
+            <div className="h-px bg-gray-200 dark:bg-gray-800 my-2"></div>
+            
+            {/* Auth links */}
+            {authLinks.map((link) => (
+              <NavLink 
+                key={link.to}
+                to={link.to}
+                icon={link.icon}
+                label={link.label}
+                isActive={isActive(link.to)}
+                onClick={link.onClick}
+              />
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Authentication Dialog */}
+      <Dialog open={isAuthDialogOpen} onOpenChange={setIsAuthDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Authentication Required</DialogTitle>
+            <DialogDescription>
+              Please sign in or create an account to access this feature.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-4">
+            <Link to="/signin" onClick={() => setIsAuthDialogOpen(false)}>
+              <Button className="w-full flex items-center gap-2">
+                <LogIn className="h-4 w-4" />
+                Sign In
+              </Button>
+            </Link>
+            <Link to="/signup" onClick={() => setIsAuthDialogOpen(false)}>
+              <Button variant="outline" className="w-full flex items-center gap-2">
+                <UserPlus className="h-4 w-4" />
+                Create Account
+              </Button>
+            </Link>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

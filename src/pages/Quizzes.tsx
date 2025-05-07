@@ -4,10 +4,11 @@ import QuizCard from "@/components/QuizCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Filter, Tag } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Player } from '@lottiefiles/react-lottie-player';
 
 const Quizzes = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -16,6 +17,7 @@ const Quizzes = () => {
   const [difficultyFilter, setDifficultyFilter] = useState("all");
   const [creatorFilter, setCreatorFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("all");
+  const [isLoading, setIsLoading] = useState(true);
   
   // Simulate logged in state (in a real app this would come from auth context)
   const isLoggedIn = true;
@@ -147,6 +149,25 @@ const Quizzes = () => {
     return matchesSearch && matchesCategory && matchesSubject && matchesDifficulty && 
            matchesCreator && matchesTags && matchesTab;
   });
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-gray-900">
+        <Player
+          autoplay
+          loop
+          src="https://lottie.host/b2df5e9e-65e6-42e2-82bb-c50d5c03398f/KwAjAnuGGg.lottie"
+          style={{ height: '220px', width: '220px' }}
+        />
+        <p className="mt-6 text-lg text-gray-600 dark:text-gray-300">Loading quizzes...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
