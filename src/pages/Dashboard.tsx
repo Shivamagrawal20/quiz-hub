@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -554,61 +555,66 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
                 <UpcomingQuizzes />
               </div>
             </div>
+          </>
+        );
+    }
+  };
 
-          
-          
-          {/* Notifications Panel */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="icon"
-                className="relative"
-                title="Notifications"
-              >
-                <Bell className="h-[1.2rem] w-[1.2rem]" />
-                {notifications.some(n => n.unread) && (
-                  <span className="absolute -top-0.5 -right-0.5 h-2 w-2 bg-red-500 rounded-full"></span>
-                )}
+  return (
+    <div className="container px-4 py-6">
+      {/* Fixed the JSX structure here */}
+      <div>
+        {isMobile && (
+          <div className="flex gap-2 mb-4">
+            {activeView !== "home" && (
+              <Button variant="outline" size="sm" onClick={() => setActiveView("home")}>
+                Back to Dashboard
               </Button>
-            </SheetTrigger>
-            <SheetContent>
-              <SheetHeader>
-                <SheetTitle>Notifications</SheetTitle>
-              </SheetHeader>
-              <div className="mt-6 space-y-4">
-                {notifications.map(notification => (
-                  <div 
-                    key={notification.id} 
-                    className={`p-4 border rounded-lg ${notification.unread ? "border-primary/30 bg-primary/5" : "border-muted"}`}
-                  >
-                    <div className="flex justify-between">
-                      <h4 className="font-medium">{notification.title}</h4>
-                      {notification.unread && (
-                        <Badge variant="secondary" className="text-xs font-normal">New</Badge>
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-1">{notification.message}</p>
-                    <p className="text-xs text-muted-foreground mt-2">{notification.time}</p>
-                  </div>
-                ))}
-              </div>
-            </SheetContent>
-          </Sheet>
-          
-          {isMobile && (
-            <div className="flex gap-2">
-              {activeView !== "home" && (
-                <Button variant="outline" size="sm" onClick={() => setActiveView("home")}>
-                  Back to Dashboard
-                </Button>
-              )}
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
+        
+        {renderActiveView()}
       </div>
       
-      {renderActiveView()}
+      {/* Notifications Panel */}
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button 
+            variant="outline" 
+            size="icon"
+            className="relative"
+            title="Notifications"
+          >
+            <Bell className="h-[1.2rem] w-[1.2rem]" />
+            {notifications.some(n => n.unread) && (
+              <span className="absolute -top-0.5 -right-0.5 h-2 w-2 bg-red-500 rounded-full"></span>
+            )}
+          </Button>
+        </SheetTrigger>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Notifications</SheetTitle>
+          </SheetHeader>
+          <div className="mt-6 space-y-4">
+            {notifications.map(notification => (
+              <div 
+                key={notification.id} 
+                className={`p-4 border rounded-lg ${notification.unread ? "border-primary/30 bg-primary/5" : "border-muted"}`}
+              >
+                <div className="flex justify-between">
+                  <h4 className="font-medium">{notification.title}</h4>
+                  {notification.unread && (
+                    <Badge variant="secondary" className="text-xs font-normal">New</Badge>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">{notification.message}</p>
+                <p className="text-xs text-muted-foreground mt-2">{notification.time}</p>
+              </div>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
