@@ -246,7 +246,11 @@ const UserHub = () => {
                       </p>
                     </CardContent>
                     <CardFooter>
-                      <Button variant="outline" className="w-full border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20" onClick={() => navigateTo('/notes/upload')}>
+                      <Button 
+                        variant="outline" 
+                        className="w-full border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20" 
+                        onClick={() => navigateTo('/upload-notes')}
+                      >
                         Upload Notes <ChevronRight className="h-4 w-4 ml-1" />
                       </Button>
                     </CardFooter>
@@ -267,7 +271,11 @@ const UserHub = () => {
                       </p>
                     </CardContent>
                     <CardFooter>
-                      <Button variant="outline" className="w-full border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-900/20" onClick={() => navigateTo('/notes')}>
+                      <Button 
+                        variant="outline" 
+                        className="w-full border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-900/20" 
+                        onClick={() => navigateTo('/view-notes')}
+                      >
                         Browse Notes <ChevronRight className="h-4 w-4 ml-1" />
                       </Button>
                     </CardFooter>
@@ -288,7 +296,11 @@ const UserHub = () => {
                       </p>
                     </CardContent>
                     <CardFooter>
-                      <Button variant="outline" className="w-full border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-800 dark:text-amber-400 dark:hover:bg-amber-900/20" onClick={() => navigateTo('/history')}>
+                      <Button 
+                        variant="outline" 
+                        className="w-full border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-800 dark:text-amber-400 dark:hover:bg-amber-900/20" 
+                        onClick={() => navigateTo('/quiz-history')}
+                      >
                         View History <ChevronRight className="h-4 w-4 ml-1" />
                       </Button>
                     </CardFooter>
@@ -309,7 +321,11 @@ const UserHub = () => {
                       </p>
                     </CardContent>
                     <CardFooter>
-                      <Button variant="outline" className="w-full border-violet-200 text-violet-700 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20" onClick={() => navigateTo('/dashboard')}>
+                      <Button 
+                        variant="outline" 
+                        className="w-full border-violet-200 text-violet-700 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20" 
+                        onClick={() => navigateTo('/dashboard')}
+                      >
                         Go to Dashboard <ChevronRight className="h-4 w-4 ml-1" />
                       </Button>
                     </CardFooter>
@@ -330,7 +346,11 @@ const UserHub = () => {
                       </p>
                     </CardContent>
                     <CardFooter>
-                      <Button variant="outline" className="w-full border-rose-200 text-rose-700 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-400 dark:hover:bg-rose-900/20" onClick={() => navigateTo('/leaderboard')}>
+                      <Button 
+                        variant="outline" 
+                        className="w-full border-rose-200 text-rose-700 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-400 dark:hover:bg-rose-900/20" 
+                        onClick={() => navigateTo('/leaderboard')}
+                      >
                         View Leaderboard <ChevronRight className="h-4 w-4 ml-1" />
                       </Button>
                     </CardFooter>

@@ -2,7 +2,6 @@
 import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import SidePanel from "@/components/SidePanel";
 import ComingSoon from "@/components/ComingSoon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Link } from "react-router-dom";
@@ -26,40 +25,31 @@ const Leaderboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      <Navbar showInDashboard />
       
       <main className="flex-grow pt-20">
-        <div className="flex flex-col md:flex-row h-full">
-          {/* Side Panel for larger devices */}
-          {!isMobile && (
-            <SidePanel className="fixed left-0 top-20 bottom-0 w-56 hidden md:block" />
+        <div className="container px-4 py-6">
+          {/* Mobile back link */}
+          {isMobile && (
+            <div className="mb-4">
+              <Link 
+                to="/userhub" 
+                className="inline-flex items-center space-x-2 text-primary font-medium hover:underline"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span>Back to Hub</span>
+              </Link>
+            </div>
           )}
           
-          <div className={`w-full ${!isMobile ? 'md:ml-56' : ''}`}>
-            {/* Mobile back link */}
-            {isMobile && (
-              <div className="px-4 py-4">
-                <Link 
-                  to="/userhub" 
-                  className="inline-flex items-center space-x-2 text-primary font-medium hover:underline"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  <span>Back to Hub</span>
-                </Link>
-              </div>
-            )}
-            
-            <div className="container px-4 py-6">
-              <h1 className="text-3xl font-bold mb-6">Leaderboard</h1>
-              
-              <ComingSoon 
-                title="Leaderboard"
-                subtitle="Compete with friends and classmates"
-                features={features}
-                buttonText="Coming Soon"
-              />
-            </div>
-          </div>
+          <h1 className="text-3xl font-bold mb-6">Leaderboard</h1>
+          
+          <ComingSoon 
+            title="Leaderboard"
+            subtitle="Compete with friends and classmates"
+            features={features}
+            buttonText="Coming Soon"
+          />
         </div>
       </main>
       
