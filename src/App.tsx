@@ -18,6 +18,11 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Dashboard from "./pages/Dashboard";
 import UserHub from "./pages/UserHub";
+import ViewNotes from "./pages/ViewNotes";
+import UploadNotes from "./pages/UploadNotes";
+import QuizHistory from "./pages/QuizHistory";
+import Leaderboard from "./pages/Leaderboard";
+import Notifications from "./pages/Notifications";
 import { useScrollToTop } from "./hooks/useScrollToTop";
 
 const queryClient = new QueryClient();
@@ -46,6 +51,11 @@ const AppRoutes = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/view-notes" element={<ViewNotes />} />
+        <Route path="/upload-notes" element={<UploadNotes />} />
+        <Route path="/quiz-history" element={<QuizHistory />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/notifications" element={<Notifications />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

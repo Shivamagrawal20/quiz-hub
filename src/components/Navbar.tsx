@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, LogIn, UserPlus, User, Home, Settings, LogOut, ChevronDown } from "lucide-react";
+import { Menu, LogIn, UserPlus, User, Home, Settings, LogOut, ChevronDown, Bell, History, Upload, Book, Trophy } from "lucide-react";
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -11,9 +11,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Navbar = ({ showInDashboard = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -57,15 +59,15 @@ const Navbar = ({ showInDashboard = false }) => {
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link to="/profile" className="flex w-full items-center cursor-pointer">
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
+                  <Link to="/notifications" className="flex w-full items-center cursor-pointer">
+                    <Bell className="mr-2 h-4 w-4" />
+                    <span>Notifications</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/settings" className="flex w-full items-center cursor-pointer">
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
+                  <Link to="/quiz-history" className="flex w-full items-center cursor-pointer">
+                    <History className="mr-2 h-4 w-4" />
+                    <span>Quiz History</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -118,20 +120,20 @@ const Navbar = ({ showInDashboard = false }) => {
                 About
               </Link>
               <Link
-                to="/profile"
+                to="/notifications"
                 className="px-4 py-2 hover:bg-muted rounded-md transition-colors flex items-center gap-2"
                 onClick={toggleMenu}
               >
-                <User className="h-4 w-4" />
-                Profile
+                <Bell className="h-4 w-4" />
+                Notifications
               </Link>
               <Link
-                to="/settings"
+                to="/quiz-history"
                 className="px-4 py-2 hover:bg-muted rounded-md transition-colors flex items-center gap-2"
                 onClick={toggleMenu}
               >
-                <Settings className="h-4 w-4" />
-                Settings
+                <History className="h-4 w-4" />
+                Quiz History
               </Link>
               <Link to="/" onClick={toggleMenu} className="flex items-center gap-2 text-destructive px-4 py-2">
                 <LogOut className="h-4 w-4" />
