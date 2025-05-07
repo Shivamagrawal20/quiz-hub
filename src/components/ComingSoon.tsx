@@ -1,57 +1,60 @@
 
-import { Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import React from "react";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckCircle } from "lucide-react";
+import { Button } from "./ui/button";
 
 interface ComingSoonProps {
   title: string;
   subtitle: string;
   features: string[];
   buttonText?: string;
-  onButtonClick?: () => void;
-  className?: string;
+  bgColor?: string;
+  textColor?: string;
 }
 
-const ComingSoon = ({
-  title,
-  subtitle,
-  features,
+const ComingSoon: React.FC<ComingSoonProps> = ({ 
+  title, 
+  subtitle, 
+  features, 
   buttonText = "Coming Soon",
-  onButtonClick,
-  className
-}: ComingSoonProps) => {
+  bgColor = "from-primary to-primary/90",
+  textColor = "text-primary"
+}) => {
   return (
-    <div className={cn("max-w-4xl mx-auto p-6 rounded-lg bg-white dark:bg-gray-800 shadow-md", className)}>
-      <div className="bg-primary text-white p-8 rounded-t-lg -mt-6 -mx-6 mb-8 text-center">
-        <h1 className="text-4xl font-bold mb-3">{title}</h1>
-        <p className="text-xl">{subtitle}</p>
-      </div>
-
-      <h2 className="text-3xl font-bold text-center mb-8">Coming Soon!</h2>
-      
-      <p className="text-lg text-center text-muted-foreground mb-10">
-        We're working hard to bring you an amazing {title.toLowerCase()} experience. The {title} will feature:
-      </p>
-
-      <div className="space-y-4 max-w-xl mx-auto mb-10">
-        {features.map((feature, index) => (
-          <div key={index} className="flex items-start gap-3">
-            <div className="rounded-full bg-primary/20 p-1 mt-1">
-              <Check className="h-5 w-5 text-primary" />
+    <div className="flex flex-col items-center text-center py-10">
+      <div className="w-full max-w-4xl">
+        <Card className="border-none shadow-xl overflow-hidden">
+          <div className={`bg-gradient-to-r ${bgColor} text-white p-10 flex flex-col items-center`}>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">{title}</h2>
+            <p className="text-xl opacity-90 max-w-xl">{subtitle}</p>
+            
+            <div className="mt-10">
+              <div className={`inline-block py-2 px-4 rounded-full bg-white ${textColor} font-medium`}>
+                {buttonText}
+              </div>
             </div>
-            <p className="text-lg">{feature}</p>
           </div>
-        ))}
-      </div>
-
-      <div className="flex justify-center">
-        <Button 
-          size="lg" 
-          className="px-10 py-6 text-lg"
-          onClick={onButtonClick}
-        >
-          {buttonText}
-        </Button>
+          
+          <CardContent className="p-8">
+            <h3 className="text-xl font-medium mb-6">Coming soon with these features:</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {features.map((feature, index) => (
+                <div key={index} className="flex items-start gap-3">
+                  <CheckCircle className={`h-5 w-5 mt-0.5 ${textColor}`} />
+                  <p className="text-left">{feature}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+          
+          <CardFooter className="flex justify-center border-t p-6 bg-gray-50 dark:bg-gray-900/30">
+            <p className="text-muted-foreground text-center max-w-md">
+              We're working hard to bring you this feature soon. Check back for updates!
+            </p>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );

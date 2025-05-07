@@ -80,12 +80,12 @@ const SideNavigation = ({ className }: SideNavigationProps) => {
     { to: "/dashboard", icon: BarChart2, label: "Dashboard" },
     { to: "/leaderboard", icon: Trophy, label: "Leaderboard" },
     { to: "/notifications", icon: Bell, label: "Notifications" },
+    { to: "/profile", icon: User, label: "My Profile" },
+    { to: "/settings", icon: Settings, label: "Settings" },
   ];
   
   // Auth links based on login status
   const authLinks = isLoggedIn ? [
-    { to: "/profile", icon: User, label: "My Profile" },
-    { to: "/settings", icon: Settings, label: "Settings" },
     { to: "/", icon: LogOut, label: "Log Out" }
   ] : [
     { to: "/signin", icon: LogIn, label: "Sign In" },

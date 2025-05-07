@@ -31,6 +31,8 @@ const ViewNotes = () => {
             subtitle="Access and organize study materials"
             features={features}
             buttonText="Coming Soon"
+            bgColor="from-emerald-500 to-emerald-600"
+            textColor="text-emerald-500"
           />
         </div>
       </main>

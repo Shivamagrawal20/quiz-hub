@@ -31,6 +31,8 @@ const QuizHistory = () => {
             subtitle="Track your performance and progress"
             features={features}
             buttonText="Coming Soon"
+            bgColor="from-amber-500 to-amber-600"
+            textColor="text-amber-500"
           />
         </div>
       </main>
