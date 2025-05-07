@@ -19,7 +19,11 @@ import {
   Home,
   BookText,
   Users,
-  Bell
+  Bell,
+  User,
+  LogIn,
+  LogOut,
+  Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -55,18 +59,43 @@ const SideNavigation = ({ className }: SideNavigationProps) => {
   const currentPath = location.pathname;
 
   const isActive = (path: string) => currentPath === path;
+  
+  // Simulate logged in state (in a real app this would come from auth context)
+  const isLoggedIn = true;
 
-  const links = [
+  // Links visible to all users
+  const publicLinks = [
     { to: "/", icon: Home, label: "Home" },
     { to: "/quizzes", icon: BookText, label: "Take Quiz" },
+    { to: "/about", icon: Users, label: "About Us" },
+    { to: "/contact", icon: Bell, label: "Contact" },
+  ];
+  
+  // Links visible only to logged in users
+  const privateLinks = [
+    { to: "/userhub", icon: Home, label: "User Hub" },
     { to: "/upload-notes", icon: Upload, label: "Upload Notes" },
     { to: "/view-notes", icon: BookOpen, label: "View Notes" },
     { to: "/quiz-history", icon: History, label: "Quiz History" },
     { to: "/dashboard", icon: BarChart2, label: "Dashboard" },
     { to: "/leaderboard", icon: Trophy, label: "Leaderboard" },
     { to: "/notifications", icon: Bell, label: "Notifications" },
-    { to: "/community", icon: Users, label: "Community" },
   ];
+  
+  // Auth links based on login status
+  const authLinks = isLoggedIn ? [
+    { to: "/profile", icon: User, label: "My Profile" },
+    { to: "/settings", icon: Settings, label: "Settings" },
+    { to: "/", icon: LogOut, label: "Log Out" }
+  ] : [
+    { to: "/signin", icon: LogIn, label: "Sign In" },
+    { to: "/signup", icon: User, label: "Sign Up" }
+  ];
+
+  // Combine the appropriate links based on login status
+  const links = isLoggedIn 
+    ? [...privateLinks, ...publicLinks] 
+    : [...publicLinks];
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -88,6 +117,20 @@ const SideNavigation = ({ className }: SideNavigationProps) => {
         
         <div className="mt-8 flex flex-col space-y-2">
           {links.map((link) => (
+            <NavLink 
+              key={link.to}
+              to={link.to}
+              icon={link.icon}
+              label={link.label}
+              isActive={isActive(link.to)}
+            />
+          ))}
+          
+          {/* Separator before auth links */}
+          <div className="h-px bg-gray-200 dark:bg-gray-800 my-2"></div>
+          
+          {/* Auth links */}
+          {authLinks.map((link) => (
             <NavLink 
               key={link.to}
               to={link.to}
