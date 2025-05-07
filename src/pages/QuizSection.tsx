@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import QuizCard from "@/components/QuizCard";
@@ -9,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, Filter, Tag } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 
 const QuizSection = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -17,6 +17,16 @@ const QuizSection = () => {
   const [difficultyFilter, setDifficultyFilter] = useState("all");
   const [creatorFilter, setCreatorFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("all");
+  const navigate = useNavigate();
+  
+  // Redirect logged in users to the Quizzes page
+  useEffect(() => {
+    // This is a simulated check - in a real app, you would check your auth context
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+    if (isLoggedIn) {
+      navigate("/quizzes");
+    }
+  }, [navigate]);
   
   const allQuizzes = [
     {
@@ -169,11 +179,27 @@ const QuizSection = () => {
               Browse through our collection of quizzes designed for various subjects and difficulty levels. Find the perfect quiz to test your knowledge.
             </p>
             
+            <div className="flex flex-wrap gap-3 mb-6">
+              <Button 
+                variant="default" 
+                className="px-6"
+                onClick={() => navigate("/signin")}
+              >
+                Sign In for More Features
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => navigate("/signup")}
+              >
+                Create Account
+              </Button>
+            </div>
+            
             <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-6">
               <TabsList className="bg-background/60 backdrop-blur-sm">
                 <TabsTrigger value="all">All Quizzes</TabsTrigger>
-                <TabsTrigger value="recommended">Recommended for You</TabsTrigger>
-                <TabsTrigger value="trending">Popular & Trending</TabsTrigger>
+                <TabsTrigger value="recommended">Featured</TabsTrigger>
+                <TabsTrigger value="trending">Popular</TabsTrigger>
               </TabsList>
             </Tabs>
             
