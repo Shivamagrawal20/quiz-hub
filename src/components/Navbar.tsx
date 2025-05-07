@@ -1,8 +1,7 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogIn, UserPlus, User, Home, Settings, LogOut, ChevronDown, Bell, History } from "lucide-react";
-import { useState } from "react";
+import { LogIn, UserPlus, User, Home, Settings, LogOut, ChevronDown, Bell, History, Sun, Moon, BookOpen, Trophy, BarChart2, HelpCircle } from "lucide-react";
+import { useState, useEffect } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +16,24 @@ import SideNavigation from "./SideNavigation";
 const Navbar = ({ showInDashboard = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isMobile = useIsMobile();
+
+  // THEME STATE AND LOGIC
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme === 'dark') return true;
+    if (storedTheme === 'light') return false;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
+  const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -44,12 +61,35 @@ const Navbar = ({ showInDashboard = false }) => {
               <Home className="h-4 w-4" />
               Back to Home
             </Link>
-            <Link to="/quizzes" className="font-medium hover:text-primary transition-colors">
+            <Link to="/dashboard" className="font-medium hover:text-primary transition-colors flex items-center gap-1">
+              <Home className="h-4 w-4" />
+              Dashboard
+            </Link>
+            <Link to="/quizzes" className="font-medium hover:text-primary transition-colors flex items-center gap-1">
+              <BookOpen className="h-4 w-4" />
               Quizzes
             </Link>
-            <Link to="/about" className="font-medium hover:text-primary transition-colors">
-              About
+            <Link to="/leaderboard" className="font-medium hover:text-primary transition-colors flex items-center gap-1">
+              <Trophy className="h-4 w-4" />
+              Leaderboard
             </Link>
+            <Link to="/dashboard?view=performance" className="font-medium hover:text-primary transition-colors flex items-center gap-1">
+              <BarChart2 className="h-4 w-4" />
+              Performance
+            </Link>
+            <Link to="/dashboard?view=settings" className="font-medium hover:text-primary transition-colors flex items-center gap-1">
+              <Settings className="h-4 w-4" />
+              Settings
+            </Link>
+            <Link to="/dashboard?view=help" className="font-medium hover:text-primary transition-colors flex items-center gap-1">
+              <HelpCircle className="h-4 w-4" />
+              Help
+            </Link>
+            
+            <Button onClick={toggleDarkMode} variant="outline" size="icon" className="ml-2">
+              {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              <span className="sr-only">Toggle Theme</span>
+            </Button>
             
             {/* Profile Dropdown */}
             <DropdownMenu>
@@ -73,6 +113,12 @@ const Navbar = ({ showInDashboard = false }) => {
                   <Link to="/quiz-history" className="flex w-full items-center cursor-pointer">
                     <History className="mr-2 h-4 w-4" />
                     <span>Quiz History</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/my-profile" className="flex w-full items-center cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>My Profile</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -111,18 +157,52 @@ const Navbar = ({ showInDashboard = false }) => {
                 Back to Home
               </Link>
               <Link
-                to="/quizzes"
-                className="px-4 py-2 hover:bg-muted rounded-md transition-colors"
+                to="/dashboard"
+                className="px-4 py-2 hover:bg-muted rounded-md transition-colors flex items-center gap-2"
                 onClick={toggleMenu}
               >
+                <Home className="h-4 w-4" />
+                Dashboard
+              </Link>
+              <Link
+                to="/quizzes"
+                className="px-4 py-2 hover:bg-muted rounded-md transition-colors flex items-center gap-2"
+                onClick={toggleMenu}
+              >
+                <BookOpen className="h-4 w-4" />
                 Quizzes
               </Link>
               <Link
-                to="/about"
-                className="px-4 py-2 hover:bg-muted rounded-md transition-colors"
+                to="/leaderboard"
+                className="px-4 py-2 hover:bg-muted rounded-md transition-colors flex items-center gap-2"
                 onClick={toggleMenu}
               >
-                About
+                <Trophy className="h-4 w-4" />
+                Leaderboard
+              </Link>
+              <Link
+                to="/dashboard?view=performance"
+                className="px-4 py-2 hover:bg-muted rounded-md transition-colors flex items-center gap-2"
+                onClick={toggleMenu}
+              >
+                <BarChart2 className="h-4 w-4" />
+                Performance
+              </Link>
+              <Link
+                to="/dashboard?view=settings"
+                className="px-4 py-2 hover:bg-muted rounded-md transition-colors flex items-center gap-2"
+                onClick={toggleMenu}
+              >
+                <Settings className="h-4 w-4" />
+                Settings
+              </Link>
+              <Link
+                to="/dashboard?view=help"
+                className="px-4 py-2 hover:bg-muted rounded-md transition-colors flex items-center gap-2"
+                onClick={toggleMenu}
+              >
+                <HelpCircle className="h-4 w-4" />
+                Help
               </Link>
               <Link
                 to="/notifications"
@@ -139,6 +219,14 @@ const Navbar = ({ showInDashboard = false }) => {
               >
                 <History className="h-4 w-4" />
                 Quiz History
+              </Link>
+              <Link
+                to="/my-profile"
+                className="px-4 py-2 hover:bg-muted rounded-md transition-colors flex items-center gap-2"
+                onClick={toggleMenu}
+              >
+                <User className="h-4 w-4" />
+                My Profile
               </Link>
               <Link to="/" onClick={toggleMenu} className="flex items-center gap-2 text-destructive px-4 py-2">
                 <LogOut className="h-4 w-4" />
@@ -171,8 +259,29 @@ const Navbar = ({ showInDashboard = false }) => {
           <Link to="/" className="font-medium hover:text-primary transition-colors">
             Home
           </Link>
-          <Link to="/quizzes" className="font-medium hover:text-primary transition-colors">
+          <Link to="/dashboard" className="font-medium hover:text-primary transition-colors flex items-center gap-1">
+            <Home className="h-4 w-4" />
+            Dashboard
+          </Link>
+          <Link to="/quizzes" className="font-medium hover:text-primary transition-colors flex items-center gap-1">
+            <BookOpen className="h-4 w-4" />
             Quizzes
+          </Link>
+          <Link to="/leaderboard" className="font-medium hover:text-primary transition-colors flex items-center gap-1">
+            <Trophy className="h-4 w-4" />
+            Leaderboard
+          </Link>
+          <Link to="/dashboard?view=performance" className="font-medium hover:text-primary transition-colors flex items-center gap-1">
+            <BarChart2 className="h-4 w-4" />
+            Performance
+          </Link>
+          <Link to="/dashboard?view=settings" className="font-medium hover:text-primary transition-colors flex items-center gap-1">
+            <Settings className="h-4 w-4" />
+            Settings
+          </Link>
+          <Link to="/dashboard?view=help" className="font-medium hover:text-primary transition-colors flex items-center gap-1">
+            <HelpCircle className="h-4 w-4" />
+            Help
           </Link>
           <Link to="/about" className="font-medium hover:text-primary transition-colors">
             About
@@ -192,6 +301,10 @@ const Navbar = ({ showInDashboard = false }) => {
               Sign Up
             </Button>
           </Link>
+          <Button onClick={toggleDarkMode} variant="outline" size="icon" className="ml-2">
+            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            <span className="sr-only">Toggle Theme</span>
+          </Button>
         </div>
 
         {/* Mobile Menu Button */}
@@ -218,11 +331,52 @@ const Navbar = ({ showInDashboard = false }) => {
               Home
             </Link>
             <Link
-              to="/quizzes"
-              className="px-4 py-2 hover:bg-muted rounded-md transition-colors"
+              to="/dashboard"
+              className="px-4 py-2 hover:bg-muted rounded-md transition-colors flex items-center gap-2"
               onClick={toggleMenu}
             >
+              <Home className="h-4 w-4" />
+              Dashboard
+            </Link>
+            <Link
+              to="/quizzes"
+              className="px-4 py-2 hover:bg-muted rounded-md transition-colors flex items-center gap-2"
+              onClick={toggleMenu}
+            >
+              <BookOpen className="h-4 w-4" />
               Quizzes
+            </Link>
+            <Link
+              to="/leaderboard"
+              className="px-4 py-2 hover:bg-muted rounded-md transition-colors flex items-center gap-2"
+              onClick={toggleMenu}
+            >
+              <Trophy className="h-4 w-4" />
+              Leaderboard
+            </Link>
+            <Link
+              to="/dashboard?view=performance"
+              className="px-4 py-2 hover:bg-muted rounded-md transition-colors flex items-center gap-2"
+              onClick={toggleMenu}
+            >
+              <BarChart2 className="h-4 w-4" />
+              Performance
+            </Link>
+            <Link
+              to="/dashboard?view=settings"
+              className="px-4 py-2 hover:bg-muted rounded-md transition-colors flex items-center gap-2"
+              onClick={toggleMenu}
+            >
+              <Settings className="h-4 w-4" />
+              Settings
+            </Link>
+            <Link
+              to="/dashboard?view=help"
+              className="px-4 py-2 hover:bg-muted rounded-md transition-colors flex items-center gap-2"
+              onClick={toggleMenu}
+            >
+              <HelpCircle className="h-4 w-4" />
+              Help
             </Link>
             <Link
               to="/about"
