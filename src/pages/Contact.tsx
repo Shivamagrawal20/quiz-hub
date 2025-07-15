@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useState, useRef } from "react";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const Contact = () => {
   const { isLoggedIn } = useAuth();
@@ -53,17 +54,26 @@ const Contact = () => {
     }
   };
 
+  const [infoRef, infoRevealed] = useScrollReveal<HTMLDivElement>();
+  const [formRevealRef, formRevealed] = useScrollReveal<HTMLDivElement>();
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar showInDashboard={isLoggedIn} />
       
       <main className="flex-grow pt-20 bg-background">
+        {/* Scrolling Announcement */}
+        <div className="w-full overflow-x-auto whitespace-nowrap bg-primary/10 py-2 mb-4">
+          <div className="animate-marquee inline-block min-w-full text-primary font-semibold text-base md:text-lg px-4">
+            📬 Contact Examify: We value your feedback and questions! 📬
+          </div>
+        </div>
         <div className="container mx-auto px-4 py-12">
           <h1 className="text-4xl font-bold text-center mb-8">Contact Us</h1>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
             {/* Contact Information */}
-            <div>
+            <div ref={infoRef} className={`transition-all duration-700 ${infoRevealed ? 'reveal-in' : 'reveal-hidden'}`}>
               <h2 className="text-2xl font-semibold mb-6">Get in Touch</h2>
               <p className="text-muted-foreground mb-8">
                 Have questions or feedback? We're here to help! Feel free to reach out to us using any of the methods below.
@@ -105,7 +115,7 @@ const Contact = () => {
             </div>
             
             {/* Contact Form */}
-            <div className="bg-white rounded-lg shadow-md p-6 border">
+            <div ref={formRevealRef} className={`bg-white rounded-lg shadow-md p-6 border transition-all duration-700 ${formRevealed ? 'reveal-in' : 'reveal-hidden'}`}>
               <h2 className="text-2xl font-semibold mb-6">Send Us a Message</h2>
               <form ref={formRef} onSubmit={handleFormspreeSubmit} className="space-y-4">
                 <div>
@@ -169,6 +179,23 @@ const Contact = () => {
       </main>
       
       <Footer />
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(100%); }
+          100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+          animation: marquee 18s linear infinite;
+        }
+        .reveal-hidden {
+          opacity: 0;
+          transform: translateY(40px);
+        }
+        .reveal-in {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      `}</style>
     </div>
   );
 };

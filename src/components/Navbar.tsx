@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LogIn, UserPlus, User, Home, Settings, LogOut, ChevronDown, Bell, History, Sun, Moon, BookOpen, Trophy, BarChart2, HelpCircle } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -32,28 +32,8 @@ const Navbar = ({ showInDashboard = false }) => {
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const isMobile = useIsMobile();
   const { isLoggedIn, setIsLoggedIn, role, signOut } = useAuth();
-
-  // THEME STATE AND LOGIC
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const storedTheme = localStorage.getItem('theme');
-    if (storedTheme === 'dark') return true;
-    if (storedTheme === 'light') return false;
-    // Default to light mode on mobile
-    const isMobileDevice = window.innerWidth <= 768;
-    if (isMobileDevice) return false;
-    // Otherwise, use system preference
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  });
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDarkMode]);
-  const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
+  const location = useLocation();
+  const isHomePage = location.pathname === "/";
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -92,10 +72,10 @@ const Navbar = ({ showInDashboard = false }) => {
               <SideNavigation className="mr-1" />
               
               <Link to="/" className="flex items-center gap-2">
-                <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">E</span>
+                <div className="h-10 w-10 rounded-full flex items-center justify-center overflow-hidden bg-white shadow">
+                  <img src="/examify.png" alt="Examify Logo" className="h-10 w-10 object-contain rounded-full" />
                 </div>
-                <span className="font-bold text-xl">Examify</span>
+                <span className="font-bold text-2xl md:text-3xl">Examify</span>
               </Link>
             </div>
 
@@ -126,10 +106,6 @@ const Navbar = ({ showInDashboard = false }) => {
                 Help
               </Link>
               
-              <Button onClick={toggleDarkMode} variant="outline" size="icon" className="ml-2">
-                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                <span className="sr-only">Toggle Theme</span>
-              </Button>
               
               {/* Notification Bell */}
               <Dialog open={isNotifOpen} onOpenChange={setIsNotifOpen}>
@@ -251,15 +227,7 @@ const Navbar = ({ showInDashboard = false }) => {
               >
                 <User className="h-5 w-5" />
               </Button>
-              <Button
-                onClick={toggleDarkMode}
-                variant="outline"
-                size="icon"
-                aria-label="Toggle Theme"
-              >
-                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                <span className="sr-only">Toggle Theme</span>
-              </Button>
+              
             </div>
           </div>
 
@@ -424,20 +392,17 @@ const Navbar = ({ showInDashboard = false }) => {
       <nav className="w-full py-4 bg-white/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-50 shadow-sm dark:bg-gray-900/90 dark:border-b dark:border-gray-800">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <Link to="/" className="flex items-center gap-2">
-            <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center">
-              <span className="text-white font-bold text-xl">E</span>
+            <div className="h-10 w-10 rounded-full flex items-center justify-center overflow-hidden bg-white shadow">
+              <img src="/examify.png" alt="Examify Logo" className="h-10 w-10 object-contain rounded-full" />
             </div>
-            <span className="font-bold text-xl">Examify</span>
+            <span className="font-bold text-2xl md:text-3xl">Examify</span>
           </Link>
           <div className="flex items-center gap-6">
             <Link to="/about" className="font-medium hover:text-primary transition-colors">About</Link>
             <Link to="/contact" className="font-medium hover:text-primary transition-colors">Contact</Link>
             <Link to="/signin" className="font-medium hover:text-primary transition-colors">Sign In</Link>
             <Link to="/signup" className="font-medium hover:text-primary transition-colors">Sign Up</Link>
-            <Button onClick={toggleDarkMode} variant="outline" size="icon">
-              {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              <span className="sr-only">Toggle Theme</span>
-            </Button>
+            
           </div>
         </div>
       </nav>

@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { setDoc, doc } from "firebase/firestore";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const SignUp = () => {
   const [name, setName] = useState("");
@@ -24,6 +25,7 @@ const SignUp = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
   const { setIsLoggedIn } = useAuth();
+  const [cardRef, cardRevealed] = useScrollReveal();
 
   const validatePassword = () => {
     if (password !== confirmPassword) {
@@ -119,8 +121,14 @@ const SignUp = () => {
       <Navbar />
       
       <main className="flex-grow pt-20 flex items-center justify-center bg-secondary/10">
+        {/* Scrolling Announcement */}
+        <div className="w-full overflow-x-auto whitespace-nowrap bg-primary/10 py-2 mb-4 fixed top-20 left-0 z-30">
+          <div className="animate-marquee inline-block min-w-full text-primary font-semibold text-base md:text-lg px-4">
+            📝 Sign Up for Examify: Unlock your learning journey today! 📝
+          </div>
+        </div>
         <div className="container mx-auto px-4 py-16">
-          <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+          <div ref={cardRef} className={`max-w-md mx-auto bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-700 ${cardRevealed ? 'reveal-in' : 'reveal-hidden'}`}>
             <div className="p-8">
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold">Create Account</h2>
@@ -280,6 +288,23 @@ const SignUp = () => {
       </main>
       
       <Footer />
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(100%); }
+          100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+          animation: marquee 18s linear infinite;
+        }
+        .reveal-hidden {
+          opacity: 0;
+          transform: translateY(40px);
+        }
+        .reveal-in {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      `}</style>
     </div>
   );
 };

@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Users, Award, LucideGraduationCap, Target } from "lucide-react";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const AboutUs = () => {
   const { isLoggedIn } = useAuth();
@@ -35,13 +36,25 @@ const AboutUs = () => {
     }
   ];
 
+  const [heroRef, heroRevealed] = useScrollReveal();
+  const [storyRef, storyRevealed] = useScrollReveal();
+  const [missionRef, missionRevealed] = useScrollReveal();
+  const [teamRef, teamRevealed] = useScrollReveal();
+  const [ctaRef, ctaRevealed] = useScrollReveal();
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar showInDashboard={isLoggedIn} />
       
       <main className="flex-grow pt-20 bg-background">
+        {/* Scrolling Announcement */}
+        <div className="w-full overflow-x-auto whitespace-nowrap bg-primary/10 py-2 mb-4">
+          <div className="animate-marquee inline-block min-w-full text-primary font-semibold text-base md:text-lg px-4">
+            🚀 Welcome to Examify! Empowering learners everywhere. Try our quizzes and join the community! 🚀
+          </div>
+        </div>
         {/* Hero Section */}
-        <section className="bg-gradient-to-b from-primary/20 to-transparent py-16">
+        <section ref={heroRef} className={`bg-gradient-to-b from-primary/20 to-transparent py-16 transition-all duration-700 ${heroRevealed ? 'reveal-in' : 'reveal-hidden'}`}>
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">About Examify</h1>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -52,7 +65,7 @@ const AboutUs = () => {
         </section>
         
         {/* Our Story */}
-        <section className="py-16 container mx-auto px-4">
+        <section ref={storyRef} className={`py-16 container mx-auto px-4 transition-all duration-700 ${storyRevealed ? 'reveal-in' : 'reveal-hidden'}`}>
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-bold mb-8">Our Story</h2>
             <div className="space-y-4 text-lg">
@@ -77,7 +90,7 @@ const AboutUs = () => {
         </section>
         
         {/* Our Mission & Values */}
-        <section className="py-16 bg-muted">
+        <section ref={missionRef} className={`py-16 bg-muted transition-all duration-700 ${missionRevealed ? 'reveal-in' : 'reveal-hidden'}`}>
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold text-center mb-12">Our Mission & Values</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -125,7 +138,7 @@ const AboutUs = () => {
         </section>
         
         {/* Our Team */}
-        <section className="py-16 container mx-auto px-4">
+        <section ref={teamRef} className={`py-16 container mx-auto px-4 transition-all duration-700 ${teamRevealed ? 'reveal-in' : 'reveal-hidden'}`}>
           <h2 className="text-3xl font-bold text-center mb-12">Meet Our Team</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {teamMembers.map((member, index) => (
@@ -146,7 +159,7 @@ const AboutUs = () => {
         </section>
         
         {/* Call to Action */}
-        <section className="bg-primary/10 py-16">
+        <section ref={ctaRef} className={`bg-primary/10 py-16 transition-all duration-700 ${ctaRevealed ? 'reveal-in' : 'reveal-hidden'}`}>
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold mb-4">Join Our Learning Community</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
@@ -170,6 +183,23 @@ const AboutUs = () => {
       </main>
       
       <Footer />
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(100%); }
+          100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+          animation: marquee 18s linear infinite;
+        }
+        .reveal-hidden {
+          opacity: 0;
+          transform: translateY(40px);
+        }
+        .reveal-in {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      `}</style>
     </div>
   );
 };
