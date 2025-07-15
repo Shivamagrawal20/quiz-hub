@@ -29,9 +29,12 @@ const FeaturedQuiz = () => {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Responsive: flex row with min-width cards on mobile, grid on md+ */}
+      <div className="flex gap-6 overflow-x-auto md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:overflow-visible">
         {featuredQuizzes.map((quiz) => (
-          <QuizCard key={quiz.id} {...quiz} />
+          <div key={quiz.id} className="min-w-[280px] md:min-w-0 flex-shrink-0 md:flex-shrink md:w-auto">
+            <QuizCard {...quiz} />
+          </div>
         ))}
       </div>
     </section>

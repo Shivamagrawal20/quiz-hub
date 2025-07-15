@@ -9,7 +9,7 @@ const HeroSection = () => {
         <div className="flex-1 space-y-6">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold">
             Learn and Test Your Knowledge with{" "}
-            <span className="gradient-text">QuizHub</span>
+            <span className="gradient-text">Examify</span>
           </h1>
           <p className="text-lg text-muted-foreground">
             Engage with interactive quizzes designed to help you master any subject.

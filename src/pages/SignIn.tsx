@@ -46,7 +46,7 @@ const SignIn = () => {
       }
       toast({
         title: "Sign In Successful",
-        description: "Welcome back to QuizHub!",
+        description: "Welcome back to Examify!",
       });
       navigate("/userhub");
     } catch (error: any) {
@@ -91,7 +91,7 @@ const SignIn = () => {
       // User exists, proceed as normal
       toast({
         title: "Sign In Successful",
-        description: "Welcome back to QuizHub!",
+        description: "Welcome back to Examify!",
       });
       navigate("/userhub");
     } catch (error: any) {

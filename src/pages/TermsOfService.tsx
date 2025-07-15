@@ -19,7 +19,7 @@ const TermsOfService = () => {
             <section>
               <h2 className="text-2xl font-semibold mb-4">1. Agreement to Terms</h2>
               <p>
-                By accessing or using the QuizHub platform, you agree to be bound by these Terms of Service and all applicable 
+                By accessing or using the Examify platform, you agree to be bound by these Terms of Service and all applicable 
                 laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing 
                 this site.
               </p>
@@ -28,19 +28,19 @@ const TermsOfService = () => {
             <section>
               <h2 className="text-2xl font-semibold mb-4">2. Use License</h2>
               <p>
-                Permission is granted to temporarily access the materials (information or software) on QuizHub's website for 
+                Permission is granted to temporarily access the materials (information or software) on Examify's website for 
                 personal, non-commercial use only. This is the grant of a license, not a transfer of title, and under this license you may not:
               </p>
               <ul className="list-disc pl-6 space-y-2 my-4">
                 <li>Modify or copy the materials;</li>
                 <li>Use the materials for any commercial purpose or for any public display;</li>
-                <li>Attempt to reverse engineer any software contained on QuizHub's website;</li>
+                <li>Attempt to reverse engineer any software contained on Examify's website;</li>
                 <li>Remove any copyright or other proprietary notations from the materials; or</li>
                 <li>Transfer the materials to another person or "mirror" the materials on any other server.</li>
               </ul>
               <p>
                 This license shall automatically terminate if you violate any of these restrictions and may be terminated by 
-                QuizHub at any time.
+                Examify at any time.
               </p>
             </section>
             
@@ -62,9 +62,9 @@ const TermsOfService = () => {
               <h2 className="text-2xl font-semibold mb-4">4. Intellectual Property</h2>
               <p>
                 The Service and its original content (excluding content provided by users), features, and functionality are and 
-                will remain the exclusive property of QuizHub and its licensors. The Service is protected by copyright, trademark, 
+                will remain the exclusive property of Examify and its licensors. The Service is protected by copyright, trademark, 
                 and other laws of both the United States and foreign countries. Our trademarks and trade dress may not be used in 
-                connection with any product or service without the prior written consent of QuizHub.
+                connection with any product or service without the prior written consent of Examify.
               </p>
             </section>
             
@@ -86,10 +86,10 @@ const TermsOfService = () => {
             <section>
               <h2 className="text-2xl font-semibold mb-4">6. Links To Other Web Sites</h2>
               <p>
-                Our Service may contain links to third-party websites or services that are not owned or controlled by QuizHub.
+                Our Service may contain links to third-party websites or services that are not owned or controlled by Examify.
               </p>
               <p>
-                QuizHub has no control over, and assumes no responsibility for the content, privacy policies, or practices of 
+                Examify has no control over, and assumes no responsibility for the content, privacy policies, or practices of 
                 any third-party websites or services. We do not warrant the offerings of any of these entities/individuals or 
                 their websites.
               </p>
@@ -107,7 +107,7 @@ const TermsOfService = () => {
             <section>
               <h2 className="text-2xl font-semibold mb-4">8. Limitation Of Liability</h2>
               <p>
-                In no event shall QuizHub, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable 
+                In no event shall Examify, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable 
                 for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of 
                 profits, data, use, goodwill, or other intangible losses, resulting from (i) your access to or use of or 
                 inability to access or use the Service; (ii) any conduct or content of any third party on the Service; (iii) 
@@ -129,7 +129,7 @@ const TermsOfService = () => {
               <h2 className="text-2xl font-semibold mb-4">10. Contact Us</h2>
               <p>
                 If you have any questions about these Terms, please contact us at:<br />
-                Email: terms@quizhub.com<br />
+                Email: terms@examify.com<br />
                 Postal address: 123 Learning Street, Education City, ED 12345
               </p>
             </section>

@@ -10,28 +10,28 @@ const AboutUs = () => {
   const { isLoggedIn } = useAuth();
   const teamMembers = [
     {
-      name: "Alex Johnson",
+      name: "Shivam Agrawal",
       position: "Founder & CEO",
-      image: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
-      bio: "Alex founded QuizHub with a vision to make learning engaging and accessible to everyone."
+      image: "/c8a60368-c36b-45b6-bbc5-16d750c4aa8e.png",
+      bio: "Shivam founded Examify with a vision to make learning engaging and accessible to everyone."
     },
     {
-      name: "Sarah Williams",
-      position: "Chief Academic Officer",
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1188&q=80",
-      bio: "With over 15 years in education, Sarah ensures our quizzes meet the highest academic standards."
+      name: "Sahil Sharma",
+      position: "Accountant",
+      image: "/placeholder.svg",
+      bio: "Coming soon..."
     },
     {
-      name: "David Chen",
+      name: "Coming soon",
       position: "CTO",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
-      bio: "David leads our technical team, building the platform that powers millions of quizzes daily."
+      image: "/placeholder.svg",
+      bio: "Coming soon..."
     },
     {
-      name: "Maria Garcia",
+      name: "Coming soon",
       position: "Content Director",
-      image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=761&q=80",
-      bio: "Maria oversees the creation of diverse quiz content across all academic subjects."
+      image: "/placeholder.svg",
+      bio: "Coming soon..."
     }
   ];
 
@@ -43,7 +43,7 @@ const AboutUs = () => {
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-primary/20 to-transparent py-16">
           <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">About QuizHub</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">About Examify</h1>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
               We're on a mission to transform education through interactive quizzes that make learning fun, 
               engaging, and effective for students of all ages.
@@ -57,7 +57,7 @@ const AboutUs = () => {
             <h2 className="text-3xl font-bold mb-8">Our Story</h2>
             <div className="space-y-4 text-lg">
               <p>
-                QuizHub began in 2020 when a group of educators and technologists came together with a shared 
+                Examify began in 2024 when a group of educators and technologists came together with a shared 
                 vision: to make learning more engaging, interactive, and accessible for students everywhere.
               </p>
               <p>
@@ -66,9 +66,7 @@ const AboutUs = () => {
                 from a source of stress into an opportunity for growth and discovery.
               </p>
               <p>
-                Today, QuizHub serves millions of students, educators, and lifelong learners across the globe. 
-                Our platform offers thousands of quizzes across diverse subjects, from mathematics and sciences 
-                to literature and history.
+                Today, Examify is just a small startup but we are working hard to make it a big platform for students.
               </p>
               <p>
                 As we continue to grow, our commitment remains the same: to empower learners of all ages with 
@@ -152,7 +150,7 @@ const AboutUs = () => {
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold mb-4">Join Our Learning Community</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-              Start your learning journey with QuizHub today and join thousands of students 
+              Start your learning journey with Examify today and join thousands of students 
               who are transforming how they learn.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

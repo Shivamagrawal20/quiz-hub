@@ -133,7 +133,7 @@ export function HelpCenter() {
             <Button variant="outline" className="h-auto flex-col px-4 py-6 space-y-2 justify-start items-center">
               <Mail className="h-6 w-6 mb-2" />
               <span className="font-medium">Email Support</span>
-              <span className="text-xs text-muted-foreground">support@quizhub.com</span>
+              <span className="text-xs text-muted-foreground">support@examify.com</span>
             </Button>
             
             <Button variant="outline" className="h-auto flex-col px-4 py-6 space-y-2 justify-start items-center">

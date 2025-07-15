@@ -39,7 +39,7 @@ const Index = () => {
         <HeroSection />
         
         <section className="py-16 container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Why Choose QuizHub?</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Why Choose Examify?</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <div 
@@ -60,7 +60,7 @@ const Index = () => {
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold mb-4">Ready to Test Your Knowledge?</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-              Join thousands of students who use QuizHub to test their knowledge, prepare for exams, 
+              Join thousands of students who use Examify to test their knowledge, prepare for exams, 
               and enhance their learning experience.
             </p>
             <Button asChild size="lg">

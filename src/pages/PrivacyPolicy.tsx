@@ -19,7 +19,7 @@ const PrivacyPolicy = () => {
             <section>
               <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
               <p>
-                Welcome to QuizHub. We respect your privacy and are committed to protecting your personal data. 
+                Welcome to Examify. We respect your privacy and are committed to protecting your personal data. 
                 This privacy policy will inform you about how we look after your personal data when you visit our 
                 website and tell you about your privacy rights and how the law protects you.
               </p>
@@ -112,7 +112,7 @@ const PrivacyPolicy = () => {
               <h2 className="text-2xl font-semibold mb-4">9. Contact Us</h2>
               <p>
                 If you have any questions about this privacy policy or our privacy practices, please contact us at:<br />
-                Email: privacy@quizhub.com<br />
+                Email: privacy@examify.com<br />
                 Postal address: 123 Learning Street, Education City, ED 12345
               </p>
             </section>

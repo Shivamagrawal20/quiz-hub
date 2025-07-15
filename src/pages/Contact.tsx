@@ -7,32 +7,50 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 const Contact = () => {
   const { isLoggedIn } = useAuth();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
-  });
+  // Formspree handles submission, no local state needed
+  const formRef = useRef<HTMLFormElement>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFormspreeSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // In a real application, you would send this data to your backend
-    console.log("Form submitted:", formData);
-    toast({
-      title: "Message sent successfully!",
-      description: "We'll get back to you as soon as possible.",
-    });
-    // Reset form
-    setFormData({ name: "", email: "", subject: "", message: "" });
+    setIsSubmitting(true);
+    const form = formRef.current;
+    if (!form) return;
+    const formData = new FormData(form);
+    try {
+      const response = await fetch("https://formspree.io/f/mgvzeonk", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "application/json",
+        },
+      });
+      if (response.ok) {
+        toast({
+          title: "Message sent successfully!",
+          description: "We'll get back to you as soon as possible.",
+        });
+        form.reset();
+      } else {
+        toast({
+          title: "Error sending message.",
+          description: "Please try again later or contact us by email.",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Error sending message.",
+        description: "Please try again later or contact us by email.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -58,8 +76,8 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-medium">Email</h3>
-                    <a href="mailto:support@quizhub.com" className="text-primary hover:underline">
-                      support@quizhub.com
+                    <a href="mailto:th702878@gmail.com" className="text-primary hover:underline">
+                      support@examify.com
                     </a>
                   </div>
                 </div>
@@ -70,7 +88,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-medium">Phone</h3>
-                    <p>+1 (555) 123-4567</p>
+                    <p>+91 ***** *****</p>
                   </div>
                 </div>
                 
@@ -80,7 +98,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-medium">Location</h3>
-                    <p>123 Learning Street<br />Education City, ED 12345</p>
+                    <p>India<br /></p>
                   </div>
                 </div>
               </div>
@@ -89,7 +107,7 @@ const Contact = () => {
             {/* Contact Form */}
             <div className="bg-white rounded-lg shadow-md p-6 border">
               <h2 className="text-2xl font-semibold mb-6">Send Us a Message</h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form ref={formRef} onSubmit={handleFormspreeSubmit} className="space-y-4">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium mb-1">
                     Name
@@ -97,8 +115,6 @@ const Contact = () => {
                   <Input
                     id="name"
                     name="name"
-                    value={formData.name}
-                    onChange={handleChange}
                     required
                     placeholder="Your full name"
                   />
@@ -112,8 +128,6 @@ const Contact = () => {
                     id="email"
                     name="email"
                     type="email"
-                    value={formData.email}
-                    onChange={handleChange}
                     required
                     placeholder="your.email@example.com"
                   />
@@ -126,8 +140,6 @@ const Contact = () => {
                   <Input
                     id="subject"
                     name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
                     required
                     placeholder="What is this regarding?"
                   />
@@ -141,16 +153,14 @@ const Contact = () => {
                     id="message"
                     name="message"
                     rows={5}
-                    value={formData.message}
-                    onChange={handleChange}
                     required
                     placeholder="Your message here..."
                     className="min-h-32"
                   />
                 </div>
                 
-                <Button type="submit" className="w-full">
-                  Send Message
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? "Sending..." : "Send Message"}
                 </Button>
               </form>
             </div>

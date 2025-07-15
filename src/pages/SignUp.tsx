@@ -60,7 +60,7 @@ const SignUp = () => {
       }
       toast({
         title: "Account Created",
-        description: "Welcome to QuizHub! You're now registered.",
+        description: "Welcome to Examify! You're now registered.",
       });
       navigate("/userhub");
     } catch (error: any) {
@@ -100,7 +100,7 @@ const SignUp = () => {
       }
       toast({
         title: "Sign Up Successful",
-        description: "Welcome to QuizHub!",
+        description: "Welcome to Examify!",
       });
       navigate("/userhub");
     } catch (error: any) {
@@ -124,7 +124,7 @@ const SignUp = () => {
             <div className="p-8">
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold">Create Account</h2>
-                <p className="text-muted-foreground">Join QuizHub and test your knowledge</p>
+                <p className="text-muted-foreground">Join Examify and test your knowledge</p>
               </div>
               
               <form onSubmit={handleSubmit} className="space-y-6">

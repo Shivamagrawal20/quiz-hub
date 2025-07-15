@@ -595,7 +595,7 @@ const Quiz = () => {
           {/* Watermark */}
           <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none">
             <div className="text-gray-200 text-8xl font-bold transform rotate-[-30deg] opacity-10 whitespace-nowrap">
-              QuizHubs QuizHubs QuizHubs QuizHubs QuizHubs QuizHubs
+              Examify Examify Examify Examify Examify Examify
             </div>
           </div>
           

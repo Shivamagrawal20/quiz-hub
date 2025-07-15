@@ -157,9 +157,7 @@ const SideNavigation = ({ className }: SideNavigationProps) => {
         <SheetContent side="left" className="w-80">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
-              <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center">
-                <span className="text-white font-bold text-xl">E</span>
-              </div>
+              <img src="/examify.png" alt="Examify Logo" className="h-10 w-10 rounded-md object-cover bg-primary" />
               <span className="font-bold text-xl">Examify</span>
             </SheetTitle>
           </SheetHeader>
