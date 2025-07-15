@@ -1,4 +1,5 @@
 
+import { useAuth } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import FeaturedQuiz from "@/components/FeaturedQuiz";
@@ -8,6 +9,7 @@ import { ArrowRight, ListCheck, Search, BookText } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Home = () => {
+  const { isLoggedIn } = useAuth();
   const features = [
     {
       icon: <ListCheck className="h-10 w-10 text-primary" />,
@@ -31,9 +33,9 @@ const Home = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      <Navbar showInDashboard={isLoggedIn} />
       
-      <main className="flex-grow pt-16">
+      <main className="flex-grow pt-20">
         <HeroSection />
         
         <section className="py-16 container mx-auto px-4">

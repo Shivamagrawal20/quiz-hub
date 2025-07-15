@@ -4,10 +4,12 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ChevronRight, BookOpen, Upload, Clock, BarChart2, Trophy, Users, BookMarked, Settings, Award } from "lucide-react";
+import { ChevronRight, BookOpen, Upload, Clock, BarChart2, Trophy, Users, BookMarked, Settings, Award, History, Bell, User } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { UserSettings } from "@/components/dashboard/UserSettings";
 import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Sparkles } from "lucide-react";
 
 // Animation for card hover effect
 const cardAnimation = "transition-all duration-300 hover:shadow-lg hover:-translate-y-1";
@@ -42,17 +44,17 @@ const UserHub = () => {
   };
   
   // Mock user stats
-  const stats = {
-    quizzesTaken: 12,
-    totalQuizzes: 26,
-    notesUploaded: 5,
-    avgScore: 84,
-    streak: 4,
-    topScore: 92,
-    achievementsUnlocked: 3,
-    totalAchievements: 12,
-    nextQuiz: "Cardiology"
-  };
+  // const stats = {
+  //   quizzesTaken: 12,
+  //   totalQuizzes: 26,
+  //   notesUploaded: 5,
+  //   avgScore: 84,
+  //   streak: 4,
+  //   topScore: 92,
+  //   achievementsUnlocked: 3,
+  //   totalAchievements: 12,
+  //   nextQuiz: "Cardiology"
+  // };
 
   if (isLoading) {
     return (
@@ -71,302 +73,142 @@ const UserHub = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar showInDashboard />
-      
       <main className="flex-grow pt-20 pb-16 bg-gradient-to-b from-secondary/10 to-secondary/5 dark:from-gray-900 dark:to-gray-950">
         <div className="container mx-auto px-2 sm:px-4">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">👋 Welcome back, {profile?.name || "User"}!</h1>
-            <p className="text-muted-foreground">Your learning journey continues here.</p>
-
-            {/* Weekly Goal Stats Banner - Responsive */}
-            <Card className="mb-10 overflow-hidden bg-gradient-to-r from-violet-500 to-purple-500 text-white border-none shadow-lg">
-              <CardContent className="p-4 sm:p-6">
-                <div className="flex flex-col gap-6 md:grid md:grid-cols-3">
-                  <div className="md:col-span-2">
-                    <h2 className="text-2xl sm:text-3xl font-bold mb-2">Your goal this week: 3 quizzes</h2>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
-                      <p className="text-lg sm:text-xl">You're {Math.round((stats.quizzesTaken % 3) / 3 * 100)}% there. Let's crush it! 💪</p>
+          {/* Redesigned Welcome Section */}
+          <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 mb-8">
+            <Avatar className="h-16 w-16 border-2 border-primary/30 shadow">
+              <AvatarImage src={profile?.photoURL || undefined} alt={profile?.name || "User"} />
+              <AvatarFallback className="bg-primary/10 text-primary text-2xl">
+                {profile?.name?.split(" ").map(n => n[0]).join("") || "U"}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-bold flex items-center gap-2">
+                <span role="img" aria-label="wave">👋</span>
+                Welcome back, <span className="text-primary">{profile?.name || "User"}</span>!
+              </h1>
+              <div className="flex items-center gap-2 mt-1 text-muted-foreground text-lg">
+                <Sparkles className="h-5 w-5 text-yellow-400" />
+                Ready for your next challenge?
+              </div>
+            </div>
+          </div>
+          {/* Stats & Progress */}
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Left: Stats & Progress */}
+            <div className="flex-1 flex flex-col gap-8">
+              {/* Weekly Goal Card */}
+              <Card className="overflow-hidden bg-gradient-to-r from-violet-500 to-purple-500 text-white border-none shadow-lg">
+                <CardContent className="p-6">
+                  <div className="flex flex-col gap-4">
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-1">Weekly Goal</h2>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                      <p className="text-lg sm:text-xl">Goal: <span className="font-bold">{profile?.goalThisWeek || 3}</span> quizzes</p>
                       <span className="px-4 py-1 bg-white/20 rounded-full text-sm font-medium backdrop-blur-sm">
-                        {stats.streak} day streak 🔥
+                        {(profile?.streak || 0)} day streak 🔥
                       </span>
                     </div>
-                    <Progress value={progress} className="h-3 bg-white/30" />
-                  </div>
-                  <div className="flex flex-col sm:flex-row md:items-center justify-end gap-2 md:gap-4">
-                    <Button 
-                      size="lg" 
-                      className="w-full md:w-auto bg-white text-violet-700 hover:bg-white/90 font-semibold text-lg px-6 shadow-lg"
-                      onClick={() => navigateTo('/quiz/random')}
-                    >
-                      Start a Quiz Now
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="lg"
-                      className="w-full md:w-auto bg-transparent text-white border-white hover:bg-white/10 font-semibold"
-                      onClick={() => navigateTo('/quizzes')}
-                    >
-                      View All Quizzes
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            {/* Quick Stats Cards - Responsive */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-10">
-              {/* Progress Card */}
-              <Card className="bg-white dark:bg-gray-800">
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-2 mb-2">
-                    <BookMarked className="h-6 w-6 text-violet-500" />
-                    <h3 className="text-xl font-medium">Progress</h3>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <p className="text-5xl font-bold">{stats.quizzesTaken} <span className="text-2xl text-muted-foreground">/ {stats.totalQuizzes}</span></p>
-                    <p className="text-muted-foreground">Quizzes completed</p>
-                  </div>
-                  <Progress value={(stats.quizzesTaken / stats.totalQuizzes) * 100} className="mt-3 h-2" />
-                </CardContent>
-              </Card>
-              
-              {/* Average Score */}
-              <Card className="bg-white dark:bg-gray-800">
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-2 mb-2">
-                    <BarChart2 className="h-6 w-6 text-blue-500" />
-                    <h3 className="text-xl font-medium">Average Score</h3>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <p className="text-5xl font-bold">{stats.avgScore}%</p>
-                    <p className="text-muted-foreground">Across all quizzes</p>
-                  </div>
-                  <p className="mt-3 text-amber-500 flex items-center gap-1">
-                    <Trophy className="h-4 w-4" /> Top score: {stats.topScore}%
-                  </p>
-                </CardContent>
-              </Card>
-              
-              {/* Next Quiz */}
-              <Card className="bg-white dark:bg-gray-800">
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Clock className="h-6 w-6 text-violet-500" />
-                    <h3 className="text-xl font-medium">Next Quiz</h3>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <p className="text-2xl font-bold">{stats.nextQuiz}</p>
-                    <p className="text-muted-foreground">Ready to attempt</p>
-                  </div>
-                  <Link to="/quizzes" className="mt-3 text-violet-500 flex items-center hover:underline">
-                    View all upcoming <ChevronRight className="h-4 w-4 ml-1" />
-                  </Link>
-                </CardContent>
-              </Card>
-              
-              {/* Achievements */}
-              <Card className="bg-white dark:bg-gray-800">
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Award className="h-6 w-6 text-violet-500" />
-                    <h3 className="text-xl font-medium">Achievements</h3>
-                  </div>
-                  <div className="flex gap-2 my-2">
-                    <div className="rounded-full p-2 bg-violet-100 text-violet-500 dark:bg-violet-900/30">
-                      <Award className="h-6 w-6" />
-                    </div>
-                    <div className="rounded-full p-2 bg-amber-100 text-amber-500 dark:bg-amber-900/30">
-                      <Trophy className="h-6 w-6" />
-                    </div>
-                    <div className="rounded-full p-2 bg-blue-100 text-blue-500 dark:bg-blue-900/30">
-                      <Award className="h-6 w-6" />
+                    <div className="flex items-center gap-4">
+                      <Progress value={profile?.progress || 0} className="h-4 bg-white/30 flex-1" />
+                      <span className="text-lg font-semibold">{profile && profile.goalThisWeek ? Math.round(((profile.quizzesTaken || 0) % profile.goalThisWeek) / profile.goalThisWeek * 100) : 0}%</span>
                     </div>
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <p className="font-medium">{stats.achievementsUnlocked}/{stats.totalAchievements}</p>
-                    <p className="text-muted-foreground">Achievements unlocked</p>
-                  </div>
-                  <Link to="/achievements" className="mt-3 text-violet-500 flex items-center hover:underline">
-                    View all achievements <ChevronRight className="h-4 w-4 ml-1" />
-                  </Link>
                 </CardContent>
               </Card>
+              {/* Stats Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
+                {/* Progress, Average Score, Next Quiz, Achievements cards */}
+                <Card className="bg-white dark:bg-gray-800 shadow-md">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <BookMarked className="h-6 w-6 text-violet-500" />
+                      <h3 className="text-xl font-medium">Progress</h3>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <p className="text-4xl font-bold">{profile?.quizzesTaken || 0} <span className="text-xl text-muted-foreground">/ {profile?.totalQuizzes || 0}</span></p>
+                      <p className="text-muted-foreground">Quizzes completed</p>
+                    </div>
+                    <Progress value={profile && profile.totalQuizzes ? (profile.quizzesTaken || 0) / profile.totalQuizzes * 100 : 0} className="mt-3 h-2" />
+                  </CardContent>
+                </Card>
+                <Card className="bg-white dark:bg-gray-800 shadow-md">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <BarChart2 className="h-6 w-6 text-blue-500" />
+                      <h3 className="text-xl font-medium">Average Score</h3>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <p className="text-4xl font-bold">{profile?.avgScore || 0}%</p>
+                      <p className="text-muted-foreground">Across all quizzes</p>
+                    </div>
+                    <p className="mt-3 text-amber-500 flex items-center gap-1">
+                      <Trophy className="h-4 w-4" /> Top score: {profile?.topScore || 0}%
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white dark:bg-gray-800 shadow-md">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Clock className="h-6 w-6 text-violet-500" />
+                      <h3 className="text-xl font-medium">Next Quiz</h3>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <p className="text-2xl font-bold">{profile?.nextQuiz || "-"}</p>
+                      <p className="text-muted-foreground">Ready to attempt</p>
+                    </div>
+                    <Link to="/quizzes" className="mt-3 text-violet-500 flex items-center hover:underline">
+                      View all upcoming <ChevronRight className="h-4 w-4 ml-1" />
+                    </Link>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white dark:bg-gray-800 shadow-md">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Award className="h-6 w-6 text-yellow-500" />
+                      <h3 className="text-xl font-medium">Achievements</h3>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <p className="text-4xl font-bold">{profile?.achievementsUnlocked || 0} <span className="text-xl text-muted-foreground">/ {profile?.totalAchievements || 0}</span></p>
+                      <p className="text-muted-foreground">Unlocked</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
-            
-            {/* Main Navigation Cards */}
-            <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {/* Take Quiz Card */}
-              <Card className={`${cardAnimation} bg-white border-l-4 border-l-primary dark:bg-gray-800 dark:border-l-violet-500`}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="h-6 w-6 text-primary dark:text-violet-400" />
-                    Take Quiz
+          </div>
+          {/* Quick Actions - now below stats */}
+          <div className="mt-10">
+            <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+              <span className="text-primary">⚡</span> Quick Actions
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Example of a more compact card: */}
+              <Card className="p-2 sm:p-3 bg-gradient-to-br from-primary/10 to-primary/5 border-none shadow-md">
+                <CardHeader className="py-2 px-3">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <BookOpen className="h-5 w-5 text-primary" /> Take Quiz
                   </CardTitle>
-                  <CardDescription>Practice your knowledge with our quizzes</CardDescription>
+                  <CardDescription className="text-xs">Practice your knowledge with our quizzes</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm">
-                    Choose from a variety of quizzes in different subjects and topics.
-                  </p>
+                <CardContent className="py-1 px-3">
+                  <p className="text-xs">Choose from a variety of quizzes in different subjects and topics.</p>
                 </CardContent>
-                <CardFooter>
-                  <Button className="w-full" onClick={() => navigateTo('/quizzes')}>
-                    Browse Quizzes <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
+                <CardFooter className="py-2 px-3">
+                  <Button className="w-full h-8 text-sm py-1">Go</Button>
                 </CardFooter>
               </Card>
-              
-              {/* Upload Notes Card */}
-              <Card className={`${cardAnimation} bg-white border-l-4 border-l-blue-500 dark:bg-gray-800`}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Upload className="h-6 w-6 text-blue-500" />
-                    Upload Notes
-                  </CardTitle>
-                  <CardDescription>Share your study notes with the community</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm">
-                    Upload and organize your notes to help others and earn points.
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20" 
-                    onClick={() => navigateTo('/upload-notes')}
-                  >
-                    Upload Notes <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </CardFooter>
-              </Card>
-              
-              {/* View Notes Card */}
-              <Card className={`${cardAnimation} bg-white border-l-4 border-l-emerald-500 dark:bg-gray-800`}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="h-6 w-6 text-emerald-500" />
-                    View Notes
-                  </CardTitle>
-                  <CardDescription>Access study materials from the community</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm">
-                    Browse and search through notes shared by other students.
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-900/20" 
-                    onClick={() => navigateTo('/view-notes')}
-                  >
-                    Browse Notes <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </CardFooter>
-              </Card>
-              
-              {/* Quiz History Card */}
-              <Card className={`${cardAnimation} bg-white border-l-4 border-l-amber-500 dark:bg-gray-800`}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Clock className="h-6 w-6 text-amber-500" />
-                    Quiz History
-                  </CardTitle>
-                  <CardDescription>Review your past quiz attempts</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm">
-                    See your performance history and review previous quiz attempts.
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-800 dark:text-amber-400 dark:hover:bg-amber-900/20" 
-                    onClick={() => navigateTo('/quiz-history')}
-                  >
-                    View History <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </CardFooter>
-              </Card>
-              
-              {/* Dashboard Card */}
-              <Card className={`${cardAnimation} bg-white border-l-4 border-l-violet-500 dark:bg-gray-800`}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChart2 className="h-6 w-6 text-violet-500" />
-                    Dashboard
-                  </CardTitle>
-                  <CardDescription>View your detailed performance analytics</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm">
-                    Access comprehensive stats, progress tracking, and insights.
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-violet-200 text-violet-700 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-900/20" 
-                    onClick={() => navigateTo('/dashboard')}
-                  >
-                    Go to Dashboard <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </CardFooter>
-              </Card>
-              
-              {/* Leaderboard Card */}
-              <Card className={`${cardAnimation} bg-white border-l-4 border-l-rose-500 dark:bg-gray-800`}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Trophy className="h-6 w-6 text-rose-500" />
-                    Leaderboard
-                  </CardTitle>
-                  <CardDescription>See how you rank among other students</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm">
-                    Check the rankings and compete with other students.
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-rose-200 text-rose-700 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-400 dark:hover:bg-rose-900/20" 
-                    onClick={() => navigateTo('/leaderboard')}
-                  >
-                    View Leaderboard <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </CardFooter>
-              </Card>
-            </div>
-            
-            {/* Community Section */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">Community</h2>
-              <Card className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/90">
-                <CardContent className="p-6">
-                  <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                    <div>
-                      <h3 className="text-xl font-medium mb-2">Connect with Other Students</h3>
-                      <p className="text-muted-foreground mb-4 md:mb-0">
-                        Join study groups, discuss topics, and collaborate with peers.
-                      </p>
-                    </div>
-                    <Button className="flex items-center gap-2" onClick={() => navigateTo('/community')}>
-                      <Users className="h-4 w-4" />
-                      Explore Community
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <Card className={`${cardAnimation} bg-gradient-to-br from-blue-100 to-blue-50 border-none shadow-md`}> <CardHeader><CardTitle className="flex items-center gap-2"><Upload className="h-6 w-6 text-blue-500" /> Upload Notes</CardTitle><CardDescription>Share your notes with the community</CardDescription></CardHeader><CardContent><p className="text-sm">Help others by uploading your study notes and resources.</p></CardContent><CardFooter><Button className="w-full" onClick={() => navigateTo('/upload-notes')}>Go</Button></CardFooter></Card>
+              <Card className={`${cardAnimation} bg-gradient-to-br from-green-100 to-green-50 border-none shadow-md`}> <CardHeader><CardTitle className="flex items-center gap-2"><BookMarked className="h-6 w-6 text-green-600" /> View Notes</CardTitle><CardDescription>Browse and download notes</CardDescription></CardHeader><CardContent><p className="text-sm">Access notes uploaded by other users for your subjects.</p></CardContent><CardFooter><Button className="w-full" onClick={() => navigateTo('/view-notes')}>Go</Button></CardFooter></Card>
+              <Card className={`${cardAnimation} bg-gradient-to-br from-yellow-100 to-yellow-50 border-none shadow-md`}> <CardHeader><CardTitle className="flex items-center gap-2"><History className="h-6 w-6 text-yellow-600" /> Quiz History</CardTitle><CardDescription>Review your past quiz attempts</CardDescription></CardHeader><CardContent><p className="text-sm">See your previous quiz scores and progress over time.</p></CardContent><CardFooter><Button className="w-full" onClick={() => navigateTo('/quiz-history')}>Go</Button></CardFooter></Card>
+              <Card className={`${cardAnimation} bg-gradient-to-br from-purple-100 to-purple-50 border-none shadow-md`}> <CardHeader><CardTitle className="flex items-center gap-2"><Trophy className="h-6 w-6 text-purple-600" /> Leaderboard</CardTitle><CardDescription>See how you rank</CardDescription></CardHeader><CardContent><p className="text-sm">Check your position on the leaderboard and compete with others.</p></CardContent><CardFooter><Button className="w-full" onClick={() => navigateTo('/leaderboard')}>Go</Button></CardFooter></Card>
+              <Card className={`${cardAnimation} bg-gradient-to-br from-pink-100 to-pink-50 border-none shadow-md`}> <CardHeader><CardTitle className="flex items-center gap-2"><Bell className="h-6 w-6 text-pink-600" /> Notifications</CardTitle><CardDescription>Stay updated</CardDescription></CardHeader><CardContent><p className="text-sm">Get the latest updates, reminders, and announcements.</p></CardContent><CardFooter><Button className="w-full" onClick={() => navigateTo('/notifications')}>Go</Button></CardFooter></Card>
+              <Card className={`${cardAnimation} bg-gradient-to-br from-gray-100 to-gray-50 border-none shadow-md`}> <CardHeader><CardTitle className="flex items-center gap-2"><User className="h-6 w-6 text-gray-600" /> My Profile</CardTitle><CardDescription>Manage your account</CardDescription></CardHeader><CardContent><p className="text-sm">Edit your profile details and preferences.</p></CardContent><CardFooter><Button className="w-full" onClick={() => navigateTo('/my-profile')}>Go</Button></CardFooter></Card>
+              <Card className={`${cardAnimation} bg-gradient-to-br from-indigo-100 to-indigo-50 border-none shadow-md`}> <CardHeader><CardTitle className="flex items-center gap-2"><Settings className="h-6 w-6 text-indigo-600" /> Settings</CardTitle><CardDescription>Customize your experience</CardDescription></CardHeader><CardContent><p className="text-sm">Adjust your app settings and preferences.</p></CardContent><CardFooter><Button className="w-full" onClick={() => navigateTo('/settings')}>Go</Button></CardFooter></Card>
             </div>
           </div>
         </div>
       </main>
-
       <Footer />
     </div>
   );

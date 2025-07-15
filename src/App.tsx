@@ -24,8 +24,15 @@ import Leaderboard from "./pages/Leaderboard";
 import Notifications from "./pages/Notifications";
 import MyProfile from "./pages/MyProfile";
 import Settings from "./pages/Settings";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminQuizEditPage from "./pages/AdminQuizEditPage";
+import ManageUsers from "./pages/ManageUsers";
+import SiteSettings from "./pages/SiteSettings";
 import { useScrollToTop } from "./hooks/useScrollToTop";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { SiteSettingsProvider, useSiteSettings } from "@/contexts/SiteSettingsContext";
+import { useAuth } from "@/contexts/AuthContext";
+import Help from "./pages/Help";
 
 const queryClient = new QueryClient();
 
@@ -35,7 +42,30 @@ const ScrollToTop = () => {
   return null;
 };
 
+function MaintenancePage({ announcement }: { announcement: string }) {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-300 dark:from-gray-900 dark:to-gray-800">
+      <div className="max-w-lg w-full bg-white dark:bg-gray-900 rounded-xl shadow-lg p-8 flex flex-col items-center">
+        <h1 className="text-3xl font-bold text-primary mb-4">We'll be back soon!</h1>
+        <p className="text-lg text-muted-foreground mb-4 text-center">The site is currently undergoing maintenance. Please check back later.</p>
+        {announcement && <div className="bg-primary/10 text-primary px-4 py-2 rounded mb-2 text-center">{announcement}</div>}
+        <span className="text-xs text-gray-400">If you are an admin, you can still access the site.</span>
+      </div>
+    </div>
+  );
+}
+
 const AppRoutes = () => {
+  const { maintenanceMode, announcement, loading } = useSiteSettings();
+  const { role, isLoggedIn } = useAuth();
+  const isAdmin = isLoggedIn && (role === "admin" || role === "administrator");
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center text-muted-foreground text-lg">Loading site settings...</div>;
+  }
+  if (maintenanceMode && !isAdmin) {
+    return <MaintenancePage announcement={announcement} />;
+  }
   return (
     <>
       <ScrollToTop />
@@ -51,6 +81,7 @@ const AppRoutes = () => {
         <Route path="/quiz/:id" element={<Quiz />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/help" element={<Help />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
         <Route path="/view-notes" element={<ViewNotes />} />
@@ -60,6 +91,10 @@ const AppRoutes = () => {
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/my-profile" element={<MyProfile />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/admin-dashboard/quiz/:quizId/edit" element={<AdminQuizEditPage />} />
+        <Route path="/manage-users" element={<ManageUsers />} />
+        <Route path="/site-settings" element={<SiteSettings />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
@@ -74,7 +109,9 @@ const App = () => (
       <Sonner />
       <Router>
         <AuthProvider>
-          <AppRoutes />
+          <SiteSettingsProvider>
+            <AppRoutes />
+          </SiteSettingsProvider>
         </AuthProvider>
       </Router>
     </TooltipProvider>

@@ -1,4 +1,5 @@
 
+import { useAuth } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { Link } from "react-router-dom";
 import { Users, Award, LucideGraduationCap, Target } from "lucide-react";
 
 const AboutUs = () => {
+  const { isLoggedIn } = useAuth();
   const teamMembers = [
     {
       name: "Alex Johnson",
@@ -35,9 +37,9 @@ const AboutUs = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      <Navbar showInDashboard={isLoggedIn} />
       
-      <main className="flex-grow pt-16">
+      <main className="flex-grow pt-20 bg-background">
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-primary/20 to-transparent py-16">
           <div className="container mx-auto px-4 text-center">

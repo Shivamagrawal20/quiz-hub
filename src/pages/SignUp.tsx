@@ -38,6 +38,9 @@ const SignUp = () => {
     e.preventDefault();
     if (!validatePassword()) return;
     setIsLoading(true);
+    // Split full name into first and last name
+    const [firstName, ...rest] = name.trim().split(" ");
+    const lastName = rest.join(" ");
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       setIsLoggedIn(true); // Optional, context will update automatically
@@ -47,6 +50,8 @@ const SignUp = () => {
         await setDoc(doc(db, "users", userCredential.user.uid), {
           email: userCredential.user.email,
           name,
+          firstName: firstName || "",
+          lastName: lastName || "",
           role: "user",
         });
         console.log("Successfully wrote user to Firestore!");
@@ -77,10 +82,16 @@ const SignUp = () => {
       setIsLoggedIn(true); // Optional, context will update automatically
       // Debug: Log before Firestore write
       console.log("Attempting to write Google user to Firestore:", userCredential.user.uid);
+      // Split displayName into first and last name
+      const displayName = userCredential.user.displayName || "";
+      const [firstName, ...rest] = displayName.trim().split(" ");
+      const lastName = rest.join(" ");
       try {
         await setDoc(doc(db, "users", userCredential.user.uid), {
           email: userCredential.user.email,
-          name: userCredential.user.displayName || "",
+          name: displayName,
+          firstName: firstName || "",
+          lastName: lastName || "",
           role: "user",
         }, { merge: true });
         console.log("Successfully wrote Google user to Firestore!");

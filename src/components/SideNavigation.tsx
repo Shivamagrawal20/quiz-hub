@@ -24,7 +24,8 @@ import {
   LogIn,
   LogOut,
   Settings,
-  UserPlus
+  UserPlus,
+  HelpCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -91,19 +92,23 @@ const SideNavigation = ({ className }: SideNavigationProps) => {
     { to: "/", icon: Home, label: "Home" },
     { to: "/about", icon: Users, label: "About Us" },
     { to: "/contact", icon: Bell, label: "Contact" },
+    { to: "/help", icon: HelpCircle, label: "Help" },
   ];
   
   // Links for regular users
   const userLinks: NavLinkItem[] = [
-    { to: "/userhub", icon: Home, label: "User Hub", onClick: handleProtectedLinkClick },
-    { to: "/dashboard", icon: BarChart2, label: "Dashboard", onClick: handleProtectedLinkClick },
+    // Only include 'User Hub' and 'Dashboard' if not admin
+    ...(role !== "admin" && role !== "administrator" ? [
+      { to: "/userhub", icon: Home, label: "User Hub", onClick: handleProtectedLinkClick },
+      { to: "/dashboard", icon: BarChart2, label: "Dashboard", onClick: handleProtectedLinkClick },
+    ] : []),
     { to: "/quizzes", icon: BookText, label: "Take Quiz", onClick: handleProtectedLinkClick },
     { to: "/quiz-history", icon: History, label: "Quiz History", onClick: handleProtectedLinkClick },
     { to: "/leaderboard", icon: Trophy, label: "Leaderboard", onClick: handleProtectedLinkClick },
     { to: "/upload-notes", icon: Upload, label: "Upload Notes", onClick: handleProtectedLinkClick },
     { to: "/view-notes", icon: BookOpen, label: "View Notes", onClick: handleProtectedLinkClick },
     { to: "/notifications", icon: Bell, label: "Notifications", onClick: handleProtectedLinkClick },
-    { to: "/profile", icon: User, label: "My Profile", onClick: handleProtectedLinkClick },
+    { to: "/my-profile", icon: User, label: "My Profile", onClick: handleProtectedLinkClick },
     { to: "/settings", icon: Settings, label: "Settings", onClick: handleProtectedLinkClick },
   ];
 
@@ -153,9 +158,9 @@ const SideNavigation = ({ className }: SideNavigationProps) => {
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
               <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center">
-                <span className="text-white font-bold text-xl">Q</span>
+                <span className="text-white font-bold text-xl">E</span>
               </div>
-              <span className="font-bold text-xl">QuizHub</span>
+              <span className="font-bold text-xl">Examify</span>
             </SheetTitle>
           </SheetHeader>
           

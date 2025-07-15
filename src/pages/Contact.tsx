@@ -1,4 +1,5 @@
 
+import { useAuth } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { toast } from "@/components/ui/use-toast";
 import { useState } from "react";
 
 const Contact = () => {
+  const { isLoggedIn } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -35,9 +37,9 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      <Navbar showInDashboard={isLoggedIn} />
       
-      <main className="flex-grow pt-16">
+      <main className="flex-grow pt-20 bg-background">
         <div className="container mx-auto px-4 py-12">
           <h1 className="text-4xl font-bold text-center mb-8">Contact Us</h1>
           

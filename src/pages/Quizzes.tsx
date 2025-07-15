@@ -9,6 +9,8 @@ import { Search, Filter, Tag } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Player } from '@lottiefiles/react-lottie-player';
+import gsap from "gsap";
+import { useRef } from "react";
 
 const Quizzes = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -18,6 +20,10 @@ const Quizzes = () => {
   const [creatorFilter, setCreatorFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
+  const [showPreloader, setShowPreloader] = useState(true);
+  const preloaderRef = useRef<HTMLDivElement>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
+  const mainContentRef = useRef<HTMLDivElement>(null);
   
   // Simulate logged in state (in a real app this would come from auth context)
   const isLoggedIn = true;
@@ -155,169 +161,203 @@ const Quizzes = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-gray-900">
-        <Player
-          autoplay
-          loop
-          src="https://lottie.host/b2df5e9e-65e6-42e2-82bb-c50d5c03398f/KwAjAnuGGg.lottie"
-          style={{ height: '220px', width: '220px' }}
-        />
-        <p className="mt-6 text-lg text-gray-600 dark:text-gray-300">Loading quizzes...</p>
-      </div>
-    );
-  }
+  useEffect(() => {
+    // Only run GSAP preloader on initial mount
+    if (showPreloader) {
+      gsap.set(mainContentRef.current, { opacity: 0 });
+      gsap.set(progressBarRef.current, { width: "0%" });
+      gsap.to(progressBarRef.current, {
+        width: "100%",
+        duration: 2,
+        ease: "power2.out",
+        onComplete: () => {
+          gsap.to(preloaderRef.current, {
+            opacity: 0,
+            scale: 0.9,
+            duration: 1,
+            onComplete: () => {
+              setShowPreloader(false);
+              gsap.to(mainContentRef.current, {
+                opacity: 1,
+                duration: 1,
+                ease: "power2.out"
+              });
+            }
+          });
+        }
+      });
+    }
+  }, [showPreloader]);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
-      <main className="flex-grow pt-20">
-        <div className="bg-secondary/30 py-12">
-          <div className="container mx-auto px-4">              
-            <h1 className="text-4xl font-bold mb-4">All Quizzes</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mb-8">
-              Browse through our collection of quizzes designed for various subjects and difficulty levels. Find the perfect quiz to test your knowledge.
-            </p>
-            
-            <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-6">
-              <TabsList className="bg-background/60 backdrop-blur-sm">
-                <TabsTrigger value="all">All Quizzes</TabsTrigger>
-                <TabsTrigger value="recommended">Recommended for You</TabsTrigger>
-                <TabsTrigger value="trending">Popular & Trending</TabsTrigger>
-              </TabsList>
-            </Tabs>
-            
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-              <div className="flex flex-col gap-4">
-                <div className="relative flex-grow">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                  <Input
-                    placeholder="Search quizzes..."
-                    className="pl-10"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                    <SelectTrigger className="w-full">
-                      <div className="flex items-center gap-2">
-                        <Filter className="h-4 w-4 text-muted-foreground" />
-                        <SelectValue placeholder="Category" />
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Categories</SelectItem>
-                      {categories.map(category => (
-                        <SelectItem key={category} value={category}>{category}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+    <>
+      {/* Preloader overlay */}
+      {showPreloader && (
+        <div ref={preloaderRef} className="preloader fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-purple-600 via-blue-500 to-indigo-700 text-white transition-all duration-700" style={{ minHeight: '100vh' }}>
+          <div className="flex flex-col items-center gap-6">
+            <div className="text-5xl font-extrabold tracking-widest animate-pulse" style={{ letterSpacing: '0.2em' }}>
+              Examify
+            </div>
+            <div className="w-72 h-3 bg-white/10 rounded-full overflow-hidden shadow-inner">
+              <div ref={progressBarRef} className="progress-bar h-full bg-gradient-to-r from-[#a78bfa] to-[#6366f1] rounded-full transition-all"></div>
+            </div>
+          </div>
+          <div className="mt-8 text-lg tracking-wide text-white/80 animate-fade-in">Loading Quizzes...</div>
+        </div>
+      )}
+
+      {/* Main content, always rendered */}
+      <div
+        ref={mainContentRef}
+        className={`min-h-screen flex flex-col transition-opacity duration-700 ${showPreloader ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+      >
+        <Navbar />
+        <main className="flex-grow pt-20">
+          <div className="bg-secondary/30 py-12">
+            <div className="container mx-auto px-4">              
+              <h1 className="text-4xl font-bold mb-4">All Quizzes</h1>
+              <p className="text-lg text-muted-foreground max-w-2xl mb-8">
+                Browse through our collection of quizzes designed for various subjects and difficulty levels. Find the perfect quiz to test your knowledge.
+              </p>
+              
+              <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-6">
+                <TabsList className="bg-background/60 backdrop-blur-sm">
+                  <TabsTrigger value="all">All Quizzes</TabsTrigger>
+                  <TabsTrigger value="recommended">Recommended for You</TabsTrigger>
+                  <TabsTrigger value="trending">Popular & Trending</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+                <div className="flex flex-col gap-4">
+                  <div className="relative flex-grow">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                    <Input
+                      placeholder="Search quizzes..."
+                      className="pl-10"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
                   
-                  <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-                    <SelectTrigger className="w-full">
-                      <div className="flex items-center gap-2">
-                        <Tag className="h-4 w-4 text-muted-foreground" />
-                        <SelectValue placeholder="Subject" />
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Subjects</SelectItem>
-                      {subjects.map(subject => (
-                        <SelectItem key={subject} value={subject}>{subject}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                      <SelectTrigger className="w-full">
+                        <div className="flex items-center gap-2">
+                          <Filter className="h-4 w-4 text-muted-foreground" />
+                          <SelectValue placeholder="Category" />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Categories</SelectItem>
+                        {categories.map(category => (
+                          <SelectItem key={category} value={category}>{category}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    
+                    <Select value={subjectFilter} onValueChange={setSubjectFilter}>
+                      <SelectTrigger className="w-full">
+                        <div className="flex items-center gap-2">
+                          <Tag className="h-4 w-4 text-muted-foreground" />
+                          <SelectValue placeholder="Subject" />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Subjects</SelectItem>
+                        {subjects.map(subject => (
+                          <SelectItem key={subject} value={subject}>{subject}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    
+                    <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Difficulty" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Difficulties</SelectItem>
+                        <SelectItem value="easy">Easy</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="hard">Hard</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    <Select value={creatorFilter} onValueChange={setCreatorFilter}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Creator" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Creators</SelectItem>
+                        {creators.map(creator => (
+                          <SelectItem key={creator} value={creator}>{creator}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   
-                  <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Difficulty" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Difficulties</SelectItem>
-                      <SelectItem value="easy">Easy</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="hard">Hard</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {allTags.map(tag => (
+                      <Badge 
+                        key={tag} 
+                        variant={selectedTags.includes(tag) ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => toggleTag(tag)}
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
                   
-                  <Select value={creatorFilter} onValueChange={setCreatorFilter}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Creator" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Creators</SelectItem>
-                      {creators.map(creator => (
-                        <SelectItem key={creator} value={creator}>{creator}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {allTags.map(tag => (
-                    <Badge 
-                      key={tag} 
-                      variant={selectedTags.includes(tag) ? "default" : "outline"}
-                      className="cursor-pointer"
-                      onClick={() => toggleTag(tag)}
+                  <div className="flex justify-end">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setSearchQuery("");
+                        setCategoryFilter("all");
+                        setSubjectFilter("all");
+                        setDifficultyFilter("all");
+                        setCreatorFilter("all");
+                        setSelectedTags([]);
+                      }}
                     >
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-                
-                <div className="flex justify-end">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      setSearchQuery("");
-                      setCategoryFilter("all");
-                      setSubjectFilter("all");
-                      setDifficultyFilter("all");
-                      setCreatorFilter("all");
-                      setSelectedTags([]);
-                    }}
-                  >
-                    Reset Filters
-                  </Button>
+                      Reset Filters
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+          
+          <div className="container mx-auto px-4 py-8">
+            {filteredQuizzes.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredQuizzes.map(quiz => (
+                  <QuizCard 
+                    key={quiz.id} 
+                    id={quiz.id}
+                    title={quiz.title} 
+                    description={quiz.description}
+                    questionCount={quiz.questionCount}
+                    category={quiz.category}
+                    difficulty={quiz.difficulty}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <h3 className="text-xl font-semibold mb-2">No quizzes found</h3>
+                <p className="text-muted-foreground">
+                  Try adjusting your search or filters to find more quizzes.
+                </p>
+              </div>
+            )}
+          </div>
+        </main>
         
-        <div className="container mx-auto px-4 py-8">
-          {filteredQuizzes.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredQuizzes.map(quiz => (
-                <QuizCard 
-                  key={quiz.id} 
-                  id={quiz.id}
-                  title={quiz.title} 
-                  description={quiz.description}
-                  questionCount={quiz.questionCount}
-                  category={quiz.category}
-                  difficulty={quiz.difficulty}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <h3 className="text-xl font-semibold mb-2">No quizzes found</h3>
-              <p className="text-muted-foreground">
-                Try adjusting your search or filters to find more quizzes.
-              </p>
-            </div>
-          )}
-        </div>
-      </main>
-      
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </>
   );
 };
 

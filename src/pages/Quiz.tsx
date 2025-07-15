@@ -25,6 +25,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { doc, updateDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Define proper types for quiz data
 interface QuizQuestion {
@@ -170,6 +173,7 @@ const Quiz = () => {
   const [showFullscreenAlert, setShowFullscreenAlert] = useState(false);
   const [showExitAlert, setShowExitAlert] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("Quant");
+  const { user, profile } = useAuth();
   
   // Get quiz data based on ID
   const quiz = id ? quizData[id] : null;
@@ -420,7 +424,7 @@ const Quiz = () => {
   };
   
   // Handle finish quiz
-  const handleFinishQuiz = () => {
+  const handleFinishQuiz = async () => {
     // Calculate final score
     let finalScore = 0;
     userAnswers.forEach((answer, index) => {
@@ -428,9 +432,40 @@ const Quiz = () => {
         finalScore++;
       }
     });
-    
     setScore(finalScore);
     setQuizCompleted(true);
+
+    // --- Firestore update logic ---
+    try {
+      if (user && profile) {
+        const quizScore = (finalScore / quiz.questions.length) * 100;
+        const newQuizzesTaken = (profile.quizzesTaken || 0) + 1;
+        const newTopScore = Math.max(profile.topScore || 0, quizScore);
+        const newAvgScore = ((profile.avgScore || 0) * (newQuizzesTaken - 1) + quizScore) / newQuizzesTaken;
+        // Optionally, update streak, achievements, etc. here
+        const userDocRef = doc(db, "users", user.uid);
+        await updateDoc(userDocRef, {
+          quizzesTaken: newQuizzesTaken,
+          avgScore: newAvgScore,
+          topScore: newTopScore,
+          // Add other fields as needed
+        });
+        // --- Add quiz attempt to quizHistory subcollection ---
+        const quizHistoryRef = collection(db, "users", user.uid, "quizHistory");
+        await addDoc(quizHistoryRef, {
+          quizId: id,
+          title: quiz.title,
+          score: finalScore,
+          totalQuestions: quiz.questions.length,
+          percentage: quizScore,
+          date: serverTimestamp(),
+          answers: userAnswers,
+        });
+      }
+    } catch (err) {
+      console.error("Failed to update user stats or quiz history in Firestore:", err);
+    }
+    // --- End Firestore update logic ---
   };
 
   // Handle quiz exit - modified to exit immediately

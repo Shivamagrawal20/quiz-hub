@@ -9,12 +9,12 @@ const Footer = () => {
           <div className="md:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center">
-                <span className="text-white font-bold text-sm">Q</span>
+                <span className="text-white font-bold text-sm">E</span>
               </div>
-              <span className="font-bold text-xl">QuizHub</span>
+              <span className="font-bold text-xl">Examify</span>
             </Link>
             <p className="text-muted-foreground mb-4">
-              QuizHub provides an interactive platform for students to test their knowledge
+              Examify provides an interactive platform for students to test their knowledge
               through engaging quizzes across various subjects.
             </p>
             <div className="flex gap-4">
@@ -80,7 +80,7 @@ const Footer = () => {
         
         <div className="border-t mt-10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-muted-foreground text-sm">
-            &copy; {new Date().getFullYear()} QuizHub. All rights reserved.
+            &copy; {new Date().getFullYear()} Examify. All rights reserved.
           </p>
           <div className="flex gap-4 text-sm">
             <Link to="/privacy-policy" className="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link>
