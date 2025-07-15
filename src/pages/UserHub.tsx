@@ -7,14 +7,15 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription }
 import { ChevronRight, BookOpen, Upload, Clock, BarChart2, Trophy, Users, BookMarked, Settings, Award } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { UserSettings } from "@/components/dashboard/UserSettings";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Animation for card hover effect
 const cardAnimation = "transition-all duration-300 hover:shadow-lg hover:-translate-y-1";
 
 const UserHub = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
-  const [username, setUsername] = useState("User");
+  const { profile } = useAuth();
+  const [isLoading, setIsLoading] = useState(false); // just for loading spinner if needed
   const [progress, setProgress] = useState(0);
   
   // Simulate loading state
@@ -22,7 +23,7 @@ const UserHub = () => {
     // Mock loading user data
     const timer = setTimeout(() => {
       setIsLoading(false);
-      setUsername("John");
+      // setUsername("John"); // This line is removed as per the edit hint
       
       // Animate progress
       const progressTimer = setTimeout(() => {
@@ -74,7 +75,7 @@ const UserHub = () => {
       <main className="flex-grow pt-20 pb-16 bg-gradient-to-b from-secondary/10 to-secondary/5 dark:from-gray-900 dark:to-gray-950">
         <div className="container mx-auto px-2 sm:px-4">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">👋 Welcome back, {username}!</h1>
+            <h1 className="text-3xl font-bold mb-2">👋 Welcome back, {profile?.name || "User"}!</h1>
             <p className="text-muted-foreground">Your learning journey continues here.</p>
 
             {/* Weekly Goal Stats Banner - Responsive */}

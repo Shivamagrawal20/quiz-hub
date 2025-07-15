@@ -4,20 +4,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useAuth } from "@/contexts/AuthContext";
 
 const ProfilePage: React.FC = () => {
     // State for profile editing mode
     const [isEditing, setIsEditing] = useState(false);
     // State for user data (mock data)
-    const [userData, setUserData] = useState({
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      educationLevel: 'High School',
-      phone: '123-456-7890',
-      address: '123 Main St, City, Country',
-      emergencyContact: 'Jane Doe (987-654-3210)',
-      memberSince: 'January 2023'
-    });
+    const { profile } = useAuth();
     // State for theme
     const [isDarkMode, setIsDarkMode] = useState(false);
     // State for activity expansion
@@ -71,7 +64,7 @@ const ProfilePage: React.FC = () => {
     // Handle form input changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       const { name, value } = e.target;
-      setUserData({ ...userData, [name]: value });
+      // setUserData({ ...userData, [name]: value }); // This line is removed as userData is removed
     };
   
     // Handle form submission
@@ -190,7 +183,7 @@ const ProfilePage: React.FC = () => {
                       <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="flex flex-col items-center text-center mb-6">
                           <div className="w-24 h-24 bg-indigo-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-4 relative group">
-                            {userData.name.split(' ').map(name => name[0]).join('')}
+                            {profile?.name?.split(' ').map(name => name[0]).join('')}
                             <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                               <span className="text-sm">Change</span>
                             </div>
@@ -204,7 +197,7 @@ const ProfilePage: React.FC = () => {
                           <input
                             type="text"
                             name="name"
-                            value={userData.name}
+                            value={profile?.name || ''}
                             onChange={handleInputChange}
                             className={`w-full px-3 py-2 border ${isDarkMode ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500`}
                           />
@@ -217,7 +210,7 @@ const ProfilePage: React.FC = () => {
                           <input
                             type="email"
                             name="email"
-                            value={userData.email}
+                            value={profile?.email || ''}
                             onChange={handleInputChange}
                             className={`w-full px-3 py-2 border ${isDarkMode ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500`}
                           />
@@ -229,7 +222,7 @@ const ProfilePage: React.FC = () => {
                           </label>
                           <select
                             name="educationLevel"
-                            value={userData.educationLevel}
+                            value={profile?.educationLevel || ''}
                             onChange={handleInputChange}
                             className={`w-full px-3 py-2 border ${isDarkMode ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500`}
                           >
@@ -248,7 +241,7 @@ const ProfilePage: React.FC = () => {
                           <input
                             type="tel"
                             name="phone"
-                            value={userData.phone}
+                            value={profile?.phone || ''}
                             onChange={handleInputChange}
                             className={`w-full px-3 py-2 border ${isDarkMode ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500`}
                           />
@@ -261,7 +254,7 @@ const ProfilePage: React.FC = () => {
                           <input
                             type="text"
                             name="address"
-                            value={userData.address}
+                            value={profile?.address || ''}
                             onChange={handleInputChange}
                             className={`w-full px-3 py-2 border ${isDarkMode ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500`}
                           />
@@ -274,7 +267,7 @@ const ProfilePage: React.FC = () => {
                           <input
                             type="text"
                             name="emergencyContact"
-                            value={userData.emergencyContact}
+                            value={profile?.emergencyContact || ''}
                             onChange={handleInputChange}
                             className={`w-full px-3 py-2 border ${isDarkMode ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500`}
                           />
@@ -300,9 +293,9 @@ const ProfilePage: React.FC = () => {
                       <>
                         <div className="flex flex-col items-center text-center">
                           <div className="w-24 h-24 bg-indigo-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-4 transition-transform hover:scale-105 cursor-pointer">
-                            {userData.name.split(' ').map(name => name[0]).join('')}
+                            {profile?.name?.split(' ').map(name => name[0]).join('')}
                           </div>
-                          <h2 className="text-xl font-semibold">{userData.name}</h2>
+                          <h2 className="text-xl font-semibold">{profile?.name || "User"}</h2>
                           <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'} text-sm`}>Student</p>
                           
                           <div className="mt-6 w-full">
@@ -318,27 +311,27 @@ const ProfilePage: React.FC = () => {
                         <div className="mt-6 space-y-4">
                           <div>
                             <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-1`}>Email</h3>
-                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>{userData.email}</p>
+                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>{profile?.email || ""}</p>
                           </div>
                           <div>
                             <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-1`}>Member Since</h3>
-                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>{userData.memberSince}</p>
+                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>{profile?.memberSince || ""}</p>
                           </div>
                           <div>
                             <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-1`}>Education Level</h3>
-                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>{userData.educationLevel}</p>
+                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>{profile?.educationLevel || ""}</p>
                           </div>
                           <div>
                             <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-1`}>Phone</h3>
-                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>{userData.phone}</p>
+                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>{profile?.phone || ""}</p>
                           </div>
                           <div>
                             <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-1`}>Address</h3>
-                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>{userData.address}</p>
+                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>{profile?.address || ""}</p>
                           </div>
                           <div>
                             <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-1`}>Emergency Contact</h3>
-                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>{userData.emergencyContact}</p>
+                            <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>{profile?.emergencyContact || ""}</p>
                           </div>
                         </div>
                       </>

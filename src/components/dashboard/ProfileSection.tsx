@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { User, Save } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Subject options for the form
 const subjectOptions = [
@@ -50,6 +51,7 @@ const defaultProfileData = {
 
 export function ProfileSection() {
   const { toast } = useToast();
+  const { profile } = useAuth();
   const [profileData, setProfileData] = useState(defaultProfileData);
   const [avatarSrc, setAvatarSrc] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -113,7 +115,7 @@ export function ProfileSection() {
   return (
     <Card className="w-full mt-8">
       <CardHeader>
-        <CardTitle className="text-2xl">My Profile</CardTitle>
+        <CardTitle className="text-2xl">{profile?.name || "My Profile"}</CardTitle>
         <CardDescription>Update your personal details and study preferences</CardDescription>
       </CardHeader>
       <CardContent>
@@ -125,7 +127,7 @@ export function ProfileSection() {
                 <Avatar className="h-28 w-28 border-2 border-primary/20">
                   <AvatarImage src={avatarSrc || undefined} alt="Profile" />
                   <AvatarFallback className="bg-primary/10 text-primary text-2xl">
-                    <User className="h-10 w-10" />
+                    {profile?.name?.split(' ').map(n => n[0]).join('') || <User className="h-10 w-10" />}
                   </AvatarFallback>
                 </Avatar>
                 <label htmlFor="profile-avatar" className="cursor-pointer">
@@ -138,6 +140,10 @@ export function ProfileSection() {
                     onChange={handleAvatarChange}
                   />
                 </label>
+                <div className="mt-2 text-center">
+                  <div className="font-bold">{profile?.name || "User"}</div>
+                  <div className="text-sm text-muted-foreground">{profile?.email || ""}</div>
+                </div>
               </div>
 
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">

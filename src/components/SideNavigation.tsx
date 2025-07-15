@@ -75,7 +75,7 @@ const SideNavigation = ({ className }: SideNavigationProps) => {
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const location = useLocation();
   const currentPath = location.pathname;
-  const { isLoggedIn, setIsLoggedIn } = useAuth();
+  const { isLoggedIn, setIsLoggedIn, role } = useAuth();
 
   const isActive = (path: string) => currentPath === path;
   
@@ -93,8 +93,8 @@ const SideNavigation = ({ className }: SideNavigationProps) => {
     { to: "/contact", icon: Bell, label: "Contact" },
   ];
   
-  // Links visible only to logged in users
-  const privateLinks: NavLinkItem[] = [
+  // Links for regular users
+  const userLinks: NavLinkItem[] = [
     { to: "/userhub", icon: Home, label: "User Hub", onClick: handleProtectedLinkClick },
     { to: "/dashboard", icon: BarChart2, label: "Dashboard", onClick: handleProtectedLinkClick },
     { to: "/quizzes", icon: BookText, label: "Take Quiz", onClick: handleProtectedLinkClick },
@@ -106,7 +106,15 @@ const SideNavigation = ({ className }: SideNavigationProps) => {
     { to: "/profile", icon: User, label: "My Profile", onClick: handleProtectedLinkClick },
     { to: "/settings", icon: Settings, label: "Settings", onClick: handleProtectedLinkClick },
   ];
-  
+
+  // Links for admin/administrator
+  const adminLinks: NavLinkItem[] = [
+    { to: "/admin-dashboard", icon: BarChart2, label: "Admin Dashboard", onClick: handleProtectedLinkClick },
+    { to: "/manage-users", icon: Users, label: "Manage Users", onClick: handleProtectedLinkClick },
+    { to: "/site-settings", icon: Settings, label: "Site Settings", onClick: handleProtectedLinkClick },
+    // Add more admin-only links as needed
+  ];
+
   // Auth links based on login status
   const authLinks = isLoggedIn ? [
     { 
@@ -122,10 +130,15 @@ const SideNavigation = ({ className }: SideNavigationProps) => {
     { to: "/signup", icon: User, label: "Sign Up" }
   ];
 
-  // Combine the appropriate links based on login status
-  const links = isLoggedIn 
-    ? [...privateLinks, ...publicLinks] 
-    : [...publicLinks];
+  // Combine the appropriate links based on login status and role
+  let links = [...publicLinks];
+  if (isLoggedIn) {
+    if (role === "admin" || role === "administrator") {
+      links = [...adminLinks, ...userLinks, ...publicLinks];
+    } else {
+      links = [...userLinks, ...publicLinks];
+    }
+  }
 
   return (
     <>

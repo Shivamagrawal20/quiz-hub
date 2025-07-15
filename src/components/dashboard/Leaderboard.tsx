@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Medal, Trophy, Star, Award, ArrowUp, ArrowDown, EqualIcon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Progress } from "@/components/ui/progress";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Mock leaderboard data
 const leaderboardData = [
@@ -110,6 +111,7 @@ export function Leaderboard() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [progressValue, setProgressValue] = useState(0);
+  const { profile } = useAuth();
   
   // Simulating data loading
   useEffect(() => {
@@ -145,7 +147,7 @@ export function Leaderboard() {
             </div>
           ) : (
             <>
-              {currentUser && (
+              {profile && (
                 <Card className="mb-6 border-2 border-primary/20 bg-primary/5">
                   <CardHeader className="py-3">
                     <CardTitle className="text-base">Your Current Position</CardTitle>
@@ -154,25 +156,23 @@ export function Leaderboard() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold">
-                          {currentUser.rank}
+                          {/* Replace with actual rank if available */}
+                          #
                         </div>
                         <Avatar className="h-10 w-10 border-2 border-primary/20">
-                          <AvatarImage src={currentUser.avatarUrl || undefined} alt={currentUser.name} />
+                          <AvatarImage src={undefined} alt={profile.name} />
                           <AvatarFallback className="bg-primary/10 text-primary">
-                            {currentUser.name.split(' ').map(n => n[0]).join('')}
+                            {profile.name?.split(' ').map(n => n[0]).join('')}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-medium">{currentUser.name}</p>
+                          <p className="font-medium">{profile.name}</p>
                           <div className="flex items-center gap-1 text-xs">
-                            <span>{currentUser.points} points</span>
-                            <ChangeIcon change={currentUser.change} />
+                            {/* Add points if available */}
+                            <span>points</span>
                           </div>
                         </div>
                       </div>
-                      <Badge variant={currentUser.badge as any} className="uppercase">
-                        {currentUser.badge}
-                      </Badge>
                     </div>
                   </CardContent>
                 </Card>
