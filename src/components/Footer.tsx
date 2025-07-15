@@ -8,8 +8,8 @@ const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 md:gap-6 lg:gap-8">
           <div className="lg:col-span-2 col-span-2 md:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-3">
-              <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-md bg-primary flex items-center justify-center">
-                <span className="text-white font-bold text-xs sm:text-sm">E</span>
+              <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-md bg-white flex items-center justify-center shadow border border-gray-200 overflow-hidden p-1 aspect-square">
+                <img src="/favicon.ico" alt="Examify Logo" className="w-full h-full object-contain" />
               </div>
               <span className="font-bold text-lg sm:text-xl">Examify</span>
             </Link>
