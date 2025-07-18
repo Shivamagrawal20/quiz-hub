@@ -115,6 +115,7 @@ const SideNavigation = ({ className }: SideNavigationProps) => {
   // Links for admin/administrator
   const adminLinks: NavLinkItem[] = [
     { to: "/admin-dashboard", icon: BarChart2, label: "Admin Dashboard", onClick: handleProtectedLinkClick },
+    { to: "/admin-ai-quiz", icon: BookOpen, label: "AI Made Quiz", onClick: handleProtectedLinkClick },
     { to: "/manage-users", icon: Users, label: "Manage Users", onClick: handleProtectedLinkClick },
     { to: "/site-settings", icon: Settings, label: "Site Settings", onClick: handleProtectedLinkClick },
     // Add more admin-only links as needed

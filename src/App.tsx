@@ -34,6 +34,7 @@ import { SiteSettingsProvider, useSiteSettings } from "@/contexts/SiteSettingsCo
 import { useAuth } from "@/contexts/AuthContext";
 import Help from "./pages/Help";
 import ExamOver from "./pages/ExamOver";
+import AdminAIGeneratedQuiz from "./pages/AdminAIGeneratedQuiz";
 
 const queryClient = new QueryClient();
 
@@ -81,6 +82,7 @@ const AppRoutes = () => {
         <Route path="/quizzes" element={<Quizzes />} />
         <Route path="/quiz/:id" element={<Quiz />} />
         <Route path="/exam-over" element={<ExamOver />} />
+        <Route path="/admin-ai-quiz" element={<AdminAIGeneratedQuiz />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/help" element={<Help />} />

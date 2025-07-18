@@ -59,9 +59,18 @@ const AdminQuizEditPage = () => {
             description: data.description || "",
             features: data.features || "",
             tags: data.tags || [],
-            duration: data.duration || { hours: 0, minutes: 0, seconds: 0 }, // <-- load duration
+            duration: data.duration || { hours: 0, minutes: 0, seconds: 0 },
           });
-          setQuestions(data.questions || []);
+          // Defensive normalization for questions array
+          setQuestions(
+            Array.isArray(data.questions)
+              ? data.questions.map(q => ({
+                  question: q?.question || "",
+                  options: Array.isArray(q?.options) ? q.options : ["", "", "", ""],
+                  answer: typeof q?.answer === "number" ? q.answer : 0,
+                }))
+              : []
+          );
         }
       } catch (err) {
         toast({ title: "Error loading quiz", description: String(err), variant: "destructive" });
@@ -308,55 +317,60 @@ const AdminQuizEditPage = () => {
             </DialogContent>
           </Dialog>
 
-          <form onSubmit={handleSaveQuiz} className="space-y-8">
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Questions</h2>
-              <div className="space-y-8">
-                {questions.map((q, idx) => (
-                  <Card key={idx} className="p-4 bg-gray-50 dark:bg-gray-800">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-semibold">Question {idx + 1}</span>
-                      {questions.length > 1 && (
-                        <Button type="button" variant="destructive" size="sm" onClick={() => handleRemoveQuestion(idx)}>
-                          Remove
-                        </Button>
-                      )}
-                    </div>
-                    <Input
-                      className="mb-2"
-                      placeholder="Enter question text"
-                      value={q.question}
-                      onChange={e => handleQuestionChange(idx, e.target.value)}
-                      required
-                    />
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
-                      {q.options.map((opt, oIdx) => (
-                        <Input
-                          key={oIdx}
-                          placeholder={`Option ${oIdx + 1}`}
-                          value={opt}
-                          onChange={e => handleOptionChange(idx, oIdx, e.target.value)}
-                          required
-                        />
-                      ))}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <label className="font-medium">Correct Answer:</label>
-                      <select
-                        className="border rounded px-2 py-1"
-                        value={q.answer}
-                        onChange={e => handleAnswerChange(idx, Number(e.target.value))}
-                      >
-                        {q.options.map((_, oIdx) => (
-                          <option key={oIdx} value={oIdx}>{`Option ${oIdx + 1}`}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-              <Button type="button" variant="outline" className="mt-4" onClick={handleAddQuestion}>+ Add Question</Button>
+          {/* Questions Section */}
+          <Card className="mb-8 p-8 flex flex-col gap-4 relative shadow-lg border-2 border-primary/30 bg-white dark:bg-gray-900">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-primary">Questions</h2>
+              <Button size="sm" variant="outline" onClick={handleAddQuestion}>
+                Add Question
+              </Button>
             </div>
+            {Array.isArray(questions) && questions.length > 0 ? (
+              questions.map((q, idx) => (
+                <div key={idx} className="mb-6 p-4 border rounded-lg bg-gray-50 dark:bg-gray-800">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-semibold">Q{idx + 1}</span>
+                    <Button size="xs" variant="destructive" onClick={() => handleRemoveQuestion(idx)}>
+                      Remove
+                    </Button>
+                  </div>
+                  <Input
+                    label="Question"
+                    placeholder="Enter question text"
+                    value={q.question || ""}
+                    onChange={e => handleQuestionChange(idx, e.target.value)}
+                  />
+                  <div className="grid grid-cols-2 gap-2 mt-2">
+                    {Array.isArray(q.options) ? q.options.map((opt, oIdx) => (
+                      <Input
+                        key={oIdx}
+                        label={`Option ${oIdx + 1}`}
+                        placeholder={`Option ${oIdx + 1}`}
+                        value={opt || ""}
+                        onChange={e => handleOptionChange(idx, oIdx, e.target.value)}
+                      />
+                    )) : null}
+                  </div>
+                  <div className="mt-2">
+                    <label className="text-xs font-medium mb-1 block">Correct Answer</label>
+                    <select
+                      className="w-full border rounded p-2"
+                      value={q.answer}
+                      onChange={e => handleAnswerChange(idx, Number(e.target.value))}
+                    >
+                      {Array.isArray(q.options) && q.options.map((_, oIdx) => (
+                        <option key={oIdx} value={oIdx}>{`Option ${oIdx + 1}`}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-gray-500 dark:text-gray-400">No questions found for this quiz.</div>
+            )}
+          </Card>
+
+          <form onSubmit={handleSaveQuiz} className="space-y-8">
             <div className="flex gap-4 mt-8">
               <Button type="submit" disabled={loading}>Save Questions</Button>
               {/* Optionally, add a note for the admin */}
