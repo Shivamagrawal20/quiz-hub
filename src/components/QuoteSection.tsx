@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { useScrollOpacity } from "@/hooks/useScrollOpacity";
 
-const quote = "Learning isn’t about knowing all the answers — it’s about asking the right questions. QuizHub makes every question count.";
+const quote = "Learning isn’t about knowing all the answers — it’s about asking the right questions. Examify makes every question count.";
 
 const QuoteSection = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -60,7 +60,7 @@ const QuoteSection = () => {
               transition: "color 0.3s",
             }}
           >
-            — QuizHub Team
+            — Examify Team
           </p>
         </div>
       </div>

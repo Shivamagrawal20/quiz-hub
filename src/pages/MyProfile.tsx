@@ -169,39 +169,40 @@ export default function MyProfile() {
     return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Top Navbar */}
-        <Navbar />
-      <div className="flex flex-1">
+        <Navbar showInDashboard={true} />
+      <div className="flex flex-1 flex-col md:flex-row">
         {/* Main App Side Navigation */}
         <div className="hidden md:block">
           <SideNavigation className="h-full" />
-              </div>
+        </div>
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col items-center py-12 px-2 md:px-8 mt-16">
-          <div className="w-full max-w-6xl flex flex-col md:flex-row gap-8">
-            {/* Account Settings Sidebar */}
-            <aside className="w-full md:w-64 bg-white rounded-xl shadow p-4 flex flex-row md:flex-col gap-2 md:gap-0 mb-4 md:mb-0">
+        <div className="flex-1 flex flex-col items-center py-6 px-2 sm:px-4 md:px-8 mt-16 w-full">
+          <div className="w-full max-w-6xl flex flex-col md:flex-row gap-6 md:gap-8">
+            {/* Account Settings Sidebar / Tab Bar */}
+            {/* Mobile: horizontal tab bar, Desktop: vertical sidebar */}
+            <aside className="w-full md:w-64 bg-white rounded-xl shadow p-1 sm:p-2 md:p-4 flex flex-row md:flex-col gap-1 md:gap-0 mb-4 md:mb-0 sticky top-16 z-10 overflow-x-auto">
               {sidebarItems.map((item) => (
-              <button 
+                <button
                   key={item.label}
-                  className={`flex items-center gap-3 px-4 py-2 rounded-lg w-full text-left transition-colors ${
+                  className={`flex flex-1 md:flex-none items-center justify-center md:justify-start gap-1 md:gap-3 px-2 py-2 md:px-4 md:py-2 rounded-lg text-xs sm:text-sm md:text-base w-full text-left transition-colors whitespace-nowrap ${
                     activeTab === item.label
                       ? "bg-primary/10 text-primary font-semibold"
                       : "hover:bg-gray-100 text-gray-700"
                   }`}
                   onClick={() => setActiveTab(item.label)}
                 >
-                  <item.icon className="h-5 w-5" />
-                  <span>{item.label}</span>
-              </button>
+                  <item.icon className="h-5 w-5 shrink-0" />
+                  <span className="hidden xs:inline md:inline">{item.label}</span>
+                </button>
               ))}
             </aside>
             {/* Main Card */}
-            <main className="flex-1">
-              <Card className="p-8 rounded-xl shadow-xl bg-white">
+            <main className="flex-1 w-full">
+              <Card className="p-3 xs:p-4 sm:p-8 rounded-xl shadow-xl bg-white w-full">
                 {activeTab === "Profile Settings" && (
                   <form className="space-y-8" onSubmit={handleSave}>
                     {/* Avatar and Upload */}
-                    <div className="flex flex-col md:flex-row items-center gap-6 mb-6">
+                    <div className="flex flex-col md:flex-row items-center gap-4 xs:gap-6 mb-6">
                       <div className="relative">
                         <Avatar className="w-24 h-24">
                           <AvatarImage src={avatar} alt="Avatar" />
@@ -221,18 +222,18 @@ export default function MyProfile() {
                           />
                         </label>
                       </div>
-                      <div className="flex gap-3">
-                        <Button type="button" onClick={() => document.getElementById('avatar-upload')?.click()}>
+                      <div className="flex flex-col xs:flex-row gap-2 xs:gap-3 w-full xs:w-auto mt-4 md:mt-0">
+                        <Button type="button" onClick={() => document.getElementById('avatar-upload')?.click()} className="w-full xs:w-auto">
                           Upload New
                         </Button>
-                        <Button type="button" variant="secondary" onClick={handleDeleteAvatar}>
+                        <Button type="button" variant="secondary" onClick={handleDeleteAvatar} className="w-full xs:w-auto">
                           <Trash2 className="h-4 w-4 mr-2" />Delete avatar
                         </Button>
                       </div>
                         </div>
                         
                     {/* Profile Fields */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 xs:gap-6">
                       <div>
                         <label className="block text-sm font-medium mb-1">First Name <span className="text-red-500">*</span></label>
                         <Input value={firstName} onChange={e => setFirstName(e.target.value)} required placeholder="First name" />

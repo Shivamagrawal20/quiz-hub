@@ -106,11 +106,11 @@ const Notifications = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-950">
       <Navbar showInDashboard={true} />
       <main className="flex-grow pt-20 pb-12">
-        <div className="container mx-auto px-4 max-w-3xl">
+        <div className="container mx-auto px-2 sm:px-4 max-w-3xl">
           <div className="mb-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2 sm:px-0">
               <div>
-                <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
+                <h1 className="text-2xl xs:text-3xl font-bold mb-2 flex items-center gap-2">
                   <Bell className="h-7 w-7 text-primary" /> Notifications
                 </h1>
                 <p className="text-muted-foreground">Stay updated with your quiz results and platform updates</p>
@@ -125,8 +125,8 @@ const Notifications = () => {
           {/* Admin notification creation form */}
           {isAdmin && (
             <Card className="mb-10 border-2 border-primary/30 bg-primary/5 shadow-lg">
-              <form onSubmit={handleCreateNotification} className="flex flex-col gap-4 p-6">
-                <h2 className="text-xl font-bold mb-2 flex items-center gap-2 text-primary">
+              <form onSubmit={handleCreateNotification} className="flex flex-col gap-4 p-4 sm:p-6">
+                <h2 className="text-lg xs:text-xl font-bold mb-2 flex items-center gap-2 text-primary">
                   <Megaphone className="h-5 w-5" /> Send Notification to All Users
                 </h2>
                 <div className="flex flex-col gap-2">
@@ -156,7 +156,7 @@ const Notifications = () => {
 
           {/* Notifications timeline */}
           <Card className="mb-8 p-0 shadow-xl">
-            <CardHeader className="px-6 pt-6 pb-2">
+            <CardHeader className="px-4 sm:px-6 pt-6 pb-2">
               <CardTitle className="flex items-center gap-2">
                 <Info className="h-5 w-5 text-primary" /> All Notifications
               </CardTitle>

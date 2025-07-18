@@ -253,16 +253,16 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-secondary/10 to-secondary/5 dark:from-gray-900 dark:to-gray-950">
       {/* Hero/Welcome Card */}
       <div className="container mx-auto px-2 sm:px-4 mt-8 mb-8">
-        <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl shadow-lg p-6 sm:p-8">
+        <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl shadow-lg p-4 sm:p-8">
           <Avatar className="h-16 w-16 border-2 border-primary/30">
             <AvatarImage src={profile?.avatarUrl || undefined} alt="Profile" />
             <AvatarFallback className="bg-primary/10 text-primary text-2xl">
               {profile?.name?.split(' ').map(n => n[0]).join('') || <User className="h-8 w-8" />}
             </AvatarFallback>
           </Avatar>
-          <div className="flex flex-col items-center sm:items-start">
-            <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-1">Welcome back, {profile?.name || "User"}!</h1>
-            <div className="flex items-center gap-2 text-muted-foreground text-lg">
+          <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+            <h1 className="text-xl xs:text-2xl sm:text-3xl font-bold text-primary mb-1">Welcome back, {profile?.name || "User"}!</h1>
+            <div className="flex flex-wrap items-center gap-2 text-muted-foreground text-base sm:text-lg justify-center sm:justify-start">
               <Sparkles className="h-5 w-5 text-yellow-500" />
               <span>Ready for your next challenge?</span>
             </div>
@@ -271,18 +271,18 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
       </div>
       {/* Quiz Streak Tracker Card */}
       <div className="container mx-auto px-2 sm:px-4 mb-6">
-        <div className="flex flex-col sm:flex-row items-center gap-4">
-          <Card className="flex-1 bg-gradient-to-r from-orange-100 to-yellow-50 rounded-xl shadow-md flex items-center gap-4 p-4">
+        <div className="flex flex-col sm:flex-row items-center gap-4 px-2 sm:px-0">
+          <Card className="flex-1 bg-gradient-to-r from-orange-100 to-yellow-50 rounded-xl shadow-md flex flex-col xs:flex-row items-center gap-4 p-4">
             <div className="flex items-center justify-center h-14 w-14 rounded-full bg-orange-200">
               <Flame className="h-8 w-8 text-orange-500 animate-pulse" />
             </div>
-            <div className="flex flex-col">
-              <span className="text-lg font-semibold text-orange-700">Quiz Streak</span>
-              <span className="text-3xl font-bold text-orange-600">{profile?.streak || 0} <span className="text-base font-medium">day{profile?.streak === 1 ? '' : 's'}</span></span>
+            <div className="flex flex-col items-center xs:items-start text-center xs:text-left">
+              <span className="text-base xs:text-lg font-semibold text-orange-700">Quiz Streak</span>
+              <span className="text-2xl xs:text-3xl font-bold text-orange-600">{profile?.streak || 0} <span className="text-base font-medium">day{profile?.streak === 1 ? '' : 's'}</span></span>
               {profile?.streak > 0 ? (
-                <span className="text-sm text-orange-700 mt-1">🔥 Keep it up! You're on a roll!</span>
+                <span className="text-xs xs:text-sm text-orange-700 mt-1">🔥 Keep it up! You're on a roll!</span>
               ) : (
-                <span className="text-sm text-muted-foreground mt-1">Start a quiz today to begin your streak!</span>
+                <span className="text-xs xs:text-sm text-muted-foreground mt-1">Start a quiz today to begin your streak!</span>
               )}
               </div>
           </Card>
@@ -290,10 +290,10 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
                 </div>
       {/* Stat Cards Section */}
       <div className="container mx-auto px-2 sm:px-4 mb-10">
-        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+        <h2 className="text-lg xs:text-xl font-bold mb-4 flex items-center gap-2">
           <BarChart2 className="h-5 w-5 text-primary" /> Overview
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {/* Progress Card */}
           <Card className="bg-gradient-to-br from-blue-100 to-blue-50 p-3 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
                 <div className="flex items-center justify-between">
@@ -334,11 +334,11 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
       </div>
       {/* Achievements & Badges Section */}
       <div className="container mx-auto px-2 sm:px-4 mb-10">
-        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+        <h2 className="text-lg xs:text-xl font-bold mb-4 flex items-center gap-2">
           <Trophy className="h-5 w-5 text-yellow-500" /> Achievements & Badges
         </h2>
         {profile?.achievements && profile.achievements.length > 0 ? (
-          <div className="flex flex-wrap gap-6">
+          <div className="flex flex-wrap gap-4 sm:gap-6 justify-center sm:justify-start">
             <TooltipProvider>
               {profile.achievements.map((ach) => {
                 const Icon = require('lucide-react')[ach.icon] || Trophy;
@@ -372,11 +372,11 @@ const DashboardContent = ({ activeView, setActiveView }: DashboardContentProps) 
       </div>
       {/* Quiz History Section */}
       <div className="container mx-auto px-2 sm:px-4 mb-10">
-        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+        <h2 className="text-lg xs:text-xl font-bold mb-4 flex items-center gap-2">
           <History className="h-5 w-5 text-primary" /> Quiz History
         </h2>
         <Card className="rounded-xl shadow-md p-0 overflow-x-auto">
-          <table className="min-w-full text-sm">
+          <table className="min-w-full text-xs xs:text-sm">
             <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
                 <th className="px-4 py-2 text-left font-semibold">Quiz</th>

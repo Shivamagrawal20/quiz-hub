@@ -199,3 +199,7 @@
     transform: translateY(-2px) scale(1.01);
   }
 }
+
+/* exam-secure and exam-watermark are defined in App.css, but ensure Tailwind can see them for purge. */
+.exam-secure {}
+.exam-watermark {}

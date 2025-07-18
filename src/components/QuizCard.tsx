@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { Fragment } from "react";
 
 interface QuizCardProps {
   id: string;
@@ -49,48 +50,44 @@ const QuizCard = ({
   const handleConfirmStart = () => {
     setShowFullscreenDialog(false);
     setIsLoading(true);
-    
-    // Request fullscreen before navigating
-    try {
-      const element = document.documentElement;
-      if (element.requestFullscreen) {
-        element.requestFullscreen().then(() => {
-          // Show success toast when entering fullscreen
-          toast({
-            title: "Fullscreen Mode",
-            description: "Quiz is now in fullscreen mode for better experience.",
+    // Show loading overlay immediately
+    setTimeout(() => {
+      try {
+        const element = document.documentElement;
+        if (element.requestFullscreen) {
+          element.requestFullscreen().then(() => {
+            toast({
+              title: "Fullscreen Mode",
+              description: "Quiz is now in fullscreen mode for better experience.",
+            });
+            // Navigate to quiz after a short delay
+            setTimeout(() => {
+              navigate(`/quiz/${id}`);
+            }, 600);
+          }).catch((error) => {
+            toast({
+              title: "Fullscreen Required",
+              description: "This quiz requires fullscreen mode. Please allow it to continue.",
+              variant: "destructive",
+            });
+            setIsLoading(false);
           });
-          
-          // Navigate to quiz after a short delay
+        } else {
+          toast({
+            title: "Fullscreen Not Supported",
+            description: "Your browser doesn't support fullscreen mode. Quiz will start normally.",
+          });
           setTimeout(() => {
             navigate(`/quiz/${id}`);
-          }, 800);
-        }).catch((error) => {
-          // Handle case where fullscreen is rejected
-          toast({
-            title: "Fullscreen Required",
-            description: "This quiz requires fullscreen mode. Please allow it to continue.",
-            variant: "destructive",
-          });
-          setIsLoading(false);
-        });
-      } else {
-        // Fallback for browsers that don't support fullscreen
-        toast({
-          title: "Fullscreen Not Supported",
-          description: "Your browser doesn't support fullscreen mode. Quiz will start normally.",
-        });
+          }, 600);
+        }
+      } catch (error) {
+        console.error("Fullscreen error:", error);
         setTimeout(() => {
           navigate(`/quiz/${id}`);
-        }, 800);
+        }, 600);
       }
-    } catch (error) {
-      console.error("Fullscreen error:", error);
-      // Fallback navigation if fullscreen fails
-      setTimeout(() => {
-        navigate(`/quiz/${id}`);
-      }, 800);
-    }
+    }, 100);
   };
   
   const handleCancelStart = () => {
@@ -98,8 +95,14 @@ const QuizCard = ({
   };
   
   return (
-    <>
-      <Card 
+    <Fragment>
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white">
+          <LoaderCircle className="h-12 w-12 animate-spin text-primary mb-4" />
+          <span className="text-lg font-semibold text-primary">Loading Quiz...</span>
+        </div>
+      )}
+      <Card
         className={`quiz-card-hover overflow-hidden h-full flex flex-col transition-all duration-300 ${
           isHovered ? "shadow-lg translate-y-[-8px]" : "hover:shadow-md hover:translate-y-[-4px]"
         }`}
@@ -125,7 +128,6 @@ const QuizCard = ({
             <Clock size={16} />
             <span>Estimated time: {Math.round(questionCount * 1.5)} min</span>
           </div>
-          
           {completionRate !== undefined && (
             <div className="mt-4">
               <div className="flex items-center justify-between mb-1">
@@ -135,14 +137,13 @@ const QuizCard = ({
               <Progress value={completionRate} className="h-1.5" />
             </div>
           )}
-          
           <Badge variant="outline" className="mt-3">
             {category}
           </Badge>
         </CardContent>
         <CardFooter className="border-t pt-4">
-          <Button 
-            className="w-full relative" 
+          <Button
+            className="w-full relative"
             onClick={handleStartQuiz}
             disabled={isLoading}
           >
@@ -160,7 +161,6 @@ const QuizCard = ({
           </Button>
         </CardFooter>
       </Card>
-      
       {/* Fullscreen permission dialog */}
       <Dialog open={showFullscreenDialog} onOpenChange={setShowFullscreenDialog}>
         <DialogContent>
@@ -170,7 +170,6 @@ const QuizCard = ({
               This quiz will run in fullscreen mode for better focus and to prevent cheating.
             </DialogDescription>
           </DialogHeader>
-          
           <Alert className="mt-4 bg-blue-50 text-blue-800 border-blue-200">
             <AlertTitle className="text-blue-800">Important Information</AlertTitle>
             <AlertDescription>
@@ -182,7 +181,6 @@ const QuizCard = ({
               </ul>
             </AlertDescription>
           </Alert>
-          
           <DialogFooter className="mt-6">
             <Button variant="outline" onClick={handleCancelStart}>
               Cancel
@@ -193,7 +191,7 @@ const QuizCard = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </Fragment>
   );
 };
 

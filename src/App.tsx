@@ -33,6 +33,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { SiteSettingsProvider, useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import Help from "./pages/Help";
+import ExamOver from "./pages/ExamOver";
 
 const queryClient = new QueryClient();
 
@@ -79,6 +80,7 @@ const AppRoutes = () => {
         <Route path="/quiz-section" element={<QuizSection />} />
         <Route path="/quizzes" element={<Quizzes />} />
         <Route path="/quiz/:id" element={<Quiz />} />
+        <Route path="/exam-over" element={<ExamOver />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/help" element={<Help />} />

@@ -39,7 +39,7 @@ const Footer = () => {
           </div>
           
           <div>
-            <h3 className="font-bold text-base sm:text-lg mb-3 text-cyan-400">Product</h3>
+            <h3 className="font-bold text-base sm:text-lg mb-3 text-black">Product</h3>
             <ul className="space-y-1.5">
               <li><a href="#" className="text-gray-400 hover:text-primary transition-colors">Features</a></li>
               <li><a href="#" className="text-gray-400 hover:text-primary transition-colors">Pricing</a></li>
@@ -49,7 +49,7 @@ const Footer = () => {
           </div>
           
           <div>
-            <h3 className="font-bold text-base sm:text-lg mb-3 text-cyan-400">Company</h3>
+            <h3 className="font-bold text-base sm:text-lg mb-3 text-black">Company</h3>
             <ul className="space-y-1.5">
               <li><Link to="/about" className="text-gray-400 hover:text-primary transition-colors">About</Link></li>
               <li><a href="#" className="text-gray-400 hover:text-primary transition-colors">Blog</a></li>
@@ -59,7 +59,7 @@ const Footer = () => {
           </div>
           
           <div>
-            <h3 className="font-bold text-base sm:text-lg mb-3 text-cyan-400">Resources</h3>
+            <h3 className="font-bold text-base sm:text-lg mb-3 text-black">Resources</h3>
             <ul className="space-y-1.5">
               <li><a href="#" className="text-gray-400 hover:text-primary transition-colors">Documentation</a></li>
               <li><a href="#" className="text-gray-400 hover:text-primary transition-colors">Help Center</a></li>
@@ -70,7 +70,7 @@ const Footer = () => {
           
           {/* Support Section */}
           <div>
-            <h3 className="font-bold text-base sm:text-lg mb-3 text-cyan-400">Support</h3>
+            <h3 className="font-bold text-base sm:text-lg mb-3 text-black">Support</h3>
             <ul className="space-y-1.5">
               <li>
                 <a href="#" className="flex items-center gap-2 text-rose-500 font-medium hover:underline">
@@ -90,7 +90,7 @@ const Footer = () => {
           </div>
           
           <div>
-            <h3 className="font-bold text-base sm:text-lg mb-3 text-cyan-400">Legal</h3>
+            <h3 className="font-bold text-base sm:text-lg mb-3 text-black">Legal</h3>
             <ul className="space-y-1.5">
               <li><Link to="/privacy-policy" className="text-gray-400 hover:text-primary transition-colors">Privacy Policy</Link></li>
               <li><Link to="/terms-of-service" className="text-gray-400 hover:text-primary transition-colors">Terms of Service</Link></li>

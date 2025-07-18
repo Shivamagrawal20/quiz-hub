@@ -119,7 +119,7 @@ const Navbar = ({ showInDashboard = false }) => {
                     )}
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[350px]">
+                <DialogContent className="sm:max-w-[350px]" lightOverlay>
                   <DialogHeader>
                     <DialogTitle>Notifications</DialogTitle>
                   </DialogHeader>
@@ -197,7 +197,7 @@ const Navbar = ({ showInDashboard = false }) => {
                     )}
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[350px]">
+                <DialogContent className="sm:max-w-[350px]" lightOverlay>
                   <DialogHeader>
                     <DialogTitle>Notifications</DialogTitle>
                   </DialogHeader>
@@ -387,6 +387,7 @@ const Navbar = ({ showInDashboard = false }) => {
   }
 
   // Public/default navbar for non-dashboard pages
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   return (
     <>
       <nav className="w-full py-4 bg-white/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-50 shadow-sm dark:bg-gray-900/90 dark:border-b dark:border-gray-800">
@@ -397,14 +398,35 @@ const Navbar = ({ showInDashboard = false }) => {
             </div>
             <span className="font-bold text-2xl md:text-3xl">Examify</span>
           </Link>
-          <div className="flex items-center gap-6">
+          {/* Desktop Links */}
+          <div className="hidden md:flex items-center gap-6">
             <Link to="/about" className="font-medium hover:text-primary transition-colors">About</Link>
             <Link to="/contact" className="font-medium hover:text-primary transition-colors">Contact</Link>
             <Link to="/signin" className="font-medium hover:text-primary transition-colors">Sign In</Link>
             <Link to="/signup" className="font-medium hover:text-primary transition-colors">Sign Up</Link>
-            
           </div>
+          {/* Hamburger for Mobile */}
+          <button
+            className="md:hidden flex items-center px-2 py-1 focus:outline-none"
+            onClick={() => setIsMobileMenuOpen((open) => !open)}
+            aria-label="Toggle navigation menu"
+          >
+            <svg className="h-7 w-7 text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
         </div>
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-md animate-fade-in dark:bg-gray-900 dark:border-b dark:border-gray-800 z-50">
+            <div className="flex flex-col p-4 gap-4">
+              <Link to="/about" className="px-4 py-2 hover:bg-muted rounded-md transition-colors" onClick={() => setIsMobileMenuOpen(false)}>About</Link>
+              <Link to="/contact" className="px-4 py-2 hover:bg-muted rounded-md transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Contact</Link>
+              <Link to="/signin" className="px-4 py-2 hover:bg-muted rounded-md transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Sign In</Link>
+              <Link to="/signup" className="px-4 py-2 hover:bg-muted rounded-md transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Sign Up</Link>
+            </div>
+          </div>
+        )}
       </nav>
     </>
   );

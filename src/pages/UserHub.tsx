@@ -76,7 +76,7 @@ const UserHub = () => {
       <main className="flex-grow pt-20 pb-16 bg-gradient-to-b from-secondary/10 to-secondary/5 dark:from-gray-900 dark:to-gray-950">
         <div className="container mx-auto px-2 sm:px-4">
           {/* Redesigned Welcome Section */}
-          <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 mb-8">
+          <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 mb-8 px-2 sm:px-0">
             <Avatar className="h-16 w-16 border-2 border-primary/30 shadow">
               <AvatarImage src={profile?.photoURL || undefined} alt={profile?.name || "User"} />
               <AvatarFallback className="bg-primary/10 text-primary text-2xl">
@@ -84,40 +84,40 @@ const UserHub = () => {
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-3xl sm:text-4xl font-bold flex items-center gap-2">
+              <h1 className="text-2xl xs:text-3xl sm:text-4xl font-bold flex flex-wrap items-center gap-2 text-center sm:text-left">
                 <span role="img" aria-label="wave">👋</span>
                 Welcome back, <span className="text-primary">{profile?.name || "User"}</span>!
               </h1>
-              <div className="flex items-center gap-2 mt-1 text-muted-foreground text-lg">
+              <div className="flex flex-wrap items-center gap-2 mt-1 text-muted-foreground text-base sm:text-lg justify-center sm:justify-start">
                 <Sparkles className="h-5 w-5 text-yellow-400" />
                 Ready for your next challenge?
               </div>
             </div>
           </div>
           {/* Stats & Progress */}
-          <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex flex-col lg:flex-row gap-8 px-2 sm:px-0">
             {/* Left: Stats & Progress */}
             <div className="flex-1 flex flex-col gap-8">
               {/* Weekly Goal Card */}
               <Card className="overflow-hidden bg-gradient-to-r from-violet-500 to-purple-500 text-white border-none shadow-lg">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex flex-col gap-4">
-                    <h2 className="text-2xl sm:text-3xl font-bold mb-1">Weekly Goal</h2>
+                    <h2 className="text-xl xs:text-2xl sm:text-3xl font-bold mb-1">Weekly Goal</h2>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
-                      <p className="text-lg sm:text-xl">Goal: <span className="font-bold">{profile?.goalThisWeek || 3}</span> quizzes</p>
-                      <span className="px-4 py-1 bg-white/20 rounded-full text-sm font-medium backdrop-blur-sm">
+                      <p className="text-base xs:text-lg sm:text-xl">Goal: <span className="font-bold">{profile?.goalThisWeek || 3}</span> quizzes</p>
+                      <span className="px-4 py-1 bg-white/20 rounded-full text-xs sm:text-sm font-medium backdrop-blur-sm">
                         {(profile?.streak || 0)} day streak 🔥
                       </span>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <Progress value={profile?.progress || 0} className="h-4 bg-white/30 flex-1" />
-                      <span className="text-lg font-semibold">{profile && profile.goalThisWeek ? Math.round(((profile.quizzesTaken || 0) % profile.goalThisWeek) / profile.goalThisWeek * 100) : 0}%</span>
+                    <div className="flex flex-col xs:flex-row items-center gap-2 xs:gap-4">
+                      <Progress value={profile?.progress || 0} className="h-4 bg-white/30 flex-1 w-full xs:w-auto" />
+                      <span className="text-base xs:text-lg font-semibold">{profile && profile.goalThisWeek ? Math.round(((profile.quizzesTaken || 0) % profile.goalThisWeek) / profile.goalThisWeek * 100) : 0}%</span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
               {/* Stats Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-4">
                 {/* Progress, Average Score, Next Quiz, Achievements cards */}
                 <Card className="bg-white dark:bg-gray-800 shadow-md">
                   <CardContent className="pt-6">
@@ -178,11 +178,11 @@ const UserHub = () => {
             </div>
           </div>
           {/* Quick Actions - now below stats */}
-          <div className="mt-10">
-            <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+          <div className="mt-10 px-2 sm:px-0">
+            <h2 className="text-xl xs:text-2xl font-bold mb-4 flex items-center gap-2">
               <span className="text-primary">⚡</span> Quick Actions
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Example of a more compact card: */}
               <Card className="p-2 sm:p-3 bg-gradient-to-br from-primary/10 to-primary/5 border-none shadow-md">
                 <CardHeader className="py-2 px-3">

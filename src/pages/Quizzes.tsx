@@ -19,8 +19,7 @@ const Quizzes = () => {
   const [difficultyFilter, setDifficultyFilter] = useState("all");
   const [creatorFilter, setCreatorFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("all");
-  const [isLoading, setIsLoading] = useState(true);
-  const [showPreloader, setShowPreloader] = useState(true);
+  const [loading, setLoading] = useState(true);
   const preloaderRef = useRef<HTMLDivElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const mainContentRef = useRef<HTMLDivElement>(null);
@@ -157,92 +156,87 @@ const Quizzes = () => {
   });
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
+    // Animate preloader progress bar (same as HeroSection)
+    gsap.to(progressBarRef.current, {
+      width: "100%",
+      duration: 2,
+      ease: "power2.out",
+      onComplete: () => {
+        gsap.to(preloaderRef.current, {
+          opacity: 0,
+          scale: 0.9,
+          duration: 1,
+          onComplete: () => {
+            setLoading(false);
+            gsap.to(mainContentRef.current, {
+              opacity: 1,
+              duration: 1,
+              ease: "power2.out"
+            });
+          },
+        });
+      },
+    });
   }, []);
-
-  useEffect(() => {
-    // Only run GSAP preloader on initial mount
-    if (showPreloader) {
-      gsap.set(mainContentRef.current, { opacity: 0 });
-      gsap.set(progressBarRef.current, { width: "0%" });
-      gsap.to(progressBarRef.current, {
-        width: "100%",
-        duration: 2,
-        ease: "power2.out",
-        onComplete: () => {
-          gsap.to(preloaderRef.current, {
-            opacity: 0,
-            scale: 0.9,
-            duration: 1,
-            onComplete: () => {
-              setShowPreloader(false);
-              gsap.to(mainContentRef.current, {
-                opacity: 1,
-                duration: 1,
-                ease: "power2.out"
-              });
-            }
-          });
-        }
-      });
-    }
-  }, [showPreloader]);
 
   return (
     <>
-      {/* Preloader overlay */}
-      {showPreloader && (
-        <div ref={preloaderRef} className="preloader fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-purple-600 via-blue-500 to-indigo-700 text-white transition-all duration-700" style={{ minHeight: '100vh' }}>
-          <div className="flex flex-col items-center gap-6">
-            <div className="text-5xl font-extrabold tracking-widest animate-pulse" style={{ letterSpacing: '0.2em' }}>
-              Examify
-            </div>
-            <div className="w-72 h-3 bg-white/10 rounded-full overflow-hidden shadow-inner">
-              <div ref={progressBarRef} className="progress-bar h-full bg-gradient-to-r from-[#a78bfa] to-[#6366f1] rounded-full transition-all"></div>
-            </div>
+      {/* Preloader overlay (same as HeroSection) */}
+      {loading && (
+        <div
+          ref={preloaderRef}
+          className="preloader fixed inset-0 z-50 flex flex-col items-center justify-center bg-white"
+          style={{ transition: "opacity 1s, transform 1s", minHeight: "100vh" }}
+        >
+          <div className="text-5xl font-extrabold text-gray-700 mb-8 animate-pulse">
+            Examify
           </div>
-          <div className="mt-8 text-lg tracking-wide text-white/80 animate-fade-in">Loading Quizzes...</div>
+          <div className="w-64 h-2 bg-gray-200 rounded overflow-hidden">
+            <div
+              ref={progressBarRef}
+              className="progress-bar h-full bg-gradient-to-r from-blue-500 to-purple-500"
+              style={{ width: 0 }}
+            />
+          </div>
         </div>
       )}
 
       {/* Main content, always rendered */}
       <div
         ref={mainContentRef}
-        className={`min-h-screen flex flex-col transition-opacity duration-700 ${showPreloader ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+        className={`min-h-screen flex flex-col transition-opacity duration-700 ${loading ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
       >
-        <Navbar />
+        <Navbar showInDashboard={true} />
         <main className="flex-grow pt-20">
-          <div className="bg-secondary/30 py-12">
-            <div className="container mx-auto px-4">              
-              <h1 className="text-4xl font-bold mb-4">All Quizzes</h1>
-              <p className="text-lg text-muted-foreground max-w-2xl mb-8">
+          <div className="bg-secondary/30 py-8 sm:py-12">
+            <div className="container mx-auto px-2 sm:px-4">
+              <h1 className="text-2xl xs:text-3xl sm:text-4xl font-bold mb-4">All Quizzes</h1>
+              <p className="text-base xs:text-lg text-muted-foreground max-w-2xl mb-6 sm:mb-8">
                 Browse through our collection of quizzes designed for various subjects and difficulty levels. Find the perfect quiz to test your knowledge.
               </p>
-              
-              <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-6">
-                <TabsList className="bg-background/60 backdrop-blur-sm">
-                  <TabsTrigger value="all">All Quizzes</TabsTrigger>
-                  <TabsTrigger value="recommended">Recommended for You</TabsTrigger>
-                  <TabsTrigger value="trending">Popular & Trending</TabsTrigger>
-                </TabsList>
+              <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-4 sm:mb-6">
+                <div className="overflow-x-auto scrollbar-none -mx-2 px-2 mb-2">
+                  <TabsList className="bg-background/60 backdrop-blur-sm flex gap-2 min-w-max whitespace-nowrap">
+                    <TabsTrigger value="all" className="min-w-[120px]">All Quizzes</TabsTrigger>
+                    <TabsTrigger value="recommended" className="min-w-[180px]">Recommended for You</TabsTrigger>
+                    <TabsTrigger value="trending" className="min-w-[160px]">Popular & Trending</TabsTrigger>
+                  </TabsList>
+                </div>
               </Tabs>
-              
-              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-                <div className="flex flex-col gap-4">
+              <div className="bg-white dark:bg-gray-800 p-2 xs:p-4 rounded-lg shadow-sm">
+                <div className="flex flex-col gap-3 xs:gap-4">
                   <div className="relative flex-grow">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                     <Input
                       placeholder="Search quizzes..."
-                      className="pl-10"
+                      className="pl-10 text-sm xs:text-base"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                   </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-2 xs:gap-4">
                     <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger className="w-full text-xs xs:text-sm">
                         <div className="flex items-center gap-2">
                           <Filter className="h-4 w-4 text-muted-foreground" />
                           <SelectValue placeholder="Category" />
@@ -255,9 +249,8 @@ const Quizzes = () => {
                         ))}
                       </SelectContent>
                     </Select>
-                    
                     <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger className="w-full text-xs xs:text-sm">
                         <div className="flex items-center gap-2">
                           <Tag className="h-4 w-4 text-muted-foreground" />
                           <SelectValue placeholder="Subject" />
@@ -270,9 +263,8 @@ const Quizzes = () => {
                         ))}
                       </SelectContent>
                     </Select>
-                    
                     <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger className="w-full text-xs xs:text-sm">
                         <SelectValue placeholder="Difficulty" />
                       </SelectTrigger>
                       <SelectContent>
@@ -282,9 +274,8 @@ const Quizzes = () => {
                         <SelectItem value="hard">Hard</SelectItem>
                       </SelectContent>
                     </Select>
-                    
                     <Select value={creatorFilter} onValueChange={setCreatorFilter}>
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger className="w-full text-xs xs:text-sm">
                         <SelectValue placeholder="Creator" />
                       </SelectTrigger>
                       <SelectContent>
@@ -295,11 +286,10 @@ const Quizzes = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <div className="flex flex-wrap gap-2 mt-1 xs:mt-2">
                     {allTags.map(tag => (
-                      <Badge 
-                        key={tag} 
+                      <Badge
+                        key={tag}
                         variant={selectedTags.includes(tag) ? "default" : "outline"}
                         className="cursor-pointer"
                         onClick={() => toggleTag(tag)}
@@ -308,10 +298,10 @@ const Quizzes = () => {
                       </Badge>
                     ))}
                   </div>
-                  
                   <div className="flex justify-end">
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => {
                         setSearchQuery("");
                         setCategoryFilter("all");
@@ -328,15 +318,14 @@ const Quizzes = () => {
               </div>
             </div>
           </div>
-          
-          <div className="container mx-auto px-4 py-8">
+          <div className="container mx-auto px-2 sm:px-4 py-8">
             {filteredQuizzes.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-4 xs:gap-6">
                 {filteredQuizzes.map(quiz => (
-                  <QuizCard 
-                    key={quiz.id} 
+                  <QuizCard
+                    key={quiz.id}
                     id={quiz.id}
-                    title={quiz.title} 
+                    title={quiz.title}
                     description={quiz.description}
                     questionCount={quiz.questionCount}
                     category={quiz.category}
@@ -346,7 +335,7 @@ const Quizzes = () => {
               </div>
             ) : (
               <div className="text-center py-12">
-                <h3 className="text-xl font-semibold mb-2">No quizzes found</h3>
+                <h3 className="text-lg xs:text-xl font-semibold mb-2">No quizzes found</h3>
                 <p className="text-muted-foreground">
                   Try adjusting your search or filters to find more quizzes.
                 </p>
