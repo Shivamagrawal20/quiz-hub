@@ -22,3 +22,20 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment variables and API keys
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Firebase service account keys
+serviceAccountKey.json
+**/serviceAccountKey.json
+
+# Other sensitive files
+*.pem
+*.key
+secrets.json
+config/secrets.json

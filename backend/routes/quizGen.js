@@ -72,7 +72,7 @@ async function extractText(filePath, mimetype) {
 async function generateQuizFromText(text, questionCount = 5) {
   try {
     // Check if we have a valid API key
-  const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     console.log('API Key found:', apiKey ? 'Yes' : 'No');
     if (!apiKey) {
       console.log('No Gemini API key found, generating basic questions');
@@ -106,22 +106,22 @@ async function generateQuizFromText(text, questionCount = 5) {
     Document text: ${questionCount > 50 ? text.slice(0, 15000) : text.slice(0, 8000)}`;
     
     console.log('Making Gemini API call...');
-    console.log('API Key (first 10 chars):', apiKey.substring(0, 10) + '...');
+    // REMOVED: API key logging for security
     console.log('Prompt length:', prompt.length);
     
-  const response = await axios.post(
+    const response = await axios.post(
       'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=' + apiKey,
-    {
-      contents: [{ parts: [{ text: prompt }] }]
-    }
-  );
+      {
+        contents: [{ parts: [{ text: prompt }] }]
+      }
+    );
     
     console.log('Gemini API response received');
     console.log('Response status:', response.status);
     console.log('Response data keys:', Object.keys(response.data));
     
     // Parse Gemini response
-  const quizText = response.data.candidates[0].content.parts[0].text;
+    const quizText = response.data.candidates[0].content.parts[0].text;
     console.log('Raw Gemini response:', quizText.substring(0, 200) + '...');
 
     // Clean the response - remove markdown code blocks if present
