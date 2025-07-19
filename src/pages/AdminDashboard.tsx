@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
-import { Flame, BarChart2, Trophy, BookOpen, History, User, Trash2, Edit2, Clock } from "lucide-react";
+import { Flame, BarChart2, Trophy, BookOpen, History, User, Trash2, Edit2, Clock, Eye, EyeOff, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useNavigate, Link } from "react-router-dom";
-import { getAllQuizzes, createQuiz, getAllUsers, getAllQuizHistories } from "@/lib/quizFirestore";
+import { getAllQuizzes, createQuiz, getAllUsers, getAllQuizHistories, updateQuizVisibility } from "@/lib/quizFirestore";
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -120,6 +120,7 @@ const AdminDashboard = () => {
         description: quizDescription,
         features: quizFeatures,
         tags: quizTags,
+        visibility: 'public', // Default to public visibility
       });
       setShowCreateQuiz(false);
       // Redirect to quiz edit page
@@ -129,6 +130,34 @@ const AdminDashboard = () => {
       toast({ title: "Error creating quiz", description: String(err), variant: "destructive" });
     } finally {
       setCreatingQuiz(false);
+    }
+  };
+
+  const handleVisibilityToggle = async (quizId: string, currentVisibility: string) => {
+    try {
+      // Toggle between 'public' and 'organization'
+      const newVisibility = currentVisibility === 'public' ? 'organization' : 'public';
+      
+      // Update the quiz visibility in Firestore
+      await updateQuizVisibility(quizId, newVisibility);
+      
+      // Update local state
+      setQuizList(prev => prev.map(quiz => 
+        quiz.id === quizId 
+          ? { ...quiz, visibility: newVisibility }
+          : quiz
+      ));
+      
+      toast({ 
+        title: "Visibility updated", 
+        description: `Quiz is now ${newVisibility === 'public' ? 'public' : 'organization-only'}` 
+      });
+    } catch (err) {
+      toast({ 
+        title: "Error updating visibility", 
+        description: String(err), 
+        variant: "destructive" 
+      });
     }
   };
 
@@ -225,6 +254,7 @@ const AdminDashboard = () => {
                       <th className="px-6 py-4 text-left">Tags</th>
                       <th className="px-6 py-4 text-left">Description</th>
                       <th className="px-6 py-4 text-left">Duration</th>
+                      <th className="px-6 py-4 text-center">Visibility</th>
                       <th className="px-6 py-4 text-center">Actions</th>
                     </tr>
                   </thead>
@@ -270,6 +300,20 @@ const AdminDashboard = () => {
                             </span>
                           </td>
                           <td className="px-6 py-4 text-center">
+                            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${
+                              (quiz.visibility || 'public') === 'public' 
+                                ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200' 
+                                : 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200'
+                            }`}>
+                              {(quiz.visibility || 'public') === 'public' ? (
+                                <Eye className="h-3 w-3" />
+                              ) : (
+                                <Users className="h-3 w-3" />
+                              )}
+                              {(quiz.visibility || 'public') === 'public' ? 'Public' : 'Organization'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-center">
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -283,11 +327,26 @@ const AdminDashboard = () => {
                               </Tooltip>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <Button size="icon" variant="ghost" className="hover:bg-red-100 dark:hover:bg-red-900 ml-2">
-                                    <Trash2 className="h-5 w-5 text-red-500" />
+                                  <Button 
+                                    size="icon" 
+                                    variant="ghost" 
+                                    className={`ml-2 ${
+                                      (quiz.visibility || 'public') === 'public' 
+                                        ? 'hover:bg-green-100 dark:hover:bg-green-900' 
+                                        : 'hover:bg-blue-100 dark:hover:bg-blue-900'
+                                    }`}
+                                    onClick={() => handleVisibilityToggle(quiz.id, quiz.visibility || 'public')}
+                                  >
+                                    {(quiz.visibility || 'public') === 'public' ? (
+                                      <Eye className="h-5 w-5 text-green-500" />
+                                    ) : (
+                                      <Users className="h-5 w-5 text-blue-500" />
+                                    )}
                                   </Button>
                                 </TooltipTrigger>
-                                <TooltipContent>Delete Quiz</TooltipContent>
+                                <TooltipContent>
+                                  {(quiz.visibility || 'public') === 'public' ? 'Public' : 'Organization Only'} - Click to toggle
+                                </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
                           </td>

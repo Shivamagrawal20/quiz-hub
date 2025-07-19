@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badge Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .badge {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+        .badge svg {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        .download-btn {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .download-btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Badge Generator</h1>
+    <p>Right-click on any badge below and select "Save image as..." to download as PNG</p>
+    
+    <div class="badge">
+        <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#1D4ED8;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <circle cx="32" cy="32" r="30" fill="url(#grad1)" stroke="#1E40AF" stroke-width="2"/>
+            <circle cx="32" cy="32" r="24" fill="none" stroke="white" stroke-width="1" opacity="0.3"/>
+            <text x="32" y="38" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="white">🎯</text>
+        </svg>
+        <br>
+        <button class="download-btn" onclick="downloadBadge(this, 'novice')">Download Novice</button>
+    </div>
+
+    <div class="badge">
+        <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#10B981;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <circle cx="32" cy="32" r="30" fill="url(#grad2)" stroke="#047857" stroke-width="2"/>
+            <circle cx="32" cy="32" r="24" fill="none" stroke="white" stroke-width="1" opacity="0.3"/>
+            <text x="32" y="38" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="white">📚</text>
+        </svg>
+        <br>
+        <button class="download-btn" onclick="downloadBadge(this, 'enthusiast')">Download Enthusiast</button>
+    </div>
+
+    <div class="badge">
+        <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <circle cx="32" cy="32" r="30" fill="url(#grad3)" stroke="#6D28D9" stroke-width="2"/>
+            <circle cx="32" cy="32" r="24" fill="none" stroke="white" stroke-width="1" opacity="0.3"/>
+            <text x="32" y="38" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="white">🏆</text>
+        </svg>
+        <br>
+        <button class="download-btn" onclick="downloadBadge(this, 'master')">Download Master</button>
+    </div>
+
+    <div class="badge">
+        <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="grad4" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#F59E0B;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#D97706;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <circle cx="32" cy="32" r="30" fill="url(#grad4)" stroke="#B45309" stroke-width="2"/>
+            <circle cx="32" cy="32" r="24" fill="none" stroke="white" stroke-width="1" opacity="0.3"/>
+            <text x="32" y="38" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="white">👑</text>
+        </svg>
+        <br>
+        <button class="download-btn" onclick="downloadBadge(this, 'legend')">Download Legend</button>
+    </div>
+
+    <script>
+        function downloadBadge(button, name) {
+            const svg = button.parentElement.querySelector('svg');
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            canvas.width = 64;
+            canvas.height = 64;
+            
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0);
+                const pngFile = canvas.toDataURL('image/png');
+                const downloadLink = document.createElement('a');
+                downloadLink.download = name + '.png';
+                downloadLink.href = pngFile;
+                downloadLink.click();
+            };
+            
+            img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+        }
+    </script>
+</body>
+</html> 

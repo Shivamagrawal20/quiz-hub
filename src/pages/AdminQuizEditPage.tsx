@@ -9,7 +9,7 @@ import Footer from "@/components/Footer";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Dialog as ConfirmDialog, DialogContent as ConfirmDialogContent, DialogHeader as ConfirmDialogHeader, DialogTitle as ConfirmDialogTitle, DialogFooter as ConfirmDialogFooter } from "@/components/ui/dialog";
 import { CheckCircle } from "lucide-react";
-import { getQuiz, createQuiz, updateQuiz, saveQuestions } from "@/lib/quizFirestore";
+import { getQuiz, createQuiz, updateQuiz, saveQuestions, normalizeQuizData } from "@/lib/quizFirestore";
 import { useToast } from "@/hooks/use-toast";
 
 const TAG_OPTIONS = ["Science", "Maths", "Ethics", "NPTEL", "Technology", "General", "Other"];
@@ -53,24 +53,20 @@ const AdminQuizEditPage = () => {
       try {
         const data = await getQuiz(quizId);
         if (data) {
+          // Normalize the quiz data
+          const normalizedData = normalizeQuizData(data);
+          
           setQuizMeta({
             id: quizId,
-            title: data.title || "",
-            description: data.description || "",
-            features: data.features || "",
-            tags: data.tags || [],
-            duration: data.duration || { hours: 0, minutes: 0, seconds: 0 },
+            title: normalizedData.title || "",
+            description: normalizedData.description || "",
+            features: normalizedData.features || "",
+            tags: normalizedData.tags || [],
+            duration: normalizedData.duration || { hours: 0, minutes: 0, seconds: 0 },
           });
-          // Defensive normalization for questions array
-          setQuestions(
-            Array.isArray(data.questions)
-              ? data.questions.map(q => ({
-                  question: q?.question || "",
-                  options: Array.isArray(q?.options) ? q.options : ["", "", "", ""],
-                  answer: typeof q?.answer === "number" ? q.answer : 0,
-                }))
-              : []
-          );
+          
+          // Set normalized questions
+          setQuestions(normalizedData.questions || []);
         }
       } catch (err) {
         toast({ title: "Error loading quiz", description: String(err), variant: "destructive" });
@@ -84,6 +80,27 @@ const AdminQuizEditPage = () => {
 
   const handleAddQuestion = () => {
     setQuestions([...questions, { question: "", options: ["", "", "", ""], answer: 0 }]);
+  };
+  
+  const handleAddSampleQuestions = () => {
+    const sampleQuestions = [
+      {
+        question: "Sample Question 1: What is the capital of France?",
+        options: ["London", "Paris", "Berlin", "Madrid"],
+        answer: 1
+      },
+      {
+        question: "Sample Question 2: Which planet is closest to the Sun?",
+        options: ["Venus", "Mars", "Mercury", "Earth"],
+        answer: 2
+      },
+      {
+        question: "Sample Question 3: What is 2 + 2?",
+        options: ["3", "4", "5", "6"],
+        answer: 1
+      }
+    ];
+    setQuestions([...questions, ...sampleQuestions]);
   };
   const handleRemoveQuestion = (idx: number) => {
     setQuestions(questions.filter((_, i) => i !== idx));
@@ -317,13 +334,22 @@ const AdminQuizEditPage = () => {
             </DialogContent>
           </Dialog>
 
+
+
           {/* Questions Section */}
           <Card className="mb-8 p-8 flex flex-col gap-4 relative shadow-lg border-2 border-primary/30 bg-white dark:bg-gray-900">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-bold text-primary">Questions</h2>
-              <Button size="sm" variant="outline" onClick={handleAddQuestion}>
-                Add Question
-              </Button>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={handleAddQuestion}>
+                  Add Question
+                </Button>
+                {questions.length === 0 && (
+                  <Button size="sm" variant="secondary" onClick={handleAddSampleQuestions}>
+                    Add Sample Questions
+                  </Button>
+                )}
+              </div>
             </div>
             {Array.isArray(questions) && questions.length > 0 ? (
               questions.map((q, idx) => (
@@ -366,7 +392,21 @@ const AdminQuizEditPage = () => {
                 </div>
               ))
             ) : (
-              <div className="text-gray-500 dark:text-gray-400">No questions found for this quiz.</div>
+              <div className="text-gray-500 dark:text-gray-400">
+                {loading ? "Loading questions..." : "No questions found for this quiz."}
+                {!loading && questions.length === 0 && (
+                  <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <h4 className="font-semibold text-yellow-800 mb-2">No Questions Found</h4>
+                    <p className="text-sm text-yellow-700 mb-2">
+                      This quiz doesn't have any questions yet. You can add questions manually using the "Add Question" button above.
+                    </p>
+                    <div className="text-xs text-yellow-600">
+                      <p>Quiz ID: {quizId}</p>
+                      <p>Questions array length: {Array.isArray(questions) ? questions.length : 'Not an array'}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </Card>
 

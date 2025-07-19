@@ -3,9 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, Clock, AlertTriangle, Shield, HelpCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, AlertTriangle, Shield, HelpCircle, LoaderCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { getCompleteQuiz, saveQuizResult } from "@/lib/quizFirestore";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { processQuizCompletion } from "@/lib/achievementSystem";
 
 interface Question {
   id: number;
@@ -44,14 +48,21 @@ const candidateInfo = {
 };
 
 export function ExamInterface() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { user, profile } = useAuth();
+  const { toast } = useToast();
+  
+  const [quizData, setQuizData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
-  const [timeLeft, setTimeLeft] = useState(sampleExam.duration * 60); // in seconds
+  const [timeLeft, setTimeLeft] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [fullscreenViolations, setFullscreenViolations] = useState(0);
   const [fullscreenWarning, setFullscreenWarning] = useState("");
@@ -59,9 +70,61 @@ export function ExamInterface() {
   const [showFullscreenModal, setShowFullscreenModal] = useState(false);
   const [showBackConfirm, setShowBackConfirm] = useState(false);
   const [pendingPopState, setPendingPopState] = useState<PopStateEvent | null>(null);
+  const questionRef = useRef<HTMLHeadingElement>(null);
 
-  // Timer countdown
+  // Fetch quiz data
   useEffect(() => {
+    const fetchQuizData = async () => {
+      if (!id) {
+        setError("Quiz ID not found");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const quiz = await getCompleteQuiz(id);
+        
+        if (!quiz) {
+          setError("Quiz not found");
+          setLoading(false);
+          return;
+        }
+
+        // Check if user has access to this quiz
+        if (quiz.visibility === 'organization' && (!user || !profile?.role || (profile.role !== 'admin' && profile.role !== 'administrator'))) {
+          setError("You don't have access to this quiz");
+          setLoading(false);
+          return;
+        }
+
+        setQuizData(quiz);
+        setTimeLeft(quiz.estimatedTime?.total || quiz.questions?.length * 120 || 3600); // Default to 2 min per question or 1 hour
+        
+        toast({
+          title: "Quiz Loaded",
+          description: `Starting ${quiz.title} with ${quiz.questions?.length || 0} questions`,
+        });
+      } catch (err) {
+        console.error('Error fetching quiz:', err);
+        setError("Failed to load quiz");
+        toast({
+          title: "Error",
+          description: "Failed to load quiz. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuizData();
+  }, [id, user, profile, toast]);
+
+  // Timer countdown - only start when quiz is loaded
+  useEffect(() => {
+    if (!quizData || timeLeft <= 0) return;
+    
     timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -74,7 +137,12 @@ export function ExamInterface() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, []);
+  }, [quizData, timeLeft]);
+
+  // Accessibility: focus on question when changed
+  useEffect(() => {
+    questionRef.current?.focus();
+  }, [currentQuestion]);
 
   // Fullscreen enforcement and anti-cheat
   useEffect(() => {
@@ -154,7 +222,6 @@ export function ExamInterface() {
   }, []);
 
   // Accessibility: focus on question when changed
-  const questionRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     questionRef.current?.focus();
   }, [currentQuestion]);
@@ -180,7 +247,7 @@ export function ExamInterface() {
   };
 
   const handleNext = () => {
-    if (currentQuestion < sampleExam.questions.length - 1) {
+    if (currentQuestion < (quizData.questions?.length || 0) - 1) {
       setCurrentQuestion(currentQuestion + 1);
     }
   };
@@ -189,13 +256,44 @@ export function ExamInterface() {
     setCurrentQuestion(questionIndex);
   };
 
-  const handleSubmitExam = (auto?: boolean, violation?: boolean) => {
+  const handleSubmitExam = async (auto?: boolean, violation?: boolean) => {
     if (auto) {
       if (violation) {
         setFullscreenWarning('You exited fullscreen too many times. The exam has been auto-submitted.');
       } else {
         alert('Time is up! Exam submitted automatically.');
       }
+      
+      // Save results for auto-submit as well
+      try {
+        const totalQuestions = quizData.questions?.length || 0;
+        let correctAnswers = 0;
+        
+        quizData.questions?.forEach((question: any, index: number) => {
+          if (answers[index] !== undefined && answers[index] === question.answer) {
+            correctAnswers++;
+          }
+        });
+        
+        const score = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+        const timeTaken = (quizData.estimatedTime?.total || 3600) - timeLeft;
+        
+        if (user?.uid) {
+          await saveQuizResult(user.uid, {
+            quizId: id!,
+            quizTitle: quizData.title,
+            score,
+            totalQuestions,
+            correctAnswers,
+            timeTaken,
+            answers,
+            completedAt: new Date(),
+          });
+        }
+      } catch (error) {
+        console.error('Error saving auto-submit result:', error);
+      }
+      
       setTimeout(() => {
         setSubmitting(true);
         setTimeout(() => {
@@ -207,9 +305,86 @@ export function ExamInterface() {
     setShowSubmitConfirm(true);
   };
 
-  const confirmSubmit = () => {
+  const confirmSubmit = async () => {
     setShowSubmitConfirm(false);
     setSubmitting(true);
+    
+    try {
+      // Calculate results
+      const totalQuestions = quizData.questions?.length || 0;
+      const answeredQuestions = Object.keys(answers).length;
+      let correctAnswers = 0;
+      
+      // Check answers against correct answers
+      quizData.questions?.forEach((question: any, index: number) => {
+        if (answers[index] !== undefined && answers[index] === question.answer) {
+          correctAnswers++;
+        }
+      });
+      
+      const score = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+      const timeTaken = (quizData.estimatedTime?.total || 3600) - timeLeft;
+      
+      // Save quiz result to Firestore
+      if (user?.uid) {
+        const quizResult = {
+          quizId: id!,
+          quizTitle: quizData.title,
+          score,
+          totalQuestions,
+          correctAnswers,
+          timeTaken,
+          answers,
+          completedAt: new Date(),
+        };
+        
+        await saveQuizResult(user.uid, quizResult);
+        
+        // Check and process achievements
+        try {
+          const achievementResult = await processQuizCompletion(user.uid, quizResult);
+          
+          // Show achievement notifications
+          if (achievementResult.achievements.newlyUnlocked.length > 0) {
+            achievementResult.achievements.newlyUnlocked.forEach(achievement => {
+              toast({
+                title: `🏆 Achievement Unlocked: ${achievement.title}`,
+                description: `${achievement.description} +${achievement.points} points!`,
+              });
+            });
+          }
+          
+          if (achievementResult.badges.newlyUnlocked.length > 0) {
+            achievementResult.badges.newlyUnlocked.forEach(badge => {
+              toast({
+                title: `🎖️ Badge Earned: ${badge.name}`,
+                description: badge.description,
+              });
+            });
+          }
+          
+          toast({
+            title: "Quiz Completed",
+            description: `Score: ${score.toFixed(1)}% (${correctAnswers}/${totalQuestions})`,
+          });
+        } catch (achievementError) {
+          console.error('Error processing achievements:', achievementError);
+          // Still show quiz completion toast even if achievements fail
+          toast({
+            title: "Quiz Completed",
+            description: `Score: ${score.toFixed(1)}% (${correctAnswers}/${totalQuestions})`,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error saving quiz result:', error);
+      toast({
+        title: "Warning",
+        description: "Quiz completed but results couldn't be saved",
+        variant: "destructive"
+      });
+    }
+    
     setTimeout(() => {
       navigate("/exam-over");
     }, 2000);
@@ -232,8 +407,51 @@ export function ExamInterface() {
     }
   };
 
-  const currentQ = sampleExam.questions[currentQuestion];
-  const progress = ((currentQuestion + 1) / sampleExam.questions.length) * 100;
+  // Show loading or error state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <LoaderCircle className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
+          <h2 className="text-xl font-semibold mb-2">Loading Quiz...</h2>
+          <p className="text-muted-foreground">Please wait while we prepare your quiz</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold mb-2 text-red-600">Error Loading Quiz</h2>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <Button onClick={() => navigate('/quizzes')}>
+            Back to Quizzes
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!quizData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold mb-2">No Quiz Data</h2>
+          <p className="text-muted-foreground mb-4">Unable to load quiz information</p>
+          <Button onClick={() => navigate('/quizzes')}>
+            Back to Quizzes
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const currentQ = quizData.questions?.[currentQuestion];
+  const progress = ((currentQuestion + 1) / (quizData.questions?.length || 1)) * 100;
 
   return (
     <div className="exam-secure min-h-screen bg-background relative select-none">
@@ -251,18 +469,22 @@ export function ExamInterface() {
             </div>
             {/* Center: Exam title/desc */}
             <div className="flex flex-col items-center justify-center flex-1 w-full sm:w-auto text-center sm:static">
-              <h1 className="text-lg md:text-2xl font-semibold text-foreground truncate max-w-full">{sampleExam.title}</h1>
-              <p className="text-xs md:text-base text-muted-foreground truncate max-w-full">{sampleExam.description}</p>
+              <h1 className="text-lg md:text-2xl font-semibold text-foreground truncate max-w-full">{quizData.title}</h1>
+              <p className="text-xs md:text-base text-muted-foreground truncate max-w-full">
+                {quizData.questions?.length || 0} Questions • {quizData.estimatedTime?.formatted || '60 min'}
+              </p>
             </div>
             {/* Right: Candidate info + Help */}
             <div className="flex items-center gap-2 sm:gap-6 w-full sm:w-auto justify-center sm:justify-end mt-2 sm:mt-0">
               <div className="text-center sm:text-right">
-                <p className="text-base md:text-xl font-bold text-foreground">{candidateInfo.name}</p>
-                <p className="text-xs md:text-base text-muted-foreground">{candidateInfo.organization}</p>
+                <p className="text-base md:text-xl font-bold text-foreground">{profile?.name || user?.email || 'User'}</p>
+                <p className="text-xs md:text-base text-muted-foreground">{profile?.organization || 'Student'}</p>
               </div>
               <Avatar className="h-10 w-10 md:h-16 md:w-16">
-                <AvatarImage src={candidateInfo.avatar} alt={candidateInfo.name} />
-                <AvatarFallback className="text-lg md:text-2xl">{candidateInfo.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                <AvatarImage src={profile?.avatar || "/placeholder.svg"} alt={profile?.name || user?.email || 'User'} />
+                <AvatarFallback className="text-lg md:text-2xl">
+                  {(profile?.name || user?.email || 'U').split(' ').map(n => n[0]).join('').toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <button
                 className="p-2 rounded-full hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary"
@@ -282,7 +504,7 @@ export function ExamInterface() {
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-4">
                   <Badge variant="outline" className="text-sm">
-                    Question {currentQuestion + 1} of {sampleExam.questions.length}
+                    Question {currentQuestion + 1} of {quizData.questions?.length || 0}
                   </Badge>
                   <div className="w-32 md:w-48 bg-muted rounded-full h-2">
                     <div 
@@ -301,19 +523,19 @@ export function ExamInterface() {
                   onMouseDown={e => e.preventDefault()}
                   onTouchStart={e => e.preventDefault()}
                 >
-                  {currentQ.text}
+                  {currentQ?.question || currentQ?.text || `Question ${currentQuestion + 1}`}
                 </h2>
                 <div className="space-y-3">
-                  {currentQ.options.map((option, index) => (
+                  {(currentQ?.options || []).map((option, index) => (
                     <label
                       key={index}
                       className={`flex items-center p-3 md:p-4 rounded-lg border-2 cursor-pointer transition-all hover:bg-muted/50 select-none ${
-                        answers[currentQ.id] === index 
+                        answers[currentQuestion] === index 
                           ? 'border-primary bg-primary/5' 
                           : 'border-border'
                       }`}
                       role="radio"
-                      aria-checked={answers[currentQ.id] === index}
+                      aria-checked={answers[currentQuestion] === index}
                       tabIndex={0}
                       onContextMenu={e => e.preventDefault()}
                       onMouseDown={e => e.preventDefault()}
@@ -321,20 +543,20 @@ export function ExamInterface() {
                     >
                       <input
                         type="radio"
-                        name={`question-${currentQ.id}`}
+                        name={`question-${currentQuestion}`}
                         value={index}
-                        checked={answers[currentQ.id] === index}
-                        onChange={() => handleAnswerSelect(currentQ.id, index)}
+                        checked={answers[currentQuestion] === index}
+                        onChange={() => handleAnswerSelect(currentQuestion, index)}
                         className="sr-only"
                         tabIndex={-1}
                         aria-label={`Select option ${index + 1}`}
                       />
                       <div className={`w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center ${
-                        answers[currentQ.id] === index 
+                        answers[currentQuestion] === index 
                           ? 'border-primary bg-primary' 
                           : 'border-muted-foreground'
                       }`}>
-                        {answers[currentQ.id] === index && (
+                        {answers[currentQuestion] === index && (
                           <div className="w-2 h-2 rounded-full bg-white" />
                         )}
                       </div>
@@ -354,7 +576,7 @@ export function ExamInterface() {
                   </Button>
                   <Button
                     onClick={handleNext}
-                    disabled={currentQuestion === sampleExam.questions.length - 1}
+                    disabled={currentQuestion === (quizData.questions?.length || 0) - 1}
                     className="flex items-center gap-2"
                   >
                     Next
@@ -381,9 +603,9 @@ export function ExamInterface() {
             <Card className="p-6 md:p-8 mb-8 shadow-lg">
               <h3 className="font-bold text-xl md:text-2xl mb-6">Question Navigator</h3>
               <div className="question-navigator flex flex-wrap gap-2 max-h-48 overflow-y-auto mb-6">
-                {sampleExam.questions.map((_, index) => {
+                {(quizData.questions || []).map((_, index) => {
                   const isCurrent = currentQuestion === index;
-                  const isAnswered = answers[index + 1] !== undefined;
+                  const isAnswered = answers[index] !== undefined;
                   let btnClass = "aspect-square p-0 text-base md:text-lg font-bold w-12 h-12 md:w-14 md:h-14 ";
                   let colorClass = "";
                   if (isCurrent) {

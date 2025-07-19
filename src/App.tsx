@@ -35,6 +35,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import Help from "./pages/Help";
 import ExamOver from "./pages/ExamOver";
 import AdminAIGeneratedQuiz from "./pages/AdminAIGeneratedQuiz";
+import Achievements from "./pages/Achievements";
+import BadgeTest from "./pages/BadgeTest";
 
 const queryClient = new QueryClient();
 
@@ -99,6 +101,8 @@ const AppRoutes = () => {
         <Route path="/admin-dashboard/quiz/:quizId/edit" element={<AdminQuizEditPage />} />
         <Route path="/manage-users" element={<ManageUsers />} />
         <Route path="/site-settings" element={<SiteSettings />} />
+        <Route path="/achievements" element={<Achievements />} />
+        <Route path="/badge-test" element={<BadgeTest />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

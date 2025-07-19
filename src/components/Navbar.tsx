@@ -166,6 +166,12 @@ const Navbar = ({ showInDashboard = false }) => {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
+                    <Link to="/achievements" className="flex w-full items-center cursor-pointer">
+                      <Trophy className="mr-2 h-4 w-4" />
+                      <span>Achievements & Badges</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <Link to="/my-profile" className="flex w-full items-center cursor-pointer">
                       <User className="mr-2 h-4 w-4" />
                       <span>My Profile</span>

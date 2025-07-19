@@ -9,6 +9,9 @@ import { Search, Filter, Tag } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { getQuizzesForUsers } from "@/lib/quizFirestore";
+import { useToast } from "@/hooks/use-toast";
 
 const QuizSection = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -17,126 +20,50 @@ const QuizSection = () => {
   const [difficultyFilter, setDifficultyFilter] = useState("all");
   const [creatorFilter, setCreatorFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("all");
+  const [quizzes, setQuizzes] = useState<any[]>([]);
+  const [loadingQuizzes, setLoadingQuizzes] = useState(false);
   const navigate = useNavigate();
+  const { isLoggedIn, role } = useAuth();
+  const { toast } = useToast();
+  
+  // Fetch quizzes from Firestore
+  useEffect(() => {
+    const fetchQuizzes = async () => {
+      if (!isLoggedIn) return;
+      
+      setLoadingQuizzes(true);
+      try {
+        const fetchedQuizzes = await getQuizzesForUsers(role);
+        setQuizzes(fetchedQuizzes);
+      } catch (error) {
+        console.error('Error fetching quizzes:', error);
+        toast({
+          title: "Error loading quizzes",
+          description: "Failed to load quizzes. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoadingQuizzes(false);
+      }
+    };
+    
+    fetchQuizzes();
+  }, [isLoggedIn, role, toast]);
   
   // Redirect logged in users to the Quizzes page
   useEffect(() => {
-    // This is a simulated check - in a real app, you would check your auth context
-    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
     if (isLoggedIn) {
       navigate("/quizzes");
     }
-  }, [navigate]);
-  
-  const allQuizzes = [
-    {
-      id: "1",
-      title: "Mathematics Basics",
-      description: "Test your knowledge of essential math concepts and operations.",
-      questionCount: 15,
-      category: "Mathematics",
-      subject: "Math",
-      difficulty: "easy" as const,
-      creator: "Admin",
-      tags: ["math", "basics"],
-    },
-    {
-      id: "2",
-      title: "World Geography",
-      description: "Explore countries, capitals, and geographical features around the globe.",
-      questionCount: 20,
-      category: "Geography",
-      subject: "Social Studies",
-      difficulty: "medium" as const,
-      creator: "Teacher",
-      tags: ["geography", "world"],
-    },
-    {
-      id: "3",
-      title: "Computer Science",
-      description: "Challenge yourself with programming concepts and computer technologies.",
-      questionCount: 25,
-      category: "Technology",
-      subject: "Computer Science",
-      difficulty: "hard" as const,
-      creator: "Admin",
-      tags: ["programming", "technology"],
-    },
-    {
-      id: "4",
-      title: "Biology 101",
-      description: "Learn about cells, organisms, and the basics of life science.",
-      questionCount: 18,
-      category: "Science",
-      subject: "Biology",
-      difficulty: "easy" as const,
-      creator: "Teacher",
-      tags: ["biology", "cells", "science"],
-    },
-    {
-      id: "5",
-      title: "World History",
-      description: "Journey through important historical events and civilizations.",
-      questionCount: 22,
-      category: "History",
-      subject: "History",
-      difficulty: "medium" as const,
-      creator: "Admin",
-      tags: ["history", "civilization"],
-    },
-    {
-      id: "6",
-      title: "Advanced Physics",
-      description: "Dive into complex physics theories and quantum mechanics.",
-      questionCount: 15,
-      category: "Science",
-      subject: "Physics",
-      difficulty: "hard" as const,
-      creator: "Professor",
-      tags: ["physics", "quantum"],
-    },
-    {
-      id: "7",
-      title: "English Literature",
-      description: "Explore famous works of literature and their authors.",
-      questionCount: 20,
-      category: "Literature",
-      subject: "English",
-      difficulty: "medium" as const,
-      creator: "Teacher",
-      tags: ["literature", "english"],
-    },
-    {
-      id: "8",
-      title: "Basic Chemistry",
-      description: "Learn about elements, compounds, and chemical reactions.",
-      questionCount: 15,
-      category: "Science",
-      subject: "Chemistry",
-      difficulty: "easy" as const,
-      creator: "Admin",
-      tags: ["chemistry", "elements"],
-    },
-    {
-      id: "9",
-      title: "Art History",
-      description: "Discover famous artists, art movements, and masterpieces.",
-      questionCount: 18,
-      category: "Arts",
-      subject: "Art",
-      difficulty: "medium" as const,
-      creator: "Professor",
-      tags: ["art", "history"],
-    },
-  ];
+  }, [isLoggedIn, navigate]);
   
   // Get unique values for filters
-  const categories = [...new Set(allQuizzes.map(quiz => quiz.category))];
-  const subjects = [...new Set(allQuizzes.map(quiz => quiz.subject))];
-  const creators = [...new Set(allQuizzes.map(quiz => quiz.creator))];
+  const categories = [...new Set(quizzes.map(quiz => quiz.category || quiz.tags?.[0] || 'General'))];
+  const subjects = [...new Set(quizzes.map(quiz => quiz.subject || quiz.tags?.[1] || 'General'))];
+  const creators = [...new Set(quizzes.map(quiz => quiz.creator || 'Admin'))];
   
   // Get all unique tags
-  const allTags = [...new Set(allQuizzes.flatMap(quiz => quiz.tags))];
+  const allTags = [...new Set(quizzes.flatMap(quiz => quiz.tags || []))];
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   
   const toggleTag = (tag: string) => {
@@ -148,19 +75,19 @@ const QuizSection = () => {
   };
   
   // Filter quizzes based on search, filters, and tabs
-  const filteredQuizzes = allQuizzes.filter(quiz => {
-    const matchesSearch = quiz.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          quiz.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = categoryFilter === "all" || quiz.category === categoryFilter;
-    const matchesSubject = subjectFilter === "all" || quiz.subject === subjectFilter;
+  const filteredQuizzes = quizzes.filter(quiz => {
+    const matchesSearch = quiz.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          quiz.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = categoryFilter === "all" || (quiz.category || quiz.tags?.[0]) === categoryFilter;
+    const matchesSubject = subjectFilter === "all" || (quiz.subject || quiz.tags?.[1]) === subjectFilter;
     const matchesDifficulty = difficultyFilter === "all" || quiz.difficulty === difficultyFilter;
-    const matchesCreator = creatorFilter === "all" || quiz.creator === creatorFilter;
+    const matchesCreator = creatorFilter === "all" || (quiz.creator || 'Admin') === creatorFilter;
     const matchesTags = selectedTags.length === 0 || 
-                       selectedTags.every(tag => quiz.tags.includes(tag));
+                       selectedTags.every(tag => (quiz.tags || []).includes(tag));
     
     // Tab filtering
     const matchesTab = activeTab === "all" || 
-                      (activeTab === "recommended" && ["Mathematics", "Science"].includes(quiz.category)) ||
+                      (activeTab === "recommended" && ["Mathematics", "Science"].includes(quiz.category || quiz.tags?.[0])) ||
                       (activeTab === "trending" && quiz.difficulty === "medium");
     
     return matchesSearch && matchesCategory && matchesSubject && matchesDifficulty && 
@@ -305,25 +232,40 @@ const QuizSection = () => {
         </div>
         
         <div className="container mx-auto px-4 py-8">
-          {filteredQuizzes.length > 0 ? (
+          {loadingQuizzes ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <h3 className="text-xl font-semibold mb-2">Loading quizzes...</h3>
+              <p className="text-muted-foreground">
+                Please wait while we fetch the available quizzes.
+              </p>
+            </div>
+          ) : filteredQuizzes.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredQuizzes.map(quiz => (
-                <QuizCard 
-                  key={quiz.id} 
-                  id={quiz.id}
-                  title={quiz.title} 
-                  description={quiz.description}
-                  questionCount={quiz.questionCount}
-                  category={quiz.category}
-                  difficulty={quiz.difficulty}
-                />
-              ))}
+                              {filteredQuizzes.map(quiz => (
+                  <QuizCard 
+                    key={quiz.id} 
+                    id={quiz.id}
+                    title={quiz.title || 'Untitled Quiz'} 
+                    description={quiz.description || 'No description available'}
+                    questionCount={quiz.questions?.length || quiz.questionCount || 0}
+                    category={quiz.category || quiz.tags?.[0] || 'General'}
+                    difficulty={quiz.difficulty || 'medium'}
+                    estimatedTime={quiz.estimatedTime?.formatted}
+                    tags={quiz.tags}
+                    creator={quiz.creator}
+                    visibility={quiz.visibility}
+                  />
+                ))}
             </div>
           ) : (
             <div className="text-center py-12">
               <h3 className="text-xl font-semibold mb-2">No quizzes found</h3>
               <p className="text-muted-foreground">
-                Try adjusting your search or filters to find more quizzes.
+                {!isLoggedIn 
+                  ? "Please sign in to view available quizzes."
+                  : "Try adjusting your search or filters to find more quizzes."
+                }
               </p>
             </div>
           )}

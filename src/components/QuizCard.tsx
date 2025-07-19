@@ -19,6 +19,10 @@ interface QuizCardProps {
   category: string;
   difficulty: "easy" | "medium" | "hard";
   completionRate?: number;
+  estimatedTime?: string;
+  tags?: string[];
+  creator?: string;
+  visibility?: string;
 }
 
 const difficultyColors = {
@@ -34,7 +38,11 @@ const QuizCard = ({
   questionCount, 
   category, 
   difficulty,
-  completionRate
+  completionRate,
+  estimatedTime,
+  tags,
+  creator,
+  visibility
 }: QuizCardProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -126,8 +134,27 @@ const QuizCard = ({
           </div>
           <div className="flex items-center gap-2 text-muted-foreground mt-2">
             <Clock size={16} />
-            <span>Estimated time: {Math.round(questionCount * 1.5)} min</span>
+            <span>Time: {estimatedTime || `${Math.round(questionCount * 1.5)} min`}</span>
           </div>
+          {creator && (
+            <div className="flex items-center gap-2 text-muted-foreground mt-2">
+              <span className="text-xs">By: {creator}</span>
+            </div>
+          )}
+          {tags && tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-3">
+              {tags.slice(0, 3).map((tag, index) => (
+                <Badge key={index} variant="secondary" className="text-xs">
+                  {tag}
+                </Badge>
+              ))}
+              {tags.length > 3 && (
+                <Badge variant="secondary" className="text-xs">
+                  +{tags.length - 3} more
+                </Badge>
+              )}
+            </div>
+          )}
           {completionRate !== undefined && (
             <div className="mt-4">
               <div className="flex items-center justify-between mb-1">
