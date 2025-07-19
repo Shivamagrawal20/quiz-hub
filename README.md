@@ -85,7 +85,7 @@ quiz-hub/
 │   ├── lib/           # Utility functions and configurations
 │   └── hooks/         # Custom React hooks
 ├── public/            # Static assets
-└── backend/           # Legacy backend (no longer used)
+└── .env               # Environment variables (not in git)
 ```
 
 ## Development
